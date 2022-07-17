@@ -3,7 +3,7 @@ import cookie from './perfectCookie.png';
 import './App.css';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
 import { InMemorySigner } from '@taquito/signer';
-import { encodeExpr, buf2hex } from '@taquito/utils';
+import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 // import blake2b from 'blake2b';
 interface Values {
   address: string,
@@ -12,7 +12,7 @@ interface Values {
 }
 
 const signBytes = (signer: InMemorySigner, privateKey: string, sbytes: string) => {
-  signer.sign(sbytes);
+  return signer.sign(sbytes);
 }
 
 // const hashBlake2b = (payload: string): string => {
@@ -36,39 +36,52 @@ const handleSubmit = async (
 
   try {
     const key = await signer.publicKey();
-    const nonce = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
-    // const block_r = await fetch(values.nodeUri + "/block-level")
-    // const block_j = await block_r.json()
-    // const block_height: number = block_j.level;
-    const block_height = 0; // change to get the real height
-    const payload = "cookie";
-    const data = {
-      source: values.address,
-      initial_operation: ["Vm_transaction", {
+    const max_int_32 = 2147483647;
+    const nonce = Math.floor(Math.random() * max_int_32);
+    // const nonce = 0;
+    const block_r = await fetch(values.nodeUri + "block-level",
+      {
+        method: "POST",
+        body: JSON.stringify(null)
+    });
+    const block_j = await block_r.json();
+    const block_height: number = block_j.level;
+    const payload = "Increment";
+    const initial_operation = ["Vm_transaction", {
         payload
-      }],
-      hash: encodeExpr(stringToHex(payload)).substring(4), //remove expr prefix
+    }];
+    const json_to_hash = JSON.stringify([values.address, initial_operation]);
+    const inner_hash = b58decode(encodeExpr(stringToHex(json_to_hash))).slice(4, -2);
+    const data = {
+      hash: inner_hash, //⚠ respect the order of fields in the object for serialization
+      source: values.address,
+      initial_operation: initial_operation,
     }
-    const hash_payload = [
-      nonce.toString(),
-      block_height.toString(),
-      JSON.stringify(data)
-    ];
-    const hash = encodeExpr(stringToHex(JSON.stringify(hash_payload))).substring(4); //remove expr prefix
-    const signature = signBytes(signer, values.privateKey, hash);
-
+    const full_payload = JSON.stringify([ //FIXME: useless?
+      nonce,
+      block_height,
+      data
+    ]);
+    const outer_hash = b58decode(encodeExpr(stringToHex(full_payload))).slice(4, -2);
+    const signature = await signBytes(signer, values.privateKey, stringToHex(full_payload)).then((val) => val.prefixSig);
     const operation = {
-      hash,
+      hash: outer_hash,
       key,
       signature,
       nonce,
       block_height,
       data
     }
-
+    const packet =
+      { user_operation: operation };
+    await fetch(values.nodeUri +  "user-operation-gossip",
+      {
+        method: "POST",
+        body: JSON.stringify(packet)
+      });
     // ADD POST ACTION BELOW
     setTimeout(() => {
-      alert(JSON.stringify(operation, null, 2));
+      alert(JSON.stringify(packet, null, 2));
       setSubmitting(false);
     }, 500);
   } catch (err) {
