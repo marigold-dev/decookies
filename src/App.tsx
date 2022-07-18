@@ -64,7 +64,7 @@ const handleSubmit = async (
       initial_operation: initial_operation,
     }
 
-    let nonce = create_nonce;
+    let nonce = create_nonce();
     const full_payload = JSON.stringify([ //FIXME: useless?
       nonce,
       block_height,
