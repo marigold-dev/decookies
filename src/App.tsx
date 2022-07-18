@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import cookie from './perfectCookie.png';
 import './App.css';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
@@ -10,10 +11,15 @@ interface Values {
   address: string,
   privateKey: string,
   nodeUri: string
+  cookies: number
+  cursors: number
 }
 
 enum action_type {
-  increment_cookie = "cookie"
+  increment_cookie = "cookie",
+  increment_cursor = "cursor",
+  increment_grandma = "grandma",
+  increment_farm = "farm"
 }
 
 const block_level = "block-level";
@@ -40,13 +46,24 @@ const create_nonce = () => {
   return nonce;
 }
 
+const get_actual_state = async (values: Values) => {
+  const state_request = await fetch(values.nodeUri + "vm-state",
+    {
+      method: "POST",
+      body: JSON.stringify(null)
+    });
+  const state_response = await state_request.json();
+  const value = state_response.state[0][1];
+  return value.cookie_baker_state;
+}
+
+
 const handleSubmit = async (
   values: Values,
-  { setSubmitting }: FormikHelpers<Values>
+  actions: FormikHelpers<Values>
 ) => {
-
+  
   const signer = new InMemorySigner(values.privateKey);
-  // const OPERATION = "user-operation-gossip"
 
   try {
     const key = await signer.publicKey();
@@ -84,49 +101,70 @@ const handleSubmit = async (
 
     const packet =
       { user_operation: operation };
-    await fetch(values.nodeUri + user_operation_gossip,
+    const result = await fetch(values.nodeUri + user_operation_gossip,
       {
         method: "POST",
         body: JSON.stringify(packet)
       });
+
+    const cookie_baker_state = await get_actual_state(values);
+    const cookies = cookie_baker_state.number_of_cookie
+    console.log(cookies);
+    values.cookies = cookies;
     // ADD POST ACTION BELOW
     setTimeout(() => {
-      alert(JSON.stringify(packet, null, 2));
-      setSubmitting(false);
-    }, 500);
+      actions.setSubmitting(false);
+    }, 25);
   } catch (err) {
     console.error(err);
+  } finally {
+    actions.setSubmitting(false);
   }
-
 }
 
-const App = () => (
-  <div className="App">
-    <Formik
-      initialValues={{
-        address: '',
-        privateKey: '',
-        nodeUri: 'http://localhost:4440/',
-      }}
-      onSubmit={handleSubmit}
-    >
+const App = () => {
+  return (
+    <div className="App">
+      <Formik
+        initialValues={{
+          address: '',
+          privateKey: '',
+          nodeUri: 'http://localhost:4440/',
+          cookies: 0,
+          cursors: 0,
+        }}
+        onSubmit={(values, actions) => {
+          handleSubmit(values, actions);
+        }}
+      >
+        <Form>
+          <label htmlFor="address">Address</label>
+          <Field id="address" name="address" />
 
-      <Form>
-        <label htmlFor="address">Address</label>
-        <Field id="address" name="address" />
+          <label htmlFor="privateKey">Private Key</label>
+          <Field id="privateKey" name="privateKey" />
+
+          <label htmlFor="NodeUri">Node URI</label>
+          <Field id="nodeUri" name="nodeUri" />
+          <button type="submit" >
+            <img src={cookie} className="App-logo" alt="logo" />
+          </button>
 
 
-        <label htmlFor="privateKey">Private Key</label>
-        <Field id="privateKey" name="privateKey" />
+          <label htmlFor="Cookies">Cookies:</label>
+          <Field id="cookies" name="cookies" />
+          <label htmlFor="Cursors">Cursors:</label>
+          <Field id="cursors" name="cursors" />
 
-        <label htmlFor="NodeUri">Node URI</label>
-        <Field id="nodeUri" name="nodeUri" />
-        <button type="submit">
-          <img src={cookie} className="App-logo" alt="logo" /></button>
-      </Form>
-    </Formik>
-  </div>
-);
+          <button type="submit" name="buy_cursor" >Buy a cursor</button>
 
+          <label htmlFor="Grandmas">Grandmas:</label>
+          <Field id="grandmas" name="grandmas" />
+          <label htmlFor="Farms">Farms:</label>
+          <Field id="farms" name="farms" />
+        </Form>
+      </Formik>
+    </div >)
+};
 
 export default App;
