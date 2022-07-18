@@ -4,26 +4,40 @@ import './App.css';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
-// import blake2b from 'blake2b';
+
+
 interface Values {
   address: string,
   privateKey: string,
   nodeUri: string
 }
 
-const signBytes = (signer: InMemorySigner, privateKey: string, sbytes: string) => {
-  return signer.sign(sbytes);
+enum action_type {
+  increment_cookie = "cookie"
 }
 
-// const hashBlake2b = (payload: string): string => {
-//   const output = new Uint8Array(64);
-//   const input = Buffer.from(payload);
-//   return blake2b(output.length).update(input).digest('hex');
-// }
+const block_level = "block-level";
+const user_operation_gossip = "user-operation-gossip";
 
 const stringToHex = (payload: string): string => {
   const input = Buffer.from(payload);
   return buf2hex(input);
+}
+
+const request_block_level = async (values: Values) => {
+  const block_request = await fetch(values.nodeUri + block_level,
+    {
+      method: "POST",
+      body: JSON.stringify(null)
+    });
+  const block_response = await block_request.json();
+  return block_response.level;
+}
+
+const create_nonce = () => {
+  const max_int_32 = 2147483647;
+  const nonce = Math.floor(Math.random() * max_int_32);
+  return nonce;
 }
 
 const handleSubmit = async (
@@ -36,19 +50,11 @@ const handleSubmit = async (
 
   try {
     const key = await signer.publicKey();
-    const max_int_32 = 2147483647;
-    const nonce = Math.floor(Math.random() * max_int_32);
-    // const nonce = 0;
-    const block_r = await fetch(values.nodeUri + "block-level",
-      {
-        method: "POST",
-        body: JSON.stringify(null)
-    });
-    const block_j = await block_r.json();
-    const block_height: number = block_j.level;
-    const payload = "Increment";
+
+    const block_height: number = await request_block_level(values);
+    const payload = action_type.increment_cookie;
     const initial_operation = ["Vm_transaction", {
-        payload
+      payload
     }];
     const json_to_hash = JSON.stringify([values.address, initial_operation]);
     const inner_hash = b58decode(encodeExpr(stringToHex(json_to_hash))).slice(4, -2);
@@ -57,13 +63,16 @@ const handleSubmit = async (
       source: values.address,
       initial_operation: initial_operation,
     }
+
+    let nonce = create_nonce;
     const full_payload = JSON.stringify([ //FIXME: useless?
       nonce,
       block_height,
       data
     ]);
+
     const outer_hash = b58decode(encodeExpr(stringToHex(full_payload))).slice(4, -2);
-    const signature = await signBytes(signer, values.privateKey, stringToHex(full_payload)).then((val) => val.prefixSig);
+    const signature = await signer.sign(stringToHex(full_payload)).then((val) => val.prefixSig);
     const operation = {
       hash: outer_hash,
       key,
@@ -72,9 +81,10 @@ const handleSubmit = async (
       block_height,
       data
     }
+
     const packet =
       { user_operation: operation };
-    await fetch(values.nodeUri +  "user-operation-gossip",
+    await fetch(values.nodeUri + user_operation_gossip,
       {
         method: "POST",
         body: JSON.stringify(packet)
