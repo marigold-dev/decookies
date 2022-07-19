@@ -9,6 +9,11 @@
   pointer-events: none;
 }
 
+.Buttons {
+  height: 10vmin;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -35,6 +40,12 @@ button {
   background-color: transparent;
   border: none;
   cursor: pointer;
+}
+
+button:disabled {
+  background-color: transparent;
+  border: none;
+  cursor: not-allowed;
 }
 
 .App-link {

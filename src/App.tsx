@@ -1,11 +1,10 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import cookie from './perfectCookie.png';
+import cookie from '../resources/perfectCookie.png';
+import cursor from '../resources/cursor.png';
+import grandma from '../resources/grandma.png';
 import './App.css';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
-
 
 interface Values {
   address: string,
@@ -13,6 +12,12 @@ interface Values {
   nodeUri: string
   cookies: number
   cursors: number
+  grandmas: number
+  cursor_cost: number
+  grandma_cost: number
+  cps: number
+  cursor_cps: number
+  grandma_cps: number
 }
 
 enum action_type {
@@ -58,18 +63,16 @@ const get_actual_state = async (values: Values) => {
 }
 
 
-const handleSubmit = async (
-  values: Values,
-  actions: FormikHelpers<Values>
-) => {
-  
+const mint = async (values: Values, actions: FormikHelpers<Values>, action: action_type) => {
+
+  console.log("Mint cookie");
   const signer = new InMemorySigner(values.privateKey);
 
   try {
     const key = await signer.publicKey();
 
     const block_height: number = await request_block_level(values);
-    const payload = action_type.increment_cookie;
+    const payload = action;
     const initial_operation = ["Vm_transaction", {
       payload
     }];
@@ -98,7 +101,6 @@ const handleSubmit = async (
       block_height,
       data
     }
-
     const packet =
       { user_operation: operation };
     const result = await fetch(values.nodeUri + user_operation_gossip,
@@ -106,23 +108,132 @@ const handleSubmit = async (
         method: "POST",
         body: JSON.stringify(packet)
       });
-
-    const cookie_baker_state = await get_actual_state(values);
-    const cookies = cookie_baker_state.number_of_cookie
-    console.log(cookies);
-    values.cookies = cookies;
-    // ADD POST ACTION BELOW
-    setTimeout(() => {
-      actions.setSubmitting(false);
-    }, 25);
   } catch (err) {
     console.error(err);
   } finally {
     actions.setSubmitting(false);
   }
+
 }
 
+const mint_cookie = async (
+  values: Values,
+  actions: FormikHelpers<Values>
+) => {
+  actions.setSubmitting(true);
+
+  try {
+    await mint(values, actions, action_type.increment_cookie);
+
+    const cookie_baker_state = await get_actual_state(values);
+    const cookies = cookie_baker_state.number_of_cookie
+    console.log("new total of cookies: " + cookies);
+    values.cookies = cookies;
+    values.cps = cookie_baker_state.total_cps;
+    // ADD POST ACTION BELOW
+    setTimeout(() => {
+      actions.setSubmitting(false);
+    }, 100);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    actions.setSubmitting(false);
+
+  }
+}
+
+const mint_cursor = async (
+  values: Values,
+  actions: FormikHelpers<Values>,
+  passive_mint_activated: boolean,
+  counter_cursor: number,
+) => {
+  actions.setSubmitting(true);
+  try {
+    await mint(values, actions, action_type.increment_cursor);
+
+    const cookie_baker_state = await get_actual_state(values);
+    const cursors = cookie_baker_state.number_of_cursor
+    console.log(cursors);
+    values.cursors = cursors;
+    values.cursor_cost = cookie_baker_state.cursor_cost;
+    values.cursor_cps = cookie_baker_state.cursor_cps;
+    values.cps = cookie_baker_state.total_cps;
+    const cookies = cookie_baker_state.number_of_cookie
+    console.log("new total of cookies: " + cookies);
+    values.cookies = cookies;
+    // ADD POST ACTION BELOW
+    setTimeout(() => {
+      actions.setSubmitting(false);
+    }, 500);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (passive_mint_activated && counter_cursor == 0) {
+      setInterval(() => {
+        for (let i = 0; i <= (values.cursor_cps * 10); i++) {
+          mint(values, actions, action_type.increment_cookie);
+          console.log("Cursor: passive mint");
+        }
+      }, 10000);
+      actions.setSubmitting(false);
+    }
+  }
+}
+
+const mint_grandma = async (
+  values: Values,
+  actions: FormikHelpers<Values>,
+  passive_mint_activated: boolean,
+  counter_grandma: number,
+) => {
+  actions.setSubmitting(true);
+  try {
+    await mint(values, actions, action_type.increment_grandma);
+
+    const cookie_baker_state = await get_actual_state(values);
+    values.grandmas = cookie_baker_state.number_of_grandma;
+    values.grandma_cost = cookie_baker_state.grandma_cost;
+    values.grandma_cps = cookie_baker_state.grandma_cps;
+    const cookies = cookie_baker_state.number_of_cookie
+    console.log("new total of cookies: " + cookies);
+    values.cookies = cookies;
+    // ADD POST ACTION BELOW
+    setTimeout(() => {
+      actions.setSubmitting(false);
+    }, 500);
+    return cookie_baker_state.grandma_cost;
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (passive_mint_activated && counter_grandma == 0) {
+      setInterval(() => {
+        for (let i = 0; i <= values.grandma_cps; i++) {
+          mint(values, actions, action_type.increment_cookie);
+          console.log("Grandma: passive mint");
+        }
+      }, 1000);
+      actions.setSubmitting(false);
+    }
+  }
+}
+
+
 const App = () => {
+
+  let submitAction: action_type;
+
+  //not working, to rework and to add to disabled property for each button
+  let isCursorBuyable: boolean;
+  let isGrandmaBuyable: boolean;
+
+  // global boolean to set the tick
+  let isPassiveMintActivated: boolean;
+
+  // basic counter to avoid acivate several times the passive mint of each category
+  let counter_cursor: number = 0;
+  let counter_grandma: number = 0;
+
   return (
     <div className="App">
       <Formik
@@ -132,12 +243,41 @@ const App = () => {
           nodeUri: 'http://localhost:4440/',
           cookies: 0,
           cursors: 0,
+          grandmas: 0,
+          cursor_cost: 0,
+          grandma_cost: 0,
+          cps: 0,
+          cursor_cps: 0,
+          grandma_cps: 0
         }}
         onSubmit={(values, actions) => {
-          handleSubmit(values, actions);
+          console.log("On submit");
+          console.log("action: " + submitAction);
+          if (submitAction === action_type.increment_cookie) {
+            mint_cookie(values, actions);
+          } else if (submitAction === action_type.increment_cursor) {
+            isPassiveMintActivated = true;
+            mint_cursor(values, actions, isPassiveMintActivated, counter_cursor);
+            counter_cursor += 1;
+            //not working
+            if (values.cookies >= values.cursor_cost) {
+              isCursorBuyable = true;
+            } else {
+              isCursorBuyable = false;
+            }
+          } else if (submitAction === action_type.increment_grandma) {
+            isPassiveMintActivated = true;
+            mint_grandma(values, actions, isPassiveMintActivated, counter_grandma);
+            counter_grandma += 1;
+            if (values.cookies >= values.grandma_cost) {
+              isGrandmaBuyable = true;
+            } else {
+              isGrandmaBuyable = false;
+            }
+          }
         }}
       >
-        <Form>
+        {({ handleSubmit, isSubmitting }) => (<Form>
           <label htmlFor="address">Address</label>
           <Field id="address" name="address" />
 
@@ -146,23 +286,50 @@ const App = () => {
 
           <label htmlFor="NodeUri">Node URI</label>
           <Field id="nodeUri" name="nodeUri" />
-          <button type="submit" >
+
+
+          <button type="submit" disabled={isSubmitting}
+            onClick={() => {
+              submitAction = action_type.increment_cookie;
+              handleSubmit();
+            }}>
             <img src={cookie} className="App-logo" alt="logo" />
           </button>
 
 
           <label htmlFor="Cookies">Cookies:</label>
           <Field id="cookies" name="cookies" />
-          <label htmlFor="Cursors">Cursors:</label>
-          <Field id="cursors" name="cursors" />
 
-          <button type="submit" name="buy_cursor" >Buy a cursor</button>
+          <div >
+            <label htmlFor="Cursors">Cursors:</label>
+            <Field id="cursors" name="cursors" />
+            <button type="submit" disabled={isSubmitting} name="buy_cursor"
+              onClick={() => {
+                submitAction = action_type.increment_cursor;
+                handleSubmit();
+              }} ><img src={cursor} className="Buttons" alt="logo" />
+            </button>
+            <label htmlFor="cursor_cost">Next cursor cost:</label>
+            <Field id="cursor_cost" name="cursor_cost" />
+          </div>
 
-          <label htmlFor="Grandmas">Grandmas:</label>
-          <Field id="grandmas" name="grandmas" />
+
+          <div >
+            <label htmlFor="Grandmas">Grandmas:</label>
+            <Field id="grandmas" name="grandmas" />
+            <button type="submit" disabled={isSubmitting} name="buy_grandma"
+              onClick={() => {
+                submitAction = action_type.increment_grandma;
+                handleSubmit();
+              }} > <img src={grandma} className="Buttons" alt="logo" />
+            </button>
+            <label htmlFor="grandma_cost">Next grandma cost:</label>
+            <Field id="grandma_cost" name="grandma_cost" />
+          </div>
+
           <label htmlFor="Farms">Farms:</label>
           <Field id="farms" name="farms" />
-        </Form>
+        </Form>)}
       </Formik>
     </div >)
 };
