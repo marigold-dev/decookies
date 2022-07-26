@@ -58,8 +58,15 @@ const get_actual_state = async (values: Values) => {
       body: JSON.stringify(null)
     });
   const state_response = await state_request.json();
-  const value = state_response.state[0][1];
-  return value.cookie_baker_state;
+  console.log(JSON.stringify(state_response));
+  const value = state_response.state.filter(([address, game_state]) => address === values.address);
+  if (value.length != 1) {
+    console.error("More than one record for this address: " + values.address);
+    alert("More than one record for this address: " + values.address);
+  } else {
+    const my_value = value[0][1];
+    return my_value;
+  }
 }
 
 
@@ -123,13 +130,15 @@ const mint_cookie = async (
   actions.setSubmitting(true);
 
   try {
+    console.log("Minting cookie!");
     await mint(values, actions, action_type.increment_cookie);
 
-    const cookie_baker_state = await get_actual_state(values);
-    const cookies = cookie_baker_state.number_of_cookie
+    const state = await get_actual_state(values);
+    console.log("Current state: " + JSON.stringify(state));
+    const cookies = state.cookie_baker.number_of_cookie;
     console.log("new total of cookies: " + cookies);
     values.cookies = cookies;
-    values.cps = cookie_baker_state.total_cps;
+    values.cps = state.cookie_baker.total_cps;
     // ADD POST ACTION BELOW
     setTimeout(() => {
       actions.setSubmitting(false);
@@ -152,14 +161,14 @@ const mint_cursor = async (
   try {
     await mint(values, actions, action_type.increment_cursor);
 
-    const cookie_baker_state = await get_actual_state(values);
-    const cursors = cookie_baker_state.number_of_cursor
+    const state = await get_actual_state(values);
+    const cursors = state.cookie_baker.number_of_cursor
     console.log(cursors);
     values.cursors = cursors;
-    values.cursor_cost = cookie_baker_state.cursor_cost;
-    values.cursor_cps = cookie_baker_state.cursor_cps;
-    values.cps = cookie_baker_state.total_cps;
-    const cookies = cookie_baker_state.number_of_cookie
+    values.cursor_cost = state.cookie_baker.cursor_cost;
+    values.cursor_cps = state.cookie_baker.cursor_cps;
+    values.cps = state.cookie_baker.total_cps;
+    const cookies = state.cookie_baker.number_of_cookie
     console.log("new total of cookies: " + cookies);
     values.cookies = cookies;
     // ADD POST ACTION BELOW
@@ -191,18 +200,18 @@ const mint_grandma = async (
   try {
     await mint(values, actions, action_type.increment_grandma);
 
-    const cookie_baker_state = await get_actual_state(values);
-    values.grandmas = cookie_baker_state.number_of_grandma;
-    values.grandma_cost = cookie_baker_state.grandma_cost;
-    values.grandma_cps = cookie_baker_state.grandma_cps;
-    const cookies = cookie_baker_state.number_of_cookie
+    const state = await get_actual_state(values);
+    values.grandmas = state.cookie_baker.number_of_grandma;
+    values.grandma_cost = state.cookie_baker.grandma_cost;
+    values.grandma_cps = state.cookie_baker.grandma_cps;
+    const cookies = state.cookie_baker.number_of_cookie
     console.log("new total of cookies: " + cookies);
     values.cookies = cookies;
     // ADD POST ACTION BELOW
     setTimeout(() => {
       actions.setSubmitting(false);
     }, 500);
-    return cookie_baker_state.grandma_cost;
+    return state.cookie_baker.grandma_cost;
   } catch (err) {
     console.error(err);
   } finally {
