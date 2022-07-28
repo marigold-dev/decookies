@@ -45,6 +45,7 @@
     "libsodium": "^0.7.10",
     "libsodium-wrappers": "^0.7.10",
     "mini-css-extract-plugin": "^2.4.5",
+    "path-browserify": "^1.0.1",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",

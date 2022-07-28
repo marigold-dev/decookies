@@ -340,6 +340,7 @@ module.exports = function (webpackEnv) {
       fallback: {
         // assert: require.resolve('assert'),
         crypto: require.resolve('crypto-browserify'),
+        path: require.resolve('path-browserify'),
         buffer: require.resolve('buffer'),
         // http: require.resolve('stream-http'),
         // https: require.resolve('https-browserify'),
