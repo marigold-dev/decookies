@@ -8,72 +8,36 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookies, addFarms, addGrandmas, addCursors, requestInit, state } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '../store/actions';
 import { useEffect } from 'react'
 import { getTotalCps } from '../store/reducer';
 
 export const Game = () => {
     const dispatch = useGameDispatch();
     const gameState: state = useGame();
-    let passiveMintCursor = 0;
-    let passiveMintGrandma = 0;
-    let passiveMintFarm = 0;
 
     useEffect(() => {
         // declare the data fetching function
         console.log("only one time");
         dispatch(requestInit(dispatch));
 
-
-    }, []);
+    }, [dispatch]);
 
     const handleCookieClick = () => {
-        dispatch(addCookies(gameState, dispatch));
+        console.log("Clicked on cookie, mint one");
+        dispatch(addCookie(gameState, dispatch));
     }
     const handleCursorClick = () => {
-        dispatch(addCursors(gameState, dispatch));
-        passiveMintCursor += 1;
-        if (passiveMintCursor === 1) {
-            const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.cursorCps); i++) {
-                    console.log("Mint from cursor")
-                    dispatch(addCookies(gameState, dispatch));
-                }
-            }, 10000);
-            return () => {
-                clearInterval(interval);
-            }
-        }
+        console.log("Clicked on cursor, mint one");
+        dispatch(addCursor(gameState, dispatch));
     }
     const handleGrandmaClick = () => {
-        dispatch(addGrandmas(gameState, dispatch));
-        passiveMintGrandma += 1;
-        if (passiveMintGrandma === 1) {
-            const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.grandmaCps); i++) {
-                    console.log("Mint from grandmas")
-                    dispatch(addCookies(gameState, dispatch));
-                }
-            }, 1000);
-            return () => {
-                clearInterval(interval);
-            }
-        }
+        console.log("Clicked on grandma, mint one");
+        dispatch(addGrandma(gameState, dispatch));
     }
     const handleFarmClick = () => {
-        dispatch(addFarms(gameState, dispatch));
-        passiveMintFarm += 1;
-        if (passiveMintFarm === 1) {
-            const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.farmCps); i++) {
-                    console.log("Mint from farms")
-                    dispatch(addCookies(gameState, dispatch));
-                }
-            }, 1000);
-            return () => {
-                clearInterval(interval);
-            }
-        }
+        console.log("Clicked on farm, mint one");
+        dispatch(addFarm(gameState, dispatch));
     }
 
 

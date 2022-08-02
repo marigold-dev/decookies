@@ -1,4 +1,4 @@
-import { action, state } from './actions';
+import { action, state, addCookie } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 
@@ -18,12 +18,12 @@ export const initialState: state = {
     farmCps: 0
 }
 
-export const address = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
+export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
 export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
 export const nodeUri = 'http://localhost:4440/';
 
 
-export const getTotalCps = (state:state):number => {
+export const getTotalCps = (state: state): number => {
     return state.cursorCps + state.grandmaCps + state.farmCps;
 }
 
@@ -34,12 +34,10 @@ const getActualState = async () => {
             body: JSON.stringify(null)
         });
     const stateResponse = await stateRequest.json();
-    console.log("Got initial state from VM:");
-    console.log(JSON.stringify(stateResponse));
-    const value = stateResponse.state.filter(([address, _gameState]) => address === address);
+    const value = stateResponse.state.filter(([address, _gameState]) => address === userAddress);
     if (value.length !== 1) {
-        console.error("More than one record for this address: " + address);
-        alert("More than one record for this address: " + address);
+        console.error("More than one record for this address: " + userAddress);
+        alert("More than one record for this address: " + userAddress);
     } else {
         const finalValue = value[0][1];
         return finalValue;
@@ -50,7 +48,6 @@ const apiCallInit = (dispatch: React.Dispatch<action>) => {
     getActualState().then(
         st => {
             console.log("Init state");
-            console.log(st);
             dispatch({ type: "init_state_ok", state: st.cookieBaker });
         });
 
@@ -59,9 +56,8 @@ const apiCallInit = (dispatch: React.Dispatch<action>) => {
 }
 
 const mintCookie = (dispatch: React.Dispatch<action>) => {
-    const _operation_submitted = mint("cookie").then(
+    mint("cookie").then(
         st => {
-            console.log(st);
             dispatch({ type: "init_state_ok", state: st.cookieBaker });
         });
 
@@ -70,31 +66,29 @@ const mintCookie = (dispatch: React.Dispatch<action>) => {
 }
 
 const mintCursor = (dispatch: React.Dispatch<action>) => {
-    console.log("minting cursor");
-    const _operationSubmitted = mint("cursor").then(
+    mint("cursor").then(
         st => {
-            dispatch({ type: "init_state_ok", state: st.cookieBaker });
+            console.log("minting cursor");
+            dispatch({ type: "cursor_passive_mint", state: st.cookieBaker, dispatch });
         });
 
     return null;
 
 }
 const mintGrandma = (dispatch: React.Dispatch<action>) => {
-    console.log("minting grandma");
-    const _operationSubmitted = mint("grandma").then(
+    mint("grandma").then(
         st => {
-            console.log(st);
-            dispatch({ type: "init_state_ok", state: st.cookieBaker });
+            console.log("minting grandma");
+            dispatch({ type: "grandma_passive_mint", state: st.cookieBaker, dispatch });
         });
 
     return null;
 
 }
 const mintFarm = (dispatch: React.Dispatch<action>) => {
-    console.log("minting farm");
-    const _operationSubmitted = mint("farm").then(
+    mint("farm").then(
         st => {
-            console.log(st);
+            console.log("minting farm");
             dispatch({ type: "init_state_ok", state: st.cookieBaker });
         });
 
@@ -127,6 +121,26 @@ export const reducer = (s: state, a: action): state => {
         }
         case "init_state_ok": {
             return a.state;
+        }
+        case "cursor_passive_mint": {
+            setInterval(() => {
+                for (let i = 0; i <= (s.cursorCps); i++) {
+                    console.log("Passive mint from Cursor")
+                    a.dispatch(addCookie(s, a.dispatch));
+                }
+            }, 10000);
+            return a.state;
+
+        }
+        case "grandma_passive_mint": {
+            setInterval(() => {
+                for (let i = 0; i <= (s.grandmaCps); i++) {
+                    console.log("Passive mint from Grandmas")
+                    a.dispatch(addCookie(s, a.dispatch));
+                }
+            }, 1000);
+            return a.state;
+
         }
         case "init_state_ko": {
             return s
@@ -170,11 +184,11 @@ const mint = async (action: string) => {
         const initialOperation = ["Vm_transaction", {
             payload
         }];
-        const jsonToHash = JSON.stringify([address, initialOperation]);
+        const jsonToHash = JSON.stringify([userAddress, initialOperation]);
         const innerHash = b58decode(encodeExpr(stringToHex(jsonToHash))).slice(4, -2);
         const data = {
             hash: innerHash, //⚠ respect the order of fields in the object for serialization
-            source: address,
+            source: userAddress,
             initial_operation: initialOperation,
         }
 
@@ -197,8 +211,6 @@ const mint = async (action: string) => {
         }
         const packet =
             { user_operation: operation };
-        console.log("PACKET: ");
-        console.log(JSON.stringify(packet));
 
         await fetch(nodeUri + userOperationGossip,
             {
