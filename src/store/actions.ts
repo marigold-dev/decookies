@@ -1,19 +1,19 @@
 import * as React from 'react'
 
 export type state = {
-    number_of_cookie: number,
-    number_of_cursor: number,
-    number_of_grandma: number,
-    number_of_farm: number,
-    number_of_free_cursor: number,
-    number_of_free_grandma: number,
-    number_of_free_farm: number,
-    cursor_cost: number,
-    grandma_cost: number,
-    farm_cost: number,
-    cursor_cps: number,
-    grandma_cps: number,
-    farm_cps: number
+    numberOfCookie: number,
+    numberOfCursor: number,
+    numberOfGrandma: number,
+    numberOfFarm: number,
+    numberOfFreeCursor: number,
+    numberOfFreeGrandma: number,
+    numberOfFreeFarm: number,
+    cursorCost: number,
+    grandmaCost: number,
+    farmCost: number,
+    cursorCps: number,
+    grandmaCps: number,
+    farmCps: number
 };
 
 type addCookies = {
@@ -36,27 +36,20 @@ type addFarms = {
     state: state,
     dispatch: React.Dispatch<action>
 }
-type init_state_request = {
+type initStateRequest = {
     type: "init_state_request",
     dispatch: React.Dispatch<action>
 }
-export type init_state_ok = {
+export type initStateOk = {
     type: "init_state_ok",
     state: state
 }
-export type init_state_ko = {
+export type initStateKo = {
     type: "init_state_ko",
     msg: string
 }
 
-export type cursorPassiveMint = {
-    type: "cursor_passive_mint",
-    active: boolean,
-    state: state,
-    dispatch: React.Dispatch<action>
-}
-
-export type action = addCookies | addCursors | addGrandmas | addFarms | init_state_request | init_state_ok | init_state_ko | cursorPassiveMint
+export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo
 
 // Action constructors
 const add = (type: "add_cookie" | "add_cursor" | "add_grandma" | "add_farm") => (state: state, dispatch: React.Dispatch<action>): action => ({
@@ -65,16 +58,9 @@ const add = (type: "add_cookie" | "add_cursor" | "add_grandma" | "add_farm") => 
     dispatch
 });
 
-export const request_init = (dispatch: React.Dispatch<action>) => ({
+export const requestInit = (dispatch: React.Dispatch<action>) => ({
     type: "init_state_request",
     dispatch
-})
-
-export const activateCursorPassiveMint = (state: state, dispatch: React.Dispatch<action>) => ({
-    type: "cursor_passive_mint",
-    state,
-    dispatch,
-    active: true
 })
 
 export const addCookies = add("add_cookie");

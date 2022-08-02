@@ -8,20 +8,21 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookies, addFarms, addGrandmas, addCursors, request_init } from '../store/actions';
-import { useEffect } from "react"
+import { addCookies, addFarms, addGrandmas, addCursors, requestInit, state } from '../store/actions';
+import { useEffect } from 'react'
+import { getTotalCps } from '../store/reducer';
 
 export const Game = () => {
     const dispatch = useGameDispatch();
-    const gameState = useGame();
-    let passive_mint_cursor = 0;
-    let passive_mint_grandma = 0;
-    let passive_mint_farm = 0;
+    const gameState: state = useGame();
+    let passiveMintCursor = 0;
+    let passiveMintGrandma = 0;
+    let passiveMintFarm = 0;
 
     useEffect(() => {
         // declare the data fetching function
         console.log("only one time");
-        dispatch(request_init(dispatch));
+        dispatch(requestInit(dispatch));
 
 
     }, []);
@@ -31,10 +32,10 @@ export const Game = () => {
     }
     const handleCursorClick = () => {
         dispatch(addCursors(gameState, dispatch));
-        passive_mint_cursor += 1;
-        if (passive_mint_cursor === 1) {
+        passiveMintCursor += 1;
+        if (passiveMintCursor === 1) {
             const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.cursor_cps); i++) {
+                for (let i = 0; i <= (gameState.cursorCps); i++) {
                     console.log("Mint from cursor")
                     dispatch(addCookies(gameState, dispatch));
                 }
@@ -46,10 +47,10 @@ export const Game = () => {
     }
     const handleGrandmaClick = () => {
         dispatch(addGrandmas(gameState, dispatch));
-        passive_mint_grandma += 1;
-        if (passive_mint_grandma === 1) {
+        passiveMintGrandma += 1;
+        if (passiveMintGrandma === 1) {
             const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.grandma_cps); i++) {
+                for (let i = 0; i <= (gameState.grandmaCps); i++) {
                     console.log("Mint from grandmas")
                     dispatch(addCookies(gameState, dispatch));
                 }
@@ -61,10 +62,10 @@ export const Game = () => {
     }
     const handleFarmClick = () => {
         dispatch(addFarms(gameState, dispatch));
-        passive_mint_farm += 1;
-        if (passive_mint_farm === 1) {
+        passiveMintFarm += 1;
+        if (passiveMintFarm === 1) {
             const interval = setInterval(() => {
-                for (let i = 0; i <= (gameState.farm_cps); i++) {
+                for (let i = 0; i <= (gameState.farmCps); i++) {
                     console.log("Mint from farms")
                     dispatch(addCookies(gameState, dispatch));
                 }
@@ -78,31 +79,31 @@ export const Game = () => {
 
     return <>
         <CookieButton onClick={handleCookieClick} />
-        <CookieCounter value={gameState.number_of_cookie} cps={gameState.farm_cps + gameState.cursor_cps + gameState.grandma_cps} />
+        <CookieCounter value={gameState.numberOfCookie} cps={getTotalCps(gameState)} />
 
         <div>
             <label htmlFor="Cursors">Cursors: </label>
-            <ToolCounter value={gameState.number_of_cursor} />
+            <ToolCounter value={gameState.numberOfCursor} />
             <ToolButton img={cursor} alt="Buy cursor"
                 onClick={handleCursorClick} />
             <label htmlFor="cursor_cost">Next cursor cost: </label>
-            <ToolCounter value={gameState.cursor_cost} />
+            <ToolCounter value={gameState.cursorCost} />
         </div>
         <div >
             <label htmlFor="Grandmas">Grandmas: </label>
-            <ToolCounter value={gameState.number_of_grandma} />
+            <ToolCounter value={gameState.numberOfGrandma} />
             <ToolButton img={grandma} alt="Buy grandma"
                 onClick={handleGrandmaClick} />
             <label htmlFor="grandma_cost">Next grandma cost:</label>
-            <ToolCounter value={gameState.grandma_cost} />
+            <ToolCounter value={gameState.grandmaCost} />
         </div>
         <div >
             <label htmlFor="farms">Farms: </label>
-            <ToolCounter value={gameState.number_of_farm} />
+            <ToolCounter value={gameState.numberOfFarm} />
             <ToolButton img={farm} alt="Buy farm"
                 onClick={handleFarmClick} />
             <label htmlFor="farm_cost">Next farm cost: </label>
-            <ToolCounter value={gameState.farm_cost} />
+            <ToolCounter value={gameState.farmCost} />
         </div>
     </>
 }
