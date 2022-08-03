@@ -21,6 +21,10 @@ type addCookies = {
     state: state,
     dispatch: React.Dispatch<action>
 }
+type successfullyMinted = {
+    type: "successfully_minted",
+    state: state,
+}
 type addCursors = {
     type: "add_cursor",
     state: state,
@@ -43,6 +47,7 @@ type initStateRequest = {
 export type initStateOk = {
     type: "init_state_ok",
     state: state
+    dispatch: React.Dispatch<action>
 }
 export type initStateKo = {
     type: "init_state_ko",
@@ -50,16 +55,17 @@ export type initStateKo = {
 }
 export type cursorPassiveMint = {
     type: "cursor_passive_mint",
-    state: state,
+    state: state
     dispatch: React.Dispatch<action>
 }
-export type grandmaPassiveMint = {
-    type: "grandma_passive_mint",
-    state: state,
+export type passiveMint = {
+    type: "passive_mint",
+    state: state
     dispatch: React.Dispatch<action>
 }
 
-export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo | cursorPassiveMint | grandmaPassiveMint
+
+export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfullyMinted
 
 // Action constructors
 const add = (type: "add_cookie" | "add_cursor" | "add_grandma" | "add_farm") => (state: state, dispatch: React.Dispatch<action>): action => ({
@@ -68,17 +74,17 @@ const add = (type: "add_cookie" | "add_cursor" | "add_grandma" | "add_farm") => 
     dispatch
 });
 
-export const requestInit = (dispatch: React.Dispatch<action>) => ({
+export const requestInit = (dispatch: React.Dispatch<action>): action => ({
     type: "init_state_request",
+    dispatch
+})
+export const activatePassiveMint = (state: state, dispatch: React.Dispatch<action>): action => ({
+    type: "passive_mint",
+    state,
     dispatch
 })
 export const activateCursorPassiveMint = (state: state, dispatch: React.Dispatch<action>): action => ({
     type: "cursor_passive_mint",
-    state,
-    dispatch
-})
-export const activateGrandmaPassiveMint = (state: state, dispatch: React.Dispatch<action>): action => ({
-    type: "grandma_passive_mint",
     state,
     dispatch
 })

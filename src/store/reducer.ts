@@ -1,6 +1,7 @@
-import { action, state, addCookie } from './actions';
+import { action, state } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+import { crypto_kx_client_session_keys } from 'libsodium-wrappers';
 
 export const initialState: state = {
     numberOfCookie: 0,
@@ -48,71 +49,64 @@ const apiCallInit = (dispatch: React.Dispatch<action>) => {
     getActualState().then(
         st => {
             console.log("Init state");
-            dispatch({ type: "init_state_ok", state: st.cookieBaker });
+            dispatch({ type: "init_state_ok", state: st.cookieBaker, dispatch });
         });
-
-
     return null;
 }
 
 const mintCookie = (dispatch: React.Dispatch<action>) => {
+    console.log("Minting one cookie");
     mint("cookie").then(
         st => {
-            dispatch({ type: "init_state_ok", state: st.cookieBaker });
+            dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
-
+    console.log("minted one cookie");
     return null;
-
 }
 
 const mintCursor = (dispatch: React.Dispatch<action>) => {
     mint("cursor").then(
         st => {
             console.log("minting cursor");
-            dispatch({ type: "cursor_passive_mint", state: st.cookieBaker, dispatch });
+            dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
-
     return null;
-
 }
 const mintGrandma = (dispatch: React.Dispatch<action>) => {
     mint("grandma").then(
         st => {
             console.log("minting grandma");
-            dispatch({ type: "grandma_passive_mint", state: st.cookieBaker, dispatch });
+            dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
-
     return null;
-
 }
 const mintFarm = (dispatch: React.Dispatch<action>) => {
     mint("farm").then(
         st => {
             console.log("minting farm");
-            dispatch({ type: "init_state_ok", state: st.cookieBaker });
+            dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
-
     return null;
-
 }
 
 export const reducer = (s: state, a: action): state => {
     switch (a.type) {
         case "add_cookie": {
+            console.log("Inside add_cookie of reducer");
             mintCookie(a.dispatch);
-            return s;
+            return a.state;
         }
         case "add_cursor": {
             mintCursor(a.dispatch);
-            return s;
+            return a.state;
         }
         case "add_grandma": {
             mintGrandma(a.dispatch);
-            return s;
+            return a.state;
         }
         case "add_farm": {
             mintFarm(a.dispatch);
-            return s;
+            return a.state;
         }
 
         case "init_state_request": {
@@ -120,30 +114,38 @@ export const reducer = (s: state, a: action): state => {
             return s;
         }
         case "init_state_ok": {
-            return a.state;
+            setInterval(() => { a.dispatch({ type: "cursor_passive_mint", state: s, dispatch: a.dispatch }) }, 10000);
+            setInterval(() => { a.dispatch({ type: "passive_mint", state: s, dispatch: a.dispatch }) }, 1000);
+            return s;
         }
         case "cursor_passive_mint": {
-            setInterval(() => {
+            if (s.cursorCps > 0) {
+                console.log("Current cursor.cps: " + s.cursorCps);
                 for (let i = 0; i <= (s.cursorCps); i++) {
                     console.log("Passive mint from Cursor")
-                    a.dispatch(addCookie(s, a.dispatch));
+                    mintCookie(a.dispatch);
                 }
-            }, 10000);
-            return a.state;
-
+            }
+            return s;
         }
-        case "grandma_passive_mint": {
-            setInterval(() => {
-                for (let i = 0; i <= (s.grandmaCps); i++) {
-                    console.log("Passive mint from Grandmas")
-                    a.dispatch(addCookie(s, a.dispatch));
+        case "passive_mint": {
+            const cps = s.grandmaCps + s.farmCps;
+            if (cps > 0) {
+                console.log("Current grand.cps + farm.cps: " + cps);
+                for (let i = 0; i <= cps; i++) {
+                    console.log("Passive mint")
+                    mintCookie(a.dispatch);
                 }
-            }, 1000);
-            return a.state;
-
+            }
+            return s;
         }
+
         case "init_state_ko": {
-            return s
+            return s;
+        }
+
+        case "successfully_minted": {
+            return a.state;
         }
     }
 }
