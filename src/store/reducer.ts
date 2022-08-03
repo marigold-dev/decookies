@@ -1,7 +1,6 @@
 import { action, state } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
-import { crypto_kx_client_session_keys } from 'libsodium-wrappers';
 
 export const initialState: state = {
     numberOfCookie: 0,
@@ -19,10 +18,30 @@ export const initialState: state = {
     farmCps: 0
 }
 
+export const buyCursor = "buy_cursor"
+export const buyGrandma = "buy_grandma"
+export const buyFarm = "buy_farm"
+
+
 export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
 export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
 export const nodeUri = 'http://localhost:4440/';
 
+export const isButtonEnabled = (state: state, button: string): boolean => {
+    switch (button) {
+        case "buy_cursor": {
+            return (state.cursorCost <= state.numberOfCookie);
+        }
+        case "buy_grandma": {
+            return (state.grandmaCost <= state.numberOfCookie);
+        }
+        case "buy_farm": {
+            return (state.farmCost <= state.numberOfCookie);
+        }
+    }
+    return true;
+
+}
 
 export const getTotalCps = (state: state): number => {
     return state.cursorCps + state.grandmaCps + state.farmCps;
@@ -48,26 +67,22 @@ const getActualState = async () => {
 const apiCallInit = (dispatch: React.Dispatch<action>) => {
     getActualState().then(
         st => {
-            console.log("Init state");
             dispatch({ type: "init_state_ok", state: st.cookieBaker, dispatch });
         });
     return null;
 }
 
 const mintCookie = (dispatch: React.Dispatch<action>) => {
-    console.log("Minting one cookie");
     mint("cookie").then(
         st => {
             dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
-    console.log("minted one cookie");
     return null;
 }
 
 const mintCursor = (dispatch: React.Dispatch<action>) => {
     mint("cursor").then(
         st => {
-            console.log("minting cursor");
             dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
     return null;
@@ -75,7 +90,6 @@ const mintCursor = (dispatch: React.Dispatch<action>) => {
 const mintGrandma = (dispatch: React.Dispatch<action>) => {
     mint("grandma").then(
         st => {
-            console.log("minting grandma");
             dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
     return null;
@@ -83,7 +97,6 @@ const mintGrandma = (dispatch: React.Dispatch<action>) => {
 const mintFarm = (dispatch: React.Dispatch<action>) => {
     mint("farm").then(
         st => {
-            console.log("minting farm");
             dispatch({ type: "successfully_minted", state: st.cookieBaker });
         });
     return null;
@@ -92,7 +105,6 @@ const mintFarm = (dispatch: React.Dispatch<action>) => {
 export const reducer = (s: state, a: action): state => {
     switch (a.type) {
         case "add_cookie": {
-            console.log("Inside add_cookie of reducer");
             mintCookie(a.dispatch);
             return a.state;
         }
@@ -120,9 +132,7 @@ export const reducer = (s: state, a: action): state => {
         }
         case "cursor_passive_mint": {
             if (s.cursorCps > 0) {
-                console.log("Current cursor.cps: " + s.cursorCps);
                 for (let i = 0; i <= (s.cursorCps); i++) {
-                    console.log("Passive mint from Cursor")
                     mintCookie(a.dispatch);
                 }
             }
@@ -131,9 +141,7 @@ export const reducer = (s: state, a: action): state => {
         case "passive_mint": {
             const cps = s.grandmaCps + s.farmCps;
             if (cps > 0) {
-                console.log("Current grand.cps + farm.cps: " + cps);
                 for (let i = 0; i <= cps; i++) {
-                    console.log("Passive mint")
                     mintCookie(a.dispatch);
                 }
             }
