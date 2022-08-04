@@ -47,90 +47,90 @@ export const getTotalCps = (state: state): number => {
     return state.cursorCps + state.grandmaCps + state.farmCps;
 }
 
-const getActualState = async () => {
+const getActualState = async (): Promise<state> => {
     const stateRequest = await fetch(nodeUri + "vm-state",
         {
             method: "POST",
             body: JSON.stringify(null)
         });
     const stateResponse = await stateRequest.json();
-    const value = stateResponse.state.filter(([address, _gameState]) => address === userAddress);
+    const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
     if (value.length !== 1) {
         console.error("More than one record for this address: " + userAddress);
         alert("More than one record for this address: " + userAddress);
     } else {
         const finalValue = value[0][1];
-        return finalValue;
+        return finalValue.cookieBaker;
     }
 }
 
-const apiCallInit = (dispatch: React.Dispatch<action>) => {
+const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
     getActualState().then(
         st => {
-            dispatch({ type: "init_state_ok", state: st.cookieBaker, dispatch });
+            dispatch({ type: "INIT_STATE_OK", dispatch });
         });
     return null;
 }
 
-const mintCookie = (dispatch: React.Dispatch<action>) => {
+const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("cookie").then(
         st => {
-            dispatch({ type: "successfully_minted", state: st.cookieBaker });
+            dispatch({ type: "SUCCESSFULLY_MINTED" });
         });
     return null;
 }
 
-const mintCursor = (dispatch: React.Dispatch<action>) => {
+const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("cursor").then(
         st => {
-            dispatch({ type: "successfully_minted", state: st.cookieBaker });
+            dispatch({ type: "SUCCESSFULLY_MINTED" });
         });
     return null;
 }
-const mintGrandma = (dispatch: React.Dispatch<action>) => {
+const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("grandma").then(
         st => {
-            dispatch({ type: "successfully_minted", state: st.cookieBaker });
+            dispatch({ type: "SUCCESSFULLY_MINTED" });
         });
     return null;
 }
-const mintFarm = (dispatch: React.Dispatch<action>) => {
+const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("farm").then(
         st => {
-            dispatch({ type: "successfully_minted", state: st.cookieBaker });
+            dispatch({ type: "SUCCESSFULLY_MINTED" });
         });
     return null;
 }
 
 export const reducer = (s: state, a: action): state => {
     switch (a.type) {
-        case "add_cookie": {
+        case "ADD_COOKIE": {
             mintCookie(a.dispatch);
-            return a.state;
+            return s;
         }
-        case "add_cursor": {
+        case "ADD_CURSOR": {
             mintCursor(a.dispatch);
-            return a.state;
+            return s;
         }
-        case "add_grandma": {
+        case "ADD_GRANDMA": {
             mintGrandma(a.dispatch);
-            return a.state;
+            return s;
         }
-        case "add_farm": {
+        case "ADD_FARM": {
             mintFarm(a.dispatch);
-            return a.state;
+            return s;
         }
 
-        case "init_state_request": {
+        case "INIT_STATE_REQUEST": {
             apiCallInit(a.dispatch)
             return s;
         }
-        case "init_state_ok": {
-            setInterval(() => { a.dispatch({ type: "cursor_passive_mint", state: s, dispatch: a.dispatch }) }, 10000);
-            setInterval(() => { a.dispatch({ type: "passive_mint", state: s, dispatch: a.dispatch }) }, 1000);
+        case "INIT_STATE_OK": {
+            setInterval(() => { a.dispatch({ type: "CURSOR_PASSIVE_MINT", dispatch: a.dispatch }) }, 10000);
+            setInterval(() => { a.dispatch({ type: "PASSIVE_MINT", dispatch: a.dispatch }) }, 1000);
             return s;
         }
-        case "cursor_passive_mint": {
+        case "CURSOR_PASSIVE_MINT": {
             if (s.cursorCps > 0) {
                 for (let i = 0; i <= (s.cursorCps); i++) {
                     mintCookie(a.dispatch);
@@ -138,7 +138,7 @@ export const reducer = (s: state, a: action): state => {
             }
             return s;
         }
-        case "passive_mint": {
+        case "PASSIVE_MINT": {
             const cps = s.grandmaCps + s.farmCps;
             if (cps > 0) {
                 for (let i = 0; i <= cps; i++) {
@@ -148,12 +148,12 @@ export const reducer = (s: state, a: action): state => {
             return s;
         }
 
-        case "init_state_ko": {
+        case "INIT_STATE_KO": {
             return s;
         }
 
-        case "successfully_minted": {
-            return a.state;
+        case "SUCCESSFULLY_MINTED": {
+            return s;
         }
     }
 }
@@ -166,7 +166,7 @@ const stringToHex = (payload: string): string => {
     return buf2hex(input);
 }
 
-const requestBlockLevel = async () => {
+const requestBlockLevel = async (): Promise<number> => {
     const blockRequest = await fetch(nodeUri + blockLevel,
         {
             method: "POST",
@@ -176,20 +176,20 @@ const requestBlockLevel = async () => {
     return blockResponse.level;
 }
 
-const createNonce = () => {
+const createNonce = (): number => {
     const maxInt32 = 2147483647;
     const nonce = Math.floor(Math.random() * maxInt32);
     return nonce;
 }
 
-const mint = async (action: string) => {
+const mint = async (action: string): Promise<state> => {
 
     const signer = new InMemorySigner(privateKey);
 
     try {
         const key = await signer.publicKey();
 
-        const block_height: number = await requestBlockLevel();
+        const block_height = await requestBlockLevel();
         const payload = action;
         const initialOperation = ["Vm_transaction", {
             payload
@@ -227,11 +227,9 @@ const mint = async (action: string) => {
                 method: "POST",
                 body: JSON.stringify(packet)
             });
+        const new_state: state = await getActualState();
+        return new_state;
     } catch (err) {
         console.error(err);
-    } finally {
-        const new_state = await getActualState();
-        return new_state;
     }
-
 }
