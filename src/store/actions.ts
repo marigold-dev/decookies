@@ -22,6 +22,7 @@ type addCookies = {
 }
 type successfullyMinted = {
     type: "SUCCESSFULLY_MINTED",
+    state: state
 }
 type addCursors = {
     type: "ADD_CURSOR",

@@ -3,7 +3,7 @@ import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 
 export const initialState: state = {
-    numberOfCookie: 0,
+    numberOfCookie: 14,
     numberOfCursor: 0.,
     numberOfGrandma: 0.,
     numberOfFarm: 0.,
@@ -75,7 +75,8 @@ const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
 const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("cookie").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED" });
+            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
+            return st;
         });
     return null;
 }
@@ -83,21 +84,21 @@ const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
 const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("cursor").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED" });
+            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
         });
     return null;
 }
 const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("grandma").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED" });
+            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
         });
     return null;
 }
 const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("farm").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED" });
+            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
         });
     return null;
 }
@@ -131,19 +132,15 @@ export const reducer = (s: state, a: action): state => {
             return s;
         }
         case "CURSOR_PASSIVE_MINT": {
-            if (s.cursorCps > 0) {
-                for (let i = 0; i <= (s.cursorCps); i++) {
-                    mintCookie(a.dispatch);
-                }
+            for (let i = 0; i < (s.cursorCps); i++) {
+                mintCookie(a.dispatch);
             }
             return s;
         }
         case "PASSIVE_MINT": {
             const cps = s.grandmaCps + s.farmCps;
-            if (cps > 0) {
-                for (let i = 0; i <= cps; i++) {
-                    mintCookie(a.dispatch);
-                }
+            for (let i = 0; i < cps; i++) {
+                mintCookie(a.dispatch);
             }
             return s;
         }
@@ -153,7 +150,7 @@ export const reducer = (s: state, a: action): state => {
         }
 
         case "SUCCESSFULLY_MINTED": {
-            return s;
+            return a.state;
         }
     }
 }
