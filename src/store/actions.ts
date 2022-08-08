@@ -5,15 +5,19 @@ export type state = {
     numberOfCursor: number,
     numberOfGrandma: number,
     numberOfFarm: number,
+    numberOfMine: number,
     numberOfFreeCursor: number,
     numberOfFreeGrandma: number,
     numberOfFreeFarm: number,
+    numberOfFreeMine: number,
     cursorCost: number,
     grandmaCost: number,
     farmCost: number,
+    mineCost: number,
     cursorCps: number,
     grandmaCps: number,
-    farmCps: number
+    farmCps: number,
+    mineCps: number
 };
 
 type addCookies = {
@@ -34,6 +38,10 @@ type addGrandmas = {
 }
 type addFarms = {
     type: "ADD_FARM",
+    dispatch: React.Dispatch<action>
+}
+type addMines = {
+    type: "ADD_MINE",
     dispatch: React.Dispatch<action>
 }
 type initStateRequest = {
@@ -58,10 +66,10 @@ export type passiveMint = {
 }
 
 
-export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfullyMinted
+export type action = addCookies | addCursors | addGrandmas | addFarms | addMines | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfullyMinted
 
 // Action constructors
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM") => (state: state, dispatch: React.Dispatch<action>): action => ({
+const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => (state: state, dispatch: React.Dispatch<action>): action => ({
     type,
     dispatch
 });
@@ -83,3 +91,4 @@ export const addCookie = add("ADD_COOKIE");
 export const addCursor = add("ADD_CURSOR");
 export const addGrandma = add("ADD_GRANDMA");
 export const addFarm = add("ADD_FARM");
+export const addMine = add("ADD_MINE");

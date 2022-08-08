@@ -7,20 +7,25 @@ export const initialState: state = {
     numberOfCursor: 0.,
     numberOfGrandma: 0.,
     numberOfFarm: 0.,
+    numberOfMine: 0.,
     numberOfFreeCursor: 0,
     numberOfFreeGrandma: 0,
     numberOfFreeFarm: 0,
+    numberOfFreeMine: 0,
     cursorCost: 0,
     grandmaCost: 0,
     farmCost: 0,
+    mineCost: 0,
     cursorCps: 0,
     grandmaCps: 0,
-    farmCps: 0
+    farmCps: 0,
+    mineCps: 0
 }
 
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
+export const buyMine = "buy_mine"
 
 
 export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
@@ -38,13 +43,16 @@ export const isButtonEnabled = (state: state, button: string): boolean => {
         case "buy_farm": {
             return (state.farmCost <= state.numberOfCookie);
         }
+        case "buy_mine": {
+            return (state.mineCost <= state.numberOfCookie);
+        }
     }
     return true;
 
 }
 
 export const getTotalCps = (state: state): number => {
-    return state.cursorCps + state.grandmaCps + state.farmCps;
+    return state.cursorCps + state.grandmaCps + state.farmCps + state.mineCps;
 }
 
 const getActualState = async (): Promise<state> => {
@@ -102,6 +110,13 @@ const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
         });
     return null;
 }
+const mintMine = (dispatch: React.Dispatch<action>): Promise<state> => {
+    mint("mine").then(
+        st => {
+            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
+        });
+    return null;
+}
 
 export const reducer = (s: state, a: action): state => {
     switch (a.type) {
@@ -121,6 +136,10 @@ export const reducer = (s: state, a: action): state => {
             mintFarm(a.dispatch);
             return s;
         }
+        case "ADD_MINE": {
+            mintMine(a.dispatch);
+            return s;
+        }
 
         case "INIT_STATE_REQUEST": {
             apiCallInit(a.dispatch)
@@ -138,7 +157,7 @@ export const reducer = (s: state, a: action): state => {
             return s;
         }
         case "PASSIVE_MINT": {
-            const cps = s.grandmaCps + s.farmCps;
+            const cps = s.grandmaCps + s.farmCps + s.mineCps;
             for (let i = 0; i < cps; i++) {
                 mintCookie(a.dispatch);
             }
