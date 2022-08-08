@@ -3,7 +3,7 @@ import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 
 export const initialState: state = {
-    numberOfCookie: 14,
+    numberOfCookie: 0,
     numberOfCursor: 0.,
     numberOfGrandma: 0.,
     numberOfFarm: 0.,
