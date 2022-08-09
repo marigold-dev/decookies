@@ -12,7 +12,6 @@ import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '.
 import { useEffect } from 'react'
 import { getTotalCps, isButtonEnabled, buyCursor, buyGrandma, buyFarm } from '../store/reducer';
 
-// Add buttons for Cookie-game
 export const Game = () => {
     const dispatch = useGameDispatch();
     const gameState: state = useGame();
@@ -35,6 +34,7 @@ export const Game = () => {
     const handleFarmClick = () => {
         dispatch(addFarm(gameState, dispatch));
     }
+
 
     return <>
         <CookieButton onClick={handleCookieClick} />
