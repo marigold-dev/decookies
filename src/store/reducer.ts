@@ -1,6 +1,23 @@
 import { action, state } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+// Setup Tezos toolkit
+import { TezosToolkit } from '@taquito/taquito';
+import { getAccount, connectWallet , wallet } from "./wallet"
+import { useEffect, useState } from 'react';
+
+// TEZOS connect to wallet: todo add the network ex: ithacanet 
+export const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
+
+// Specify wallet provider for Tezos instance 
+tezos.setWalletProvider(wallet);
+
+// TODO Get user's address from BEACON 
+// export const userAddress = await getAccount()
+
+export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
+export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
+export const nodeUri = 'http://localhost:4440/';
 
 export const initialState: state = {
     numberOfCookie: 0,
@@ -21,11 +38,6 @@ export const initialState: state = {
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
-
-
-export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
-export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
-export const nodeUri = 'http://localhost:4440/';
 
 export const isButtonEnabled = (state: state, button: string): boolean => {
     switch (button) {
@@ -48,6 +60,7 @@ export const getTotalCps = (state: state): number => {
 }
 
 const getActualState = async (): Promise<state> => {
+    
     const stateRequest = await fetch(nodeUri + "vm-state",
         {
             method: "POST",
@@ -88,6 +101,7 @@ const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
         });
     return null;
 }
+
 const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("grandma").then(
         st => {
@@ -95,6 +109,7 @@ const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
         });
     return null;
 }
+
 const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("farm").then(
         st => {
