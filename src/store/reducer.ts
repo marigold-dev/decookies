@@ -1,7 +1,7 @@
 import { action, state } from './actions';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 import { TezosToolkit } from '@taquito/taquito';
-import { getAccount , wallet , ReadOnlySigner} from "./wallet"
+import { getAccount, wallet, ReadOnlySigner } from "./wallet"
 
 // TEZOS connect to wallet: todo add the network ex: ithacanet 
 export const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
@@ -207,10 +207,10 @@ const mint = async (action: string): Promise<state> => {
         new ReadOnlySigner(userAddress, activeAcc.publicKey)
     );
 
-    try {        
+    try {
         // call signer from tezos signer 
         const key = await tezos.signer.publicKey();
-        
+
         const block_height = await requestBlockLevel();
         const payload = action;
         const initialOperation = ["Vm_transaction", {
@@ -232,10 +232,10 @@ const mint = async (action: string): Promise<state> => {
         ]);
 
         const outerHash = b58decode(encodeExpr(stringToHex(fullPayload))).slice(4, -2);
-      
+
         // call signer from tezos
         const signature = await tezos.signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
-        
+
         const operation = {
             hash: outerHash,
             key,

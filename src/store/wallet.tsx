@@ -32,13 +32,13 @@ export const getAccount = async () => {
         return userAddress;
     } else {
         connectWallet();
-    }    
+    }
 }
 
 // readOnlySigner from a signer class
 export class ReadOnlySigner implements Signer {
     constructor(private pkh: string, private pk: string) { }
-    
+
     async publicKeyHash() {
         return this.pkh;
     };
@@ -80,11 +80,11 @@ export async function useWalletBeacon() {
 
     // TODO: change the rpc
     const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
-    
+
     // specify wallet provider for tezos instance 
 
     tezos.setWalletProvider(wallet);
-    
+
     // get active account again for sign
     //const activeAcc = await wallet.client.getActiveAccount();
 
