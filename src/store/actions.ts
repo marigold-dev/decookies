@@ -1,13 +1,13 @@
 import * as React from 'react'
 
 export type state = {
-    numberOfCookie: number,
-    numberOfCursor: number,
-    numberOfGrandma: number,
-    numberOfFarm: number,
-    numberOfFreeCursor: number,
-    numberOfFreeGrandma: number,
-    numberOfFreeFarm: number,
+    cookies: number,
+    cursors: number,
+    grandmas: number,
+    farms: number,
+    freeCursor: number,
+    freeGrandma: number,
+    freeFarm: number,
     cursorCost: number,
     grandmaCost: number,
     farmCost: number,

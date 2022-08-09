@@ -1,15 +1,16 @@
 import { action, state } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+import { userAddress, nodeUri, privateKey } from '../pages/game';
 
 export const initialState: state = {
-    numberOfCookie: 0,
-    numberOfCursor: 0.,
-    numberOfGrandma: 0.,
-    numberOfFarm: 0.,
-    numberOfFreeCursor: 0,
-    numberOfFreeGrandma: 0,
-    numberOfFreeFarm: 0,
+    cookies: 0,
+    cursors: 0.,
+    grandmas: 0.,
+    farms: 0.,
+    freeCursor: 0,
+    freeGrandma: 0,
+    freeFarm: 0,
     cursorCost: 0,
     grandmaCost: 0,
     farmCost: 0,
@@ -22,21 +23,16 @@ export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
 
-
-export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
-export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
-export const nodeUri = 'http://localhost:4440/';
-
 export const isButtonEnabled = (state: state, button: string): boolean => {
     switch (button) {
         case "buy_cursor": {
-            return (state.cursorCost <= state.numberOfCookie);
+            return (state.cursorCost <= state.cookies);
         }
         case "buy_grandma": {
-            return (state.grandmaCost <= state.numberOfCookie);
+            return (state.grandmaCost <= state.cookies);
         }
         case "buy_farm": {
-            return (state.farmCost <= state.numberOfCookie);
+            return (state.farmCost <= state.cookies);
         }
     }
     return true;
@@ -48,7 +44,7 @@ export const getTotalCps = (state: state): number => {
 }
 
 const getActualState = async (): Promise<state> => {
-    const stateRequest = await fetch(nodeUri + "vm-state",
+    const stateRequest = await fetch(nodeUri + "/vm-state",
         {
             method: "POST",
             body: JSON.stringify(null)
@@ -58,6 +54,7 @@ const getActualState = async (): Promise<state> => {
     if (value.length !== 1) {
         console.error("More than one record for this address: " + userAddress);
         alert("More than one record for this address: " + userAddress);
+        return initialState;
     } else {
         const finalValue = value[0][1];
         return finalValue.cookieBaker;
@@ -66,7 +63,7 @@ const getActualState = async (): Promise<state> => {
 
 const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
     getActualState().then(
-        st => {
+        _st => {
             dispatch({ type: "INIT_STATE_OK", dispatch });
         });
     return null;
@@ -76,7 +73,6 @@ const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("cookie").then(
         st => {
             dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-            return st;
         });
     return null;
 }
@@ -155,8 +151,8 @@ export const reducer = (s: state, a: action): state => {
     }
 }
 
-const blockLevel = "block-level";
-const userOperationGossip = "user-operation-gossip";
+const blockLevel = "/block-level";
+const userOperationGossip = "/user-operation-gossip";
 
 const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);
