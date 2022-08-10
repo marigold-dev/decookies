@@ -36,7 +36,6 @@ export const Game = () => {
         dispatch(addFarm(gameState, dispatch));
     }
 
-
     return <>
         <CookieButton onClick={handleCookieClick} />
         <CookieCounter value={gameState.numberOfCookie} cps={getTotalCps(gameState)} />
@@ -49,6 +48,7 @@ export const Game = () => {
             <label htmlFor="cursor_cost">Next cursor cost: </label>
             <ToolCounter value={gameState.cursorCost} />
         </div>
+
         <div >
             <label htmlFor="Grandmas">Grandmas: </label>
             <ToolCounter value={gameState.numberOfGrandma} />
@@ -57,6 +57,7 @@ export const Game = () => {
             <label htmlFor="grandma_cost">Next grandma cost:</label>
             <ToolCounter value={gameState.grandmaCost} />
         </div>
+        
         <div >
             <label htmlFor="farms">Farms: </label>
             <ToolCounter value={gameState.numberOfFarm} />

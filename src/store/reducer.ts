@@ -1,14 +1,8 @@
 import { action, state } from './actions';
 import { encodeExpr, b58decode } from '@taquito/utils';
-import { TezosToolkit } from '@taquito/taquito';
 import { getAccount, wallet, ReadOnlySigner } from "./wallet"
-import  * as utils from "./utils"
-
-// TEZOS connect to wallet: todo add the network ex: ithacanet 
-export const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
-
-// Specify wallet provider for Tezos instance 
-tezos.setWalletProvider(wallet);
+import * as utils from "./utils"
+import { tezos } from "./tezos"
 
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
@@ -39,6 +33,7 @@ const mint = async (action: string): Promise<state> => {
     tezos.setSignerProvider(
         new ReadOnlySigner(userAddress, activeAcc.publicKey)
     );
+
     try {
         const key = await tezos.signer.publicKey();
         const block_height = await utils.requestBlockLevel();
