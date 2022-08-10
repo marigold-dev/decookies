@@ -10,7 +10,8 @@ import { ToolCounter } from '../components/counters/tool';
 import { useGameDispatch, useGame } from '../store/provider';
 import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '../store/actions';
 import { useEffect } from 'react'
-import { getTotalCps, isButtonEnabled, buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { getTotalCps, isButtonEnabled } from '../store/utils';
+import { buyCursor, buyGrandma, buyFarm } from '../store/reducer';
 
 export const Game = () => {
     const dispatch = useGameDispatch();

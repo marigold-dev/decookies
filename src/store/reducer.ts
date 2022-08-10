@@ -1,8 +1,8 @@
 import { action, state } from './actions';
-import { InMemorySigner } from '@taquito/signer';
-import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+import { encodeExpr, b58decode } from '@taquito/utils';
 import { TezosToolkit } from '@taquito/taquito';
 import { getAccount, wallet, ReadOnlySigner } from "./wallet"
+import  * as utils from "./utils"
 
 // TEZOS connect to wallet: todo add the network ex: ithacanet 
 export const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
@@ -10,9 +10,9 @@ export const tezos = new TezosToolkit("https://jakartanet.smartpy.io");
 // Specify wallet provider for Tezos instance 
 tezos.setWalletProvider(wallet);
 
-export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
-export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
-export const nodeUri = 'http://localhost:4440/';
+export const buyCursor = "buy_cursor"
+export const buyGrandma = "buy_grandma"
+export const buyFarm = "buy_farm"
 
 export const initialState: state = {
     numberOfCookie: 0,
@@ -30,53 +30,57 @@ export const initialState: state = {
     farmCps: 0
 }
 
-export const buyCursor = "buy_cursor"
-export const buyGrandma = "buy_grandma"
-export const buyFarm = "buy_farm"
-
-export const isButtonEnabled = (state: state, button: string): boolean => {
-    switch (button) {
-        case "buy_cursor": {
-            return (state.cursorCost <= state.numberOfCookie);
-        }
-        case "buy_grandma": {
-            return (state.grandmaCost <= state.numberOfCookie);
-        }
-        case "buy_farm": {
-            return (state.farmCost <= state.numberOfCookie);
-        }
+const mint = async (action: string): Promise<state> => {
+    const userAddress = await getAccount();
+    const activeAcc = await wallet.client.getActiveAccount();
+    if (!activeAcc) {
+        throw new Error("Not connected");
     }
-    return true;
-
-}
-
-export const getTotalCps = (state: state): number => {
-    return state.cursorCps + state.grandmaCps + state.farmCps;
-}
-
-const getActualState = async (): Promise<state> => {
-    const stateRequest = await fetch(nodeUri + "vm-state",
-        {
-            method: "POST",
-            body: JSON.stringify(null)
-        });
-    const stateResponse = await stateRequest.json();
-    const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
-    if (value.length !== 1) {
-        console.error("More than one record for this address: " + userAddress);
-        alert("More than one record for this address: " + userAddress);
-    } else {
-        const finalValue = value[0][1];
-        return finalValue.cookieBaker;
+    tezos.setSignerProvider(
+        new ReadOnlySigner(userAddress, activeAcc.publicKey)
+    );
+    try {
+        const key = await tezos.signer.publicKey();
+        const block_height = await utils.requestBlockLevel();
+        const payload = action;
+        const initialOperation = ["Vm_transaction", {
+            payload
+        }];
+        const jsonToHash = JSON.stringify([userAddress, initialOperation]);
+        const innerHash = b58decode(encodeExpr(utils.stringToHex(jsonToHash))).slice(4, -2);
+        const data = {
+            hash: innerHash, //⚠ respect the order of fields in the object for serialization
+            source: userAddress,
+            initial_operation: initialOperation,
+        }
+        let nonce = utils.createNonce();
+        const fullPayload = JSON.stringify([ //FIXME: useless?
+            nonce,
+            block_height,
+            data
+        ]);
+        const outerHash = b58decode(encodeExpr(utils.stringToHex(fullPayload))).slice(4, -2);
+        const signature = await tezos.signer.sign(utils.stringToHex(fullPayload)).then((val) => val.prefixSig);
+        const operation = {
+            hash: outerHash,
+            key,
+            signature,
+            nonce,
+            block_height,
+            data
+        }
+        const packet =
+            { user_operation: operation };
+        await fetch(utils.nodeUri + utils.userOperationGossip,
+            {
+                method: "POST",
+                body: JSON.stringify(packet)
+            });
+        const new_state: state = await utils.getActualState();
+        return new_state;
+    } catch (err) {
+        console.error(err);
     }
-}
-
-const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
-    getActualState().then(
-        st => {
-            dispatch({ type: "INIT_STATE_OK", dispatch });
-        });
-    return null;
 }
 
 const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
@@ -95,6 +99,7 @@ const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
         });
     return null;
 }
+
 const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("grandma").then(
         st => {
@@ -102,6 +107,7 @@ const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
         });
     return null;
 }
+
 const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
     mint("farm").then(
         st => {
@@ -128,9 +134,8 @@ export const reducer = (s: state, a: action): state => {
             mintFarm(a.dispatch);
             return s;
         }
-
         case "INIT_STATE_REQUEST": {
-            apiCallInit(a.dispatch)
+            utils.apiCallInit(a.dispatch)
             return s;
         }
         case "INIT_STATE_OK": {
@@ -151,107 +156,11 @@ export const reducer = (s: state, a: action): state => {
             }
             return s;
         }
-
         case "INIT_STATE_KO": {
             return s;
         }
-
         case "SUCCESSFULLY_MINTED": {
             return a.state;
         }
-    }
-}
-
-const blockLevel = "block-level";
-const userOperationGossip = "user-operation-gossip";
-
-const stringToHex = (payload: string): string => {
-    const input = Buffer.from(payload);
-    return buf2hex(input);
-}
-
-const requestBlockLevel = async (): Promise<number> => {
-    const blockRequest = await fetch(nodeUri + blockLevel,
-        {
-            method: "POST",
-            body: JSON.stringify(null)
-        });
-    const blockResponse = await blockRequest.json();
-    return blockResponse.level;
-}
-
-const createNonce = (): number => {
-    const maxInt32 = 2147483647;
-    const nonce = Math.floor(Math.random() * maxInt32);
-    return nonce;
-}
-
-const mint = async (action: string): Promise<state> => {
-
-    // get user address from wallet
-    const userAddress = await getAccount();
-
-    // get active account from the wallet
-    const activeAcc = await wallet.client.getActiveAccount();
-
-    // check if it is not active then throw error
-    if (!activeAcc) {
-        throw new Error("Not connected");
-    }
-
-    // set signer from wallet
-    tezos.setSignerProvider(
-        new ReadOnlySigner(userAddress, activeAcc.publicKey)
-    );
-
-    try {
-        // call signer from tezos signer 
-        const key = await tezos.signer.publicKey();
-
-        const block_height = await requestBlockLevel();
-        const payload = action;
-        const initialOperation = ["Vm_transaction", {
-            payload
-        }];
-        const jsonToHash = JSON.stringify([userAddress, initialOperation]);
-        const innerHash = b58decode(encodeExpr(stringToHex(jsonToHash))).slice(4, -2);
-        const data = {
-            hash: innerHash, //⚠ respect the order of fields in the object for serialization
-            source: userAddress,
-            initial_operation: initialOperation,
-        }
-
-        let nonce = createNonce();
-        const fullPayload = JSON.stringify([ //FIXME: useless?
-            nonce,
-            block_height,
-            data
-        ]);
-
-        const outerHash = b58decode(encodeExpr(stringToHex(fullPayload))).slice(4, -2);
-
-        // call signer from tezos
-        const signature = await tezos.signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
-
-        const operation = {
-            hash: outerHash,
-            key,
-            signature,
-            nonce,
-            block_height,
-            data
-        }
-        const packet =
-            { user_operation: operation };
-
-        await fetch(nodeUri + userOperationGossip,
-            {
-                method: "POST",
-                body: JSON.stringify(packet)
-            });
-        const new_state: state = await getActualState();
-        return new_state;
-    } catch (err) {
-        console.error(err);
     }
 }
