@@ -9,9 +9,10 @@ import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
 import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '../store/actions';
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getTotalCps, isButtonEnabled } from '../store/utils';
 import { buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { connectWallet, getAccount } from '../store/wallet';
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -22,6 +23,23 @@ export const Game = () => {
         dispatch(requestInit(dispatch));
 
     }, [dispatch]);
+
+    const [account, setAccount] = useState("");
+    useEffect(() => {
+        (async () => {
+            // Get the active account
+            const account = await getAccount();
+            setAccount(account);
+            
+        })();
+    }, []);
+
+    // Create onConnectWallet function
+    const onConnectWallet = async () => {
+        await connectWallet();
+        const account = await getAccount();
+        setAccount(account);
+    };
 
     const handleCookieClick = () => {
         dispatch(addCookie(gameState, dispatch));
@@ -37,6 +55,15 @@ export const Game = () => {
     }
 
     return <>
+        
+        <div>
+            {/* call connectWallet function onClick */}
+            <button onClick={onConnectWallet}>
+                {/* show account address if wallet is connect */}
+                {account ? account : "Connect Wallet"}
+            </button>
+        </div>
+        
         <CookieButton onClick={handleCookieClick} />
         <CookieCounter value={gameState.numberOfCookie} cps={getTotalCps(gameState)} />
 
@@ -57,7 +84,7 @@ export const Game = () => {
             <label htmlFor="grandma_cost">Next grandma cost:</label>
             <ToolCounter value={gameState.grandmaCost} />
         </div>
-        
+
         <div >
             <label htmlFor="farms">Farms: </label>
             <ToolCounter value={gameState.numberOfFarm} />
