@@ -1,11 +1,12 @@
 import './App.css';
 
-import { Game } from './pages/game';
+import { Game, ConnectWallet } from './pages/game';
 import { GameProvider } from './store/provider';
 
 const App = () =>
   <GameProvider>
     <div className="App">
+      <ConnectWallet />
       <Game />
     </div>
   </GameProvider>;

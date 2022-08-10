@@ -14,17 +14,8 @@ import { getTotalCps, isButtonEnabled } from '../store/utils';
 import { buyCursor, buyGrandma, buyFarm } from '../store/reducer';
 import { connectWallet, getAccount } from '../store/wallet';
 
-export const Game = () => {
-    const dispatch = useGameDispatch();
-    const gameState: state = useGame();
-
-    useEffect(() => {
-        // declare the data fetching function
-        dispatch(requestInit(dispatch));
-
-    }, [dispatch]);
-
-    const [account, setAccount] = useState("");
+export const ConnectWallet = () => {
+     const [account, setAccount] = useState("");
     useEffect(() => {
         (async () => {
             // Get the active account
@@ -41,6 +32,32 @@ export const Game = () => {
         setAccount(account);
     };
 
+    return <>
+      <div className="navbar navbar-dark bg-dark fixed-top">
+      <div className="container py-2">
+            Cookie Game
+      <div className="d-flex">
+         {/* Call connectWallet function onClick  */}
+        <button onClick={onConnectWallet} className="btn btn-outline-info">
+         {/* Show account address if wallet is connected */}
+         {account ? account : "Connect Wallet"}
+        </button>
+      </div>
+      </div>
+      </div>
+    </>
+}
+
+export const Game = () => {
+    const dispatch = useGameDispatch();
+    const gameState: state = useGame();
+
+    useEffect(() => {
+        // declare the data fetching function
+        dispatch(requestInit(dispatch));
+
+    }, [dispatch]);
+
     const handleCookieClick = () => {
         dispatch(addCookie(gameState, dispatch));
     }
@@ -55,14 +72,6 @@ export const Game = () => {
     }
 
     return <>
-        
-        <div>
-            {/* call connectWallet function onClick */}
-            <button onClick={onConnectWallet}>
-                {/* show account address if wallet is connect */}
-                {account ? account : "Connect Wallet"}
-            </button>
-        </div>
         
         <CookieButton onClick={handleCookieClick} />
         <CookieCounter value={gameState.numberOfCookie} cps={getTotalCps(gameState)} />

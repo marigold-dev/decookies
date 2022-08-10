@@ -5,7 +5,7 @@ Note that this guide is for internal use (as a developer perspective).
 
 First you need to start the `Deku-cluster` and be sure that all the nodes and the VM are running.
 
-Clone the branch `parametric-develop` from Deku.
+Clone the branch `cookie-game` from Deku.
 
 Run:
 
@@ -25,7 +25,7 @@ When the `Deku-cluster` is running, then go inside the `decookie` branch and run
 
 ```
 ./dapp.sh build_decookie
-./dapp.sh start
+./dapp.sh build_start
 ```
 
 First build the decookie project and then start it.
