@@ -62,7 +62,7 @@ export const Game = () => {
             </label>
             <label>
                 Deku node URI:
-                <input type="text" name="nodeUri" ref={nodeUriRef} />
+                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
             </label>
             <button onClick={handleSubmitClick}>Save!</button>
         </div>
