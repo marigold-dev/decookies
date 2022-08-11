@@ -88,12 +88,16 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
             return state;
         }
         case "CURSOR_PASSIVE_MINT": {
+            // This is ugly, but goal is also to test the number of transaction per second of Deku
+            // Can easily be reworked with the index.ts on Deku side
+            // to provide '{"action":"cookie", "amount":N}'
             for (let i = 0; i < (state.cursorCps); i++) {
                 mintCookie(action.dispatch);
             }
             return state;
         }
         case "PASSIVE_MINT": {
+            // see CURSOR_PASSIVE_MINT comment for a rework
             const cps = state.grandmaCps + state.farmCps;
             for (let i = 0; i < cps; i++) {
                 mintCookie(action.dispatch);
