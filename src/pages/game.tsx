@@ -8,9 +8,10 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, requestInit } from '../store/actions';
 import { useEffect, useRef } from 'react'
-import { getTotalCps, isButtonEnabled, buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { cookieBaker, getTotalCps, isButtonEnabled } from '../store/cookieBaker';
 
 export let userAddress: string;
 export let privateKey: string;
@@ -21,12 +22,12 @@ export const Game = () => {
     const privateKeyRef = useRef(null);
     const nodeUriRef = useRef(null);
     const dispatch = useGameDispatch();
-    const gameState: state = useGame();
+    const gameState: cookieBaker = useGame();
 
     useEffect(() => {
-        // declare the data fetching function
-        dispatch(requestInit(dispatch));
-
+        // No fetch is done here
+        // Since the first action is to retrieve the values from the form
+        // dispatch requestInit will be done when user clicked on submit
     }, [dispatch]);
 
     const handleSubmitClick = () => {
@@ -37,18 +38,17 @@ export const Game = () => {
     };
 
     const handleCookieClick = () => {
-        dispatch(addCookie(gameState, dispatch));
+        dispatch(addCookie(dispatch));
     }
     const handleCursorClick = () => {
-        dispatch(addCursor(gameState, dispatch));
+        dispatch(addCursor(dispatch));
     }
     const handleGrandmaClick = () => {
-        dispatch(addGrandma(gameState, dispatch));
+        dispatch(addGrandma(dispatch));
     }
     const handleFarmClick = () => {
-        dispatch(addFarm(gameState, dispatch));
+        dispatch(addFarm(dispatch));
     }
-
 
     return <>
         <div>
