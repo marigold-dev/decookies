@@ -7,8 +7,8 @@ interface Props {
     disabled: boolean
 };
 
-export const ToolButton: React.FC<Props> = ({ onClick, img, alt }) =>
+export const ToolButton: React.FC<Props> = ({ onClick, img, alt, disabled }) =>
     <button type="submit"
-        onClick={onClick}>
+        onClick={onClick} disabled={disabled}>
         <img src={img} alt={alt} />
     </button>
