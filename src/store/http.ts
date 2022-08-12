@@ -20,14 +20,29 @@ export const getActualState = async (): Promise<cookieBaker> => {
             method: "POST",
             body: JSON.stringify(null)
         });
-    const stateResponse = await stateRequest.json();
+    const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
+    console.log("Value: " + value);
     if (value.length !== 1) {
         console.error("More than one record for this address: " + userAddress);
         alert("More than one record for this address: " + userAddress);
         return initialState;
     } else {
-        const finalValue = value[0][1];
-        return finalValue.cookieBaker;
+        const finalValue = JSON.parse(value[0][1], parseReviver);
+        console.log("FinalValue: " + finalValue);
+        return finalValue;
     }
+}
+
+/**
+ * Helper to correctly parse BigInt
+ * @param _key unused
+ * @param value can be e BigInt
+ * @returns 
+ */
+const parseReviver = (_key: any, value: any) => {
+    if (typeof value === 'string' && /^\d+n$/.test(value)) {
+        return BigInt(value.slice(0, -1));
+    }
+    return value;
 }

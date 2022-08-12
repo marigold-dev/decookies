@@ -4,35 +4,35 @@
  */
 //TODO: use the deku cookieBaker?
 export type cookieBaker = {
-    cookies: number,
-    cursors: number,
-    grandmas: number,
-    farms: number,
-    freeCursor: number,
-    freeGrandma: number,
-    freeFarm: number,
-    cursorCost: number,
-    grandmaCost: number,
-    farmCost: number,
+    cookies: bigint,
+    cursors: bigint,
+    grandmas: bigint,
+    farms: bigint,
+    freeCursor: bigint,
+    freeGrandma: bigint,
+    freeFarm: bigint,
+    cursorCost: bigint,
+    grandmaCost: bigint,
+    farmCost: bigint,
     cursorCps: number,
-    grandmaCps: number,
-    farmCps: number
+    grandmaCps: bigint,
+    farmCps: bigint
 };
 
 export const initialState: cookieBaker = {
-    cookies: 0,
-    cursors: 0.,
-    grandmas: 0.,
-    farms: 0.,
-    freeCursor: 0,
-    freeGrandma: 0,
-    freeFarm: 0,
-    cursorCost: 0,
-    grandmaCost: 0,
-    farmCost: 0,
+    cookies: 0n,
+    cursors: 0n,
+    grandmas: 0n,
+    farms: 0n,
+    freeCursor: 0n,
+    freeGrandma: 0n,
+    freeFarm: 0n,
+    cursorCost: 0n,
+    grandmaCost: 0n,
+    farmCost: 0n,
     cursorCps: 0,
-    grandmaCps: 0,
-    farmCps: 0
+    grandmaCps: 0n,
+    farmCps: 0n
 }
 
 /**
@@ -41,7 +41,7 @@ export const initialState: cookieBaker = {
  * @returns 
  */
 export const getTotalCps = (state: cookieBaker): number => {
-    return state.cursorCps + state.grandmaCps + state.farmCps;
+    return state.cursorCps + Number(state.grandmaCps) + Number(state.farmCps);
 }
 
 /**

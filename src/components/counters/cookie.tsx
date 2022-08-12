@@ -1,11 +1,11 @@
 interface Props {
-    value: number,
+    value: bigint,
     cps: number
 }
 
 export const CookieCounter: React.FC<Props> = ({ value, cps }) => <>
     <div className="cookiesCounter">
-        {value} cookies
+        {value.toString()} cookies
     </div>
     <div className="cpsCounter">
         per second: {cps}
