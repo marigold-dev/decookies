@@ -9,6 +9,7 @@ import { cookieBaker } from './cookieBaker';
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
+export const buyMine = "buy_mine"
 
 /**
  * dispatch the INIT_STATE_OK, which means we successfully got the state from the VM
@@ -52,6 +53,13 @@ const mintFarm = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
         });
     return null;
 }
+const mintMine = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+    mint("mine").then(
+        st => {
+            dispatch(successfullyMinted(st));
+        });
+    return null;
+}
 
 /**
  * Classic reducer, perform the related business regarding the received action
@@ -77,6 +85,10 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
             mintFarm(action.dispatch);
             return state;
         }
+        case "ADD_MINE": {
+            mintMine(action.dispatch);
+            return state;
+        }
 
         case "INIT_STATE_REQUEST": {
             apiCallInit(action.dispatch)
@@ -98,7 +110,7 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
         }
         case "PASSIVE_MINT": {
             // see CURSOR_PASSIVE_MINT comment for a rework
-            const cps = state.grandmaCps + state.farmCps;
+            const cps = state.grandmaCps + state.farmCps + state.mineCps;
             for (let i = 0; i < cps; i++) {
                 mintCookie(action.dispatch);
             }

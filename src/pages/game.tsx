@@ -1,6 +1,7 @@
 import cursor from '../../resources/cursor.png';
 import grandma from '../../resources/grandma.png';
 import farm from '../../resources/farm.png';
+import mine from '../../resources/mine.png';
 
 import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
@@ -8,9 +9,9 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, requestInit } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, requestInit } from '../store/actions';
 import { useEffect, useRef } from 'react'
-import { buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { buyCursor, buyGrandma, buyFarm, buyMine } from '../store/reducer';
 import { cookieBaker, getTotalCps, isButtonEnabled } from '../store/cookieBaker';
 
 export let userAddress: string;
@@ -48,6 +49,9 @@ export const Game = () => {
     }
     const handleFarmClick = () => {
         dispatch(addFarm(dispatch));
+    }
+    const handleMineClick = () => {
+        dispatch(addMine(dispatch));
     }
 
     return <>
@@ -92,6 +96,14 @@ export const Game = () => {
                 onClick={handleFarmClick} />
             <label htmlFor="farm_cost">Next farm cost: </label>
             <ToolCounter value={gameState.farmCost} />
+        </div>
+        <div >
+            <label htmlFor="mines">Mines: </label>
+            <ToolCounter value={gameState.mines} />
+            <ToolButton disabled={!isButtonEnabled(gameState, buyMine)} img={mine} alt="Buy mine"
+                onClick={handleMineClick} />
+            <label htmlFor="mine_cost">Next mine cost: </label>
+            <ToolCounter value={gameState.mineCost} />
         </div>
     </>
 }
