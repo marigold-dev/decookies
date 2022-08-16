@@ -1,8 +1,8 @@
 interface Props {
-    value: number
+    value: bigint
 }
 
 export const ToolCounter: React.FC<Props> = ({ value }) =>
     <span className="toolsCounter">
-        {value}
+        {value.toString()}
     </span>

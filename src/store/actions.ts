@@ -1,28 +1,16 @@
 import * as React from 'react'
+import { cookieBaker } from './cookieBaker'
 
-export type state = {
-    numberOfCookie: number,
-    numberOfCursor: number,
-    numberOfGrandma: number,
-    numberOfFarm: number,
-    numberOfFreeCursor: number,
-    numberOfFreeGrandma: number,
-    numberOfFreeFarm: number,
-    cursorCost: number,
-    grandmaCost: number,
-    farmCost: number,
-    cursorCps: number,
-    grandmaCps: number,
-    farmCps: number
-};
-
+/**
+ * All the actions available
+ */
 type addCookies = {
     type: "ADD_COOKIE",
     dispatch: React.Dispatch<action>
 }
-type successfullyMinted = {
+type successfulMint = {
     type: "SUCCESSFULLY_MINTED",
-    state: state
+    state: cookieBaker
 }
 type addCursors = {
     type: "ADD_CURSOR",
@@ -57,11 +45,10 @@ export type passiveMint = {
     dispatch: React.Dispatch<action>
 }
 
-
-export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfullyMinted
+export type action = addCookies | addCursors | addGrandmas | addFarms | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfulMint
 
 // Action constructors
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM") => (state: state, dispatch: React.Dispatch<action>): action => ({
+const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM") => (dispatch: React.Dispatch<action>): action => ({
     type,
     dispatch
 });
@@ -70,13 +57,21 @@ export const requestInit = (dispatch: React.Dispatch<action>): action => ({
     type: "INIT_STATE_REQUEST",
     dispatch
 })
-export const activatePassiveMint = (state: state, dispatch: React.Dispatch<action>): action => ({
+export const successfullyInit = (dispatch: React.Dispatch<action>): action => ({
+    type: "INIT_STATE_OK",
+    dispatch
+})
+export const activatePassiveMint = (dispatch: React.Dispatch<action>): action => ({
     type: "PASSIVE_MINT",
     dispatch
 })
-export const activateCursorPassiveMint = (state: state, dispatch: React.Dispatch<action>): action => ({
+export const activateCursorPassiveMint = (dispatch: React.Dispatch<action>): action => ({
     type: "CURSOR_PASSIVE_MINT",
     dispatch
+})
+export const successfullyMinted = (state: cookieBaker): action => ({
+    type:"SUCCESSFULLY_MINTED",
+    state
 })
 
 export const addCookie = add("ADD_COOKIE");

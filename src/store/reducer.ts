@@ -1,185 +1,126 @@
-import { action, state } from './actions';
+import { action, successfullyInit, successfullyMinted } from './actions';
 import { InMemorySigner } from '@taquito/signer';
-import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+import { userAddress, nodeUri, privateKey } from '../pages/game';
+import { getActualState, requestBlockLevel } from './http';
+import { createHash, createNonce, stringToHex } from './utils';
+import { cookieBaker } from './cookieBaker';
 
-export const initialState: state = {
-    numberOfCookie: 0,
-    numberOfCursor: 0.,
-    numberOfGrandma: 0.,
-    numberOfFarm: 0.,
-    numberOfFreeCursor: 0,
-    numberOfFreeGrandma: 0,
-    numberOfFreeFarm: 0,
-    cursorCost: 0,
-    grandmaCost: 0,
-    farmCost: 0,
-    cursorCps: 0,
-    grandmaCps: 0,
-    farmCps: 0
-}
-
+// useful to determine if button is disabled or not
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
 
-
-export const userAddress = "tz1VULT8pu1NoWs7YPFWuvXSg3JSdGq55TXc";
-export const privateKey = "edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA";
-export const nodeUri = 'http://localhost:4440/';
-
-export const isButtonEnabled = (state: state, button: string): boolean => {
-    switch (button) {
-        case "buy_cursor": {
-            return (state.cursorCost <= state.numberOfCookie);
-        }
-        case "buy_grandma": {
-            return (state.grandmaCost <= state.numberOfCookie);
-        }
-        case "buy_farm": {
-            return (state.farmCost <= state.numberOfCookie);
-        }
-    }
-    return true;
-
-}
-
-export const getTotalCps = (state: state): number => {
-    return state.cursorCps + state.grandmaCps + state.farmCps;
-}
-
-const getActualState = async (): Promise<state> => {
-    const stateRequest = await fetch(nodeUri + "vm-state",
-        {
-            method: "POST",
-            body: JSON.stringify(null)
-        });
-    const stateResponse = await stateRequest.json();
-    const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
-    if (value.length !== 1) {
-        console.error("More than one record for this address: " + userAddress);
-        alert("More than one record for this address: " + userAddress);
-    } else {
-        const finalValue = value[0][1];
-        return finalValue.cookieBaker;
-    }
-}
-
-const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
+/**
+ * dispatch the INIT_STATE_OK, which means we successfully got the state from the VM
+ */
+const apiCallInit = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     getActualState().then(
-        st => {
-            dispatch({ type: "INIT_STATE_OK", dispatch });
+        _st => {
+            dispatch(successfullyInit(dispatch));
         });
     return null;
 }
 
-const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
+const mintCookie = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     mint("cookie").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-            return st;
+            dispatch(successfullyMinted(st));
         });
     return null;
 }
 
-const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
+const mintCursor = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     mint("cursor").then(
         st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-        });
-    return null;
-}
-const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("grandma").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-        });
-    return null;
-}
-const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("farm").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
+            dispatch(successfullyMinted(st));
         });
     return null;
 }
 
-export const reducer = (s: state, a: action): state => {
-    switch (a.type) {
+const mintGrandma = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+    mint("grandma").then(
+        st => {
+            dispatch(successfullyMinted(st));
+        });
+    return null;
+}
+
+const mintFarm = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+    mint("farm").then(
+        st => {
+            dispatch(successfullyMinted(st));
+        });
+    return null;
+}
+
+/**
+ * Classic reducer, perform the related business regarding the received action
+ * @param state 
+ * @param action 
+ * @returns 
+ */
+export const reducer = (state: cookieBaker, action: action): cookieBaker => {
+    switch (action.type) {
         case "ADD_COOKIE": {
-            mintCookie(a.dispatch);
-            return s;
+            mintCookie(action.dispatch);
+            return state;
         }
         case "ADD_CURSOR": {
-            mintCursor(a.dispatch);
-            return s;
+            mintCursor(action.dispatch);
+            return state;
         }
         case "ADD_GRANDMA": {
-            mintGrandma(a.dispatch);
-            return s;
+            mintGrandma(action.dispatch);
+            return state;
         }
         case "ADD_FARM": {
-            mintFarm(a.dispatch);
-            return s;
+            mintFarm(action.dispatch);
+            return state;
         }
 
         case "INIT_STATE_REQUEST": {
-            apiCallInit(a.dispatch)
-            return s;
+            apiCallInit(action.dispatch)
+            return state;
         }
         case "INIT_STATE_OK": {
-            setInterval(() => { a.dispatch({ type: "CURSOR_PASSIVE_MINT", dispatch: a.dispatch }) }, 10000);
-            setInterval(() => { a.dispatch({ type: "PASSIVE_MINT", dispatch: a.dispatch }) }, 1000);
-            return s;
+            setInterval(() => { action.dispatch({ type: "CURSOR_PASSIVE_MINT", dispatch: action.dispatch }) }, 10000);
+            setInterval(() => { action.dispatch({ type: "PASSIVE_MINT", dispatch: action.dispatch }) }, 1000);
+            return state;
         }
         case "CURSOR_PASSIVE_MINT": {
-            for (let i = 0; i < (s.cursorCps); i++) {
-                mintCookie(a.dispatch);
+            // This is ugly, but goal is also to test the number of transaction per second of Deku
+            // Can easily be reworked with the index.ts on Deku side
+            // to provide '{"action":"cookie", "amount":N}'
+            for (let i = 0; i < (state.cursorCps); i++) {
+                mintCookie(action.dispatch);
             }
-            return s;
+            return state;
         }
         case "PASSIVE_MINT": {
-            const cps = s.grandmaCps + s.farmCps;
+            // see CURSOR_PASSIVE_MINT comment for a rework
+            const cps = state.grandmaCps + state.farmCps;
             for (let i = 0; i < cps; i++) {
-                mintCookie(a.dispatch);
+                mintCookie(action.dispatch);
             }
-            return s;
+            return state;
         }
 
         case "INIT_STATE_KO": {
-            return s;
+            return state;
         }
 
         case "SUCCESSFULLY_MINTED": {
-            return a.state;
+            return action.state;
         }
     }
 }
 
-const blockLevel = "block-level";
-const userOperationGossip = "user-operation-gossip";
-
-const stringToHex = (payload: string): string => {
-    const input = Buffer.from(payload);
-    return buf2hex(input);
-}
-
-const requestBlockLevel = async (): Promise<number> => {
-    const blockRequest = await fetch(nodeUri + blockLevel,
-        {
-            method: "POST",
-            body: JSON.stringify(null)
-        });
-    const blockResponse = await blockRequest.json();
-    return blockResponse.level;
-}
-
-const createNonce = (): number => {
-    const maxInt32 = 2147483647;
-    const nonce = Math.floor(Math.random() * maxInt32);
-    return nonce;
-}
-
-const mint = async (action: string): Promise<state> => {
+/**
+ * Business function to mint the related thing
+ * @param action 
+ * @returns 
+ */
+const mint = async (action: string): Promise<cookieBaker> => {
 
     const signer = new InMemorySigner(privateKey);
 
@@ -192,7 +133,7 @@ const mint = async (action: string): Promise<state> => {
             payload
         }];
         const jsonToHash = JSON.stringify([userAddress, initialOperation]);
-        const innerHash = b58decode(encodeExpr(stringToHex(jsonToHash))).slice(4, -2);
+        const innerHash = createHash(jsonToHash);
         const data = {
             hash: innerHash, //⚠ respect the order of fields in the object for serialization
             source: userAddress,
@@ -206,7 +147,7 @@ const mint = async (action: string): Promise<state> => {
             data
         ]);
 
-        const outerHash = b58decode(encodeExpr(stringToHex(fullPayload))).slice(4, -2);
+        const outerHash = createHash(fullPayload);
         const signature = await signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
         const operation = {
             hash: outerHash,
@@ -219,12 +160,12 @@ const mint = async (action: string): Promise<state> => {
         const packet =
             { user_operation: operation };
 
-        await fetch(nodeUri + userOperationGossip,
+        await fetch(nodeUri + "/user-operation-gossip",
             {
                 method: "POST",
                 body: JSON.stringify(packet)
             });
-        const new_state: state = await getActualState();
+        const new_state: cookieBaker = await getActualState();
         return new_state;
     } catch (err) {
         console.error(err);
