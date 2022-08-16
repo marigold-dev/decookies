@@ -110,7 +110,7 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
         }
         case "PASSIVE_MINT": {
             // see CURSOR_PASSIVE_MINT comment for a rework
-            const cps = state.grandmaCps + state.farmCps;
+            const cps = state.grandmaCps + state.farmCps + state.mineCps;
             for (let i = 0; i < cps; i++) {
                 mintCookie(action.dispatch);
             }
