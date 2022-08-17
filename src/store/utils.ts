@@ -1,5 +1,4 @@
-import { action, state } from "./actions"
-import { getAccount } from "./wallet";
+import { state } from "./actions"
 import { buf2hex } from '@taquito/utils';
 
 export const nodeUri = 'http://localhost:4440/';
@@ -25,8 +24,8 @@ export const getTotalCps = (state: state): number => {
     return state.cursorCps + state.grandmaCps + state.farmCps;
 }
 
-export const getActualState = async (): Promise<state> => {
-    const userAddress = await getAccount();
+export const getActualState = async (account : string): Promise<state> => {
+    const userAddress = account;
     const stateRequest = await fetch(nodeUri + "vm-state",
         {
             method: "POST",
@@ -43,13 +42,7 @@ export const getActualState = async (): Promise<state> => {
     }
 }
 
-export const apiCallInit = (dispatch: React.Dispatch<action>): Promise<state> => {
-    getActualState().then(
-        st => {
-            dispatch({ type: "INIT_STATE_OK", dispatch });
-        });
-    return null;
-}
+
 
 export const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);

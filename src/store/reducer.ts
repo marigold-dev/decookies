@@ -1,8 +1,9 @@
-import { action, state } from './actions';
+import {  state } from './actions';
 import { encodeExpr, b58decode } from '@taquito/utils';
-import { getAccount, wallet, ReadOnlySigner } from "./wallet"
+import { ReadOnlySigner } from "./wallet"
 import * as utils from "./utils"
-import { tezos } from "./tezos"
+import { BeaconWallet } from '@taquito/beacon-wallet';
+import { TezosToolkit } from '@taquito/taquito';
 
 export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
@@ -21,11 +22,11 @@ export const initialState: state = {
     farmCost: 0,
     cursorCps: 0,
     grandmaCps: 0,
-    farmCps: 0
+    farmCps: 0,
 }
 
-const mint = async (action: string): Promise<state> => {
-    const userAddress = await getAccount();
+export const mint = async (action: string, account : string,wallet : BeaconWallet,tezos : TezosToolkit): Promise<state> => {
+    const userAddress = account;
     const activeAcc = await wallet.client.getActiveAccount();
     if (!activeAcc) {
         throw new Error("Not connected");
@@ -71,91 +72,10 @@ const mint = async (action: string): Promise<state> => {
                 method: "POST",
                 body: JSON.stringify(packet)
             });
-        const new_state: state = await utils.getActualState();
+        const new_state: state = await utils.getActualState(account);
         return new_state;
     } catch (err) {
         console.error(err);
     }
 }
 
-const mintCookie = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("cookie").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-            return st;
-        });
-    return null;
-}
-
-const mintCursor = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("cursor").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-        });
-    return null;
-}
-
-const mintGrandma = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("grandma").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-        });
-    return null;
-}
-
-const mintFarm = (dispatch: React.Dispatch<action>): Promise<state> => {
-    mint("farm").then(
-        st => {
-            dispatch({ type: "SUCCESSFULLY_MINTED", state: st });
-        });
-    return null;
-}
-
-export const reducer = (s: state, a: action): state => {
-    switch (a.type) {
-        case "ADD_COOKIE": {
-            mintCookie(a.dispatch);
-            return s;
-        }
-        case "ADD_CURSOR": {
-            mintCursor(a.dispatch);
-            return s;
-        }
-        case "ADD_GRANDMA": {
-            mintGrandma(a.dispatch);
-            return s;
-        }
-        case "ADD_FARM": {
-            mintFarm(a.dispatch);
-            return s;
-        }
-        case "INIT_STATE_REQUEST": {
-            utils.apiCallInit(a.dispatch)
-            return s;
-        }
-        case "INIT_STATE_OK": {
-            setInterval(() => { a.dispatch({ type: "CURSOR_PASSIVE_MINT", dispatch: a.dispatch }) }, 10000);
-            setInterval(() => { a.dispatch({ type: "PASSIVE_MINT", dispatch: a.dispatch }) }, 1000);
-            return s;
-        }
-        case "CURSOR_PASSIVE_MINT": {
-            for (let i = 0; i < (s.cursorCps); i++) {
-                mintCookie(a.dispatch);
-            }
-            return s;
-        }
-        case "PASSIVE_MINT": {
-            const cps = s.grandmaCps + s.farmCps;
-            for (let i = 0; i < cps; i++) {
-                mintCookie(a.dispatch);
-            }
-            return s;
-        }
-        case "INIT_STATE_KO": {
-            return s;
-        }
-        case "SUCCESSFULLY_MINTED": {
-            return a.state;
-        }
-    }
-}
