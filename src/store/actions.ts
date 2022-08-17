@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
+import { BeaconWallet } from "@taquito/beacon-wallet";
 
 /**
  * All the actions available
@@ -49,7 +50,19 @@ export type passiveMint = {
     dispatch: React.Dispatch<action>
 }
 
-export type action = addCookies | addCursors | addGrandmas | addFarms | addMines | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfulMint
+export type setAddress = {
+    type: "SET_ADDRESS",
+    address: string
+}
+export type setWallet = {
+    type: "SET_WALLET",
+    wallet: BeaconWallet
+}
+
+export type action = addCookies | addCursors | addGrandmas | addFarms | addMines
+    | initStateRequest | initStateOk | initStateKo
+    | passiveMint | cursorPassiveMint | successfulMint
+    | setAddress | setWallet;
 
 // Action constructors
 const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => (dispatch: React.Dispatch<action>): action => ({
@@ -74,7 +87,7 @@ export const activateCursorPassiveMint = (dispatch: React.Dispatch<action>): act
     dispatch
 })
 export const successfullyMinted = (state: cookieBaker): action => ({
-    type:"SUCCESSFULLY_MINTED",
+    type: "SUCCESSFULLY_MINTED",
     state
 })
 
@@ -83,3 +96,12 @@ export const addCursor = add("ADD_CURSOR");
 export const addGrandma = add("ADD_GRANDMA");
 export const addFarm = add("ADD_FARM");
 export const addMine = add("ADD_MINE");
+
+export const setAddress = (address: string): action => ({
+    type: "SET_ADDRESS",
+    address
+});
+export const setWallet = (wallet: BeaconWallet): action => ({
+    type: "SET_WALLET",
+    wallet
+});

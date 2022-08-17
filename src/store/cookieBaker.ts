@@ -1,3 +1,5 @@
+import { BeaconWallet } from "@taquito/beacon-wallet";
+
 /**
  * State type
  * Must be a subset of the cookieBaker defined in Deku
@@ -19,8 +21,10 @@ export type cookieBaker = {
     mineCost: bigint,
     cursorCps: number,
     grandmaCps: bigint,
-    farmCps: bigint
-    mineCps: bigint
+    farmCps: bigint,
+    mineCps: bigint,
+    address: string | null,
+    wallet: BeaconWallet | null
 };
 
 export const initialState: cookieBaker = {
@@ -40,7 +44,9 @@ export const initialState: cookieBaker = {
     cursorCps: 0,
     grandmaCps: 0n,
     farmCps: 0n,
-    mineCps: 0n
+    mineCps: 0n,
+    address: null,
+    wallet: null
 }
 
 /**

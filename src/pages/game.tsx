@@ -7,10 +7,11 @@ import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
 import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
+import { ConnectButton } from '../components/buttons/connectWallet';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, requestInit } from '../store/actions';
-import { useEffect, useRef } from 'react'
+import { addCookie, addFarm, addGrandma, addCursor, addMine, setWallet, setAddress } from '../store/actions';
+import { useEffect } from 'react'
 import { buyCursor, buyGrandma, buyFarm, buyMine } from '../store/reducer';
 import { cookieBaker, getTotalCps, isButtonEnabled } from '../store/cookieBaker';
 
@@ -19,9 +20,6 @@ export let privateKey: string;
 export let nodeUri: string;
 
 export const Game = () => {
-    const userAddressRef = useRef(null);
-    const privateKeyRef = useRef(null);
-    const nodeUriRef = useRef(null);
     const dispatch = useGameDispatch();
     const gameState: cookieBaker = useGame();
 
@@ -30,13 +28,6 @@ export const Game = () => {
         // Since the first action is to retrieve the values from the form
         // dispatch requestInit will be done when user clicked on submit
     }, [dispatch]);
-
-    const handleSubmitClick = () => {
-        userAddress = userAddressRef.current.value;
-        privateKey = privateKeyRef.current.value;
-        nodeUri = nodeUriRef.current.value;
-        dispatch(requestInit(dispatch));
-    };
 
     const handleCookieClick = () => {
         dispatch(addCookie(dispatch));
@@ -53,22 +44,16 @@ export const Game = () => {
     const handleMineClick = () => {
         dispatch(addMine(dispatch));
     }
-
+    const myWallet = gameState.wallet;
+    console.log(myWallet);
     return <>
         <div>
-            <label>
-                Public address:
-                <input type="text" name="userAddress" ref={userAddressRef} />
-            </label>
-            <label>
-                Private key:
-                <input type="text" name="privateKey" ref={privateKeyRef} />
-            </label>
-            <label>
-                Deku node URI:
-                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
-            </label>
-            <button onClick={handleSubmitClick}>Save!</button>
+            {
+                (gameState.address) ?
+                    <div>Hello ${gameState.address}</div>
+                    :
+                    <ConnectButton dispatch={dispatch} rpc="" setWallet={setWallet} setAddress={setAddress} wallet={gameState?.wallet} ></ConnectButton>
+            }
         </div>
         <CookieButton onClick={handleCookieClick} />
         <CookieCounter value={gameState.cookies} cps={getTotalCps(gameState)} />

@@ -14,7 +14,7 @@ export const buyMine = "buy_mine"
 /**
  * dispatch the INIT_STATE_OK, which means we successfully got the state from the VM
  */
-const apiCallInit = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const apiCallInit = (dispatch: React.Dispatch<action>): null => {
     getActualState().then(
         _st => {
             dispatch(successfullyInit(dispatch));
@@ -22,7 +22,7 @@ const apiCallInit = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => 
     return null;
 }
 
-const mintCookie = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintCookie = (dispatch: React.Dispatch<action>): null => {
     mint("cookie").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -30,7 +30,7 @@ const mintCookie = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     return null;
 }
 
-const mintCursor = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintCursor = (dispatch: React.Dispatch<action>): null => {
     mint("cursor").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -38,7 +38,7 @@ const mintCursor = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     return null;
 }
 
-const mintGrandma = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintGrandma = (dispatch: React.Dispatch<action>): null => {
     mint("grandma").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -46,14 +46,14 @@ const mintGrandma = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => 
     return null;
 }
 
-const mintFarm = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintFarm = (dispatch: React.Dispatch<action>): null => {
     mint("farm").then(
         st => {
             dispatch(successfullyMinted(st));
         });
     return null;
 }
-const mintMine = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintMine = (dispatch: React.Dispatch<action>): null => {
     mint("mine").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -68,6 +68,7 @@ const mintMine = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
  * @returns 
  */
 export const reducer = (state: cookieBaker, action: action): cookieBaker => {
+    console.log(action)
     switch (action.type) {
         case "ADD_COOKIE": {
             mintCookie(action.dispatch);
@@ -123,6 +124,18 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
 
         case "SUCCESSFULLY_MINTED": {
             return action.state;
+        }
+        case "SUCCESSFULLY_MINTED": {
+            return action.state;
+        }
+        case "SUCCESSFULLY_MINTED": {
+            return action.state;
+        }
+        case "SET_ADDRESS": {
+            return { ...state, address: action.address }
+        }
+        case "SET_WALLET": {
+            return { ...state, wallet: action.wallet }
         }
     }
 }
@@ -181,5 +194,6 @@ const mint = async (action: string): Promise<cookieBaker> => {
         return new_state;
     } catch (err) {
         console.error(err);
+        return Promise.reject(err);
     }
 }
