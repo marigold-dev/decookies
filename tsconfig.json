@@ -7,19 +7,27 @@
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "allowUnreachableCode": false,
+    "strictNullChecks": true, /* When type checking, take into account `null` and `undefined`. */
+    "strictFunctionTypes": true, /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+    "strictBindCallApply": true, /* Check that the arguments for `bind`, `call`, and `apply` methods match the original function. */
+    "strictPropertyInitialization": true, /* Check for class properties that are declared but not set in the constructor. */
+    "noImplicitThis": true,
+    "exactOptionalPropertyTypes": true, /* Interpret optional property types as written, rather than adding 'undefined'. */
+    "noImplicitReturns": true, /* Enable error reporting for codepaths that do not explicitly return in a function. */
+    "noFallthroughCasesInSwitch": true, /* Enable error reporting for fallthrough cases in switch statements. */
+    "skipLibCheck": true, /* Skip type checking all .d.ts files. */
   },
   "include": [
     "src"
