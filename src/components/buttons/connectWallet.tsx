@@ -39,11 +39,14 @@ export const ConnectButton: React.FC<Props> = ({
     };
 
     const createWallet = (): void => {
-        new TezosToolkit(rpc);
+
+        const Tezos = new TezosToolkit(rpc);
         // creates a wallet instance if not exists
         const myWallet = wallet ? wallet : new BeaconWallet({
             name: "decookies"
         });
+        // regarding the documentation this step is necessary
+        Tezos.setWalletProvider(myWallet);
         dispatch(setWallet(myWallet));
     }
 

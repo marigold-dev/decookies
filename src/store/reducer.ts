@@ -4,7 +4,7 @@ import { getActualState, requestBlockLevel } from './http';
 import { createHash, createNonce, stringToHex } from './utils';
 import { applicationState, cookieBaker } from './cookieBaker';
 import { BeaconWallet } from '@taquito/beacon-wallet';
-import { SigningType } from "@airgap/beacon-sdk";
+import { InMemorySigner } from '@taquito/signer';
 
 // useful to determine if button is disabled or not
 export const buyCursor = "buy_cursor"
@@ -23,7 +23,7 @@ const apiCallInit = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | nu
     return null;
 }
 
-const mintCookie = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null, userAddress:string | null): null => {
+const mintCookie = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null): null => {
     mint("cookie", wallet).then(
         st => {
             dispatch(successfullyMinted(st));
@@ -31,7 +31,7 @@ const mintCookie = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | nul
     return null;
 }
 
-const mintCursor = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null, userAddress: string | null): null => {
+const mintCursor = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null): null => {
     mint("cursor", wallet).then(
         st => {
             dispatch(successfullyMinted(st));
@@ -39,7 +39,7 @@ const mintCursor = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | nul
     return null;
 }
 
-const mintGrandma = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null, userAddress: string | null): null => {
+const mintGrandma = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null): null => {
     mint("grandma", wallet).then(
         st => {
             dispatch(successfullyMinted(st));
@@ -47,14 +47,14 @@ const mintGrandma = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | nu
     return null;
 }
 
-const mintFarm = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null, userAddress: string | null): null => {
+const mintFarm = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null): null => {
     mint("farm", wallet).then(
         st => {
             dispatch(successfullyMinted(st));
         });
     return null;
 }
-const mintMine = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null, userAddress: string | null): null => {
+const mintMine = (dispatch: React.Dispatch<action>, wallet: BeaconWallet | null): null => {
     mint("mine", wallet).then(
         st => {
             dispatch(successfullyMinted(st));
@@ -72,23 +72,23 @@ export const reducer = (state: applicationState, action: action): applicationSta
     console.log(action)
     switch (action.type) {
         case "ADD_COOKIE": {
-            mintCookie(action.dispatch, state.wallet, state.address);
+            mintCookie(action.dispatch, state.wallet);
             return state;
         }
         case "ADD_CURSOR": {
-            mintCursor(action.dispatch, state.wallet, state.address);
+            mintCursor(action.dispatch, state.wallet);
             return state;
         }
         case "ADD_GRANDMA": {
-            mintGrandma(action.dispatch, state.wallet, state.address);
+            mintGrandma(action.dispatch, state.wallet);
             return state;
         }
         case "ADD_FARM": {
-            mintFarm(action.dispatch, state.wallet, state.address);
+            mintFarm(action.dispatch, state.wallet);
             return state;
         }
         case "ADD_MINE": {
-            mintMine(action.dispatch, state.wallet, state.address);
+            mintMine(action.dispatch, state.wallet);
             return state;
         }
 
@@ -106,7 +106,7 @@ export const reducer = (state: applicationState, action: action): applicationSta
             // Can easily be reworked with the index.ts on Deku side
             // to provide '{"action":"cookie", "amount":N}'
             for (let i = 0; i < (state.cookieBaker.cursorCps); i++) {
-                mintCookie(action.dispatch, state.wallet, state.address);
+                mintCookie(action.dispatch, state.wallet);
             }
             return state;
         }
@@ -114,7 +114,7 @@ export const reducer = (state: applicationState, action: action): applicationSta
             // see CURSOR_PASSIVE_MINT comment for a rework
             const cps = state.cookieBaker.grandmaCps + state.cookieBaker.farmCps + state.cookieBaker.mineCps;
             for (let i = 0; i < cps; i++) {
-                mintCookie(action.dispatch, state.wallet, state.address);
+                mintCookie(action.dispatch, state.wallet);
             }
             return state;
         }
@@ -145,7 +145,7 @@ const mint = async (action: string, wallet: BeaconWallet | null): Promise<cookie
     if (wallet === null) {
         return Promise.reject("Wallet is not set");
     } else {
-        
+
         try {
             const activeAccount = await wallet.client.getActiveAccount();
             let publicKey: string;
@@ -181,15 +181,26 @@ const mint = async (action: string, wallet: BeaconWallet | null): Promise<cookie
                 data
             ]);
 
-            const outerHash = createHash(fullPayload);
-            // const signature = await signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
+            // this is Alice private key from Temple
+            // You can replace it by the private key of the account you want to test
+            const signer = new InMemorySigner("edskRpm2mUhvoUjHjXgMoDRxMKhtKfww1ixmWiHCWhHuMEEbGzdnz8Ks4vgarKDtxok7HmrEo1JzkXkdkvyw7Rtw6BNtSd7MJ7");
+            // signature generated by the InMemorySigner
+            const signatureSigner = await signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
+            console.log("Signature from Signer: " + signatureSigner);
+
+
+            // Let's do the same with the Beacon
             const signature = await wallet.client.requestSignPayload({
-                signingType: SigningType.RAW,
                 payload: stringToHex(fullPayload)
             }).then(val => val.signature);
-            console.log(signature);
+            // Sign the exact same payload with the wallet
+            // This signature will be different from the previous one, is it normal?
+            // Moreover, this signature is rejected by Deku
+            console.log("Signature from UI: " + signature);
+
+            // Checked: this publicKey from the wallet is correct
             const key = publicKey;
-            console.log(key);
+            const outerHash = createHash(fullPayload);
             const operation = {
                 hash: outerHash,
                 key,
