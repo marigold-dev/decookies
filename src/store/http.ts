@@ -23,9 +23,12 @@ export const getActualState = async (): Promise<cookieBaker> => {
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
     console.log("Value: " + value);
-    if (value.length !== 1) {
+    if (value.length > 1) {
         console.error("More than one record for this address: " + userAddress);
         alert("More than one record for this address: " + userAddress);
+    } else if (value.length === 0) {
+        console.log("Not state found for : " + userAddress);
+        console.log("Creating new state");
         return initialState;
     } else {
         const finalValue = JSON.parse(value[0][1], parseReviver);

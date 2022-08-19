@@ -14,7 +14,7 @@ export const buyMine = "buy_mine"
 /**
  * dispatch the INIT_STATE_OK, which means we successfully got the state from the VM
  */
-const apiCallInit = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const apiCallInit = (dispatch: React.Dispatch<action>): null => {
     getActualState().then(
         _st => {
             dispatch(successfullyInit(dispatch));
@@ -30,7 +30,7 @@ const mintCookie = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     return null;
 }
 
-const mintCursor = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintCursor = (dispatch: React.Dispatch<action>): null => {
     mint("cursor").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -38,7 +38,7 @@ const mintCursor = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
     return null;
 }
 
-const mintGrandma = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintGrandma = (dispatch: React.Dispatch<action>): null => {
     mint("grandma").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -46,14 +46,14 @@ const mintGrandma = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => 
     return null;
 }
 
-const mintFarm = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintFarm = (dispatch: React.Dispatch<action>): null => {
     mint("farm").then(
         st => {
             dispatch(successfullyMinted(st));
         });
     return null;
 }
-const mintMine = (dispatch: React.Dispatch<action>): Promise<cookieBaker> => {
+const mintMine = (dispatch: React.Dispatch<action>): null => {
     mint("mine").then(
         st => {
             dispatch(successfullyMinted(st));
@@ -89,7 +89,6 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
             mintMine(action.dispatch);
             return state;
         }
-
         case "INIT_STATE_REQUEST": {
             apiCallInit(action.dispatch)
             return state;
@@ -116,11 +115,9 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
             }
             return state;
         }
-
         case "INIT_STATE_KO": {
             return state;
         }
-
         case "SUCCESSFULLY_MINTED": {
             return action.state;
         }
@@ -134,12 +131,11 @@ export const reducer = (state: cookieBaker, action: action): cookieBaker => {
  */
 const mint = async (action: string): Promise<cookieBaker> => {
 
-    const signer = new InMemorySigner(privateKey);
+    const signer = new InMemorySigner("edsk4DyzAscLW5sLqwCshFTorckGBGed318dCt8gvFeUFH9gD9wwVA");
 
     try {
         const key = await signer.publicKey();
 
-        const block_height = await requestBlockLevel();
         const payload = action;
         const initialOperation = ["Vm_transaction", {
             payload
@@ -151,7 +147,8 @@ const mint = async (action: string): Promise<cookieBaker> => {
             source: userAddress,
             initial_operation: initialOperation,
         }
-
+        
+        const block_height = await requestBlockLevel();
         let nonce = createNonce();
         const fullPayload = JSON.stringify([ //FIXME: useless?
             nonce,
@@ -177,8 +174,8 @@ const mint = async (action: string): Promise<cookieBaker> => {
                 method: "POST",
                 body: JSON.stringify(packet)
             });
-        const new_state: cookieBaker = await getActualState();
-        return new_state;
+        const newState: cookieBaker = await getActualState();
+        return newState;
     } catch (err) {
         console.error(err);
     }
