@@ -9,7 +9,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, startBakery, saveNodeUri, saveWallet, initState } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
@@ -22,6 +22,7 @@ export let nodeUri: string;
 export const Game = () => {
     const dispatch = useGameDispatch();
     const gameState: state = useGame();
+    const latestState = useRef(gameState);
 
     // Refs
     const userAddressRef = useRef<HTMLInputElement | null>(null);
@@ -30,12 +31,19 @@ export const Game = () => {
 
 
     useEffect(() => {
-        initState(dispatch);
-        const id = startBakery(dispatch, useGame);
-        return () => {
-            clearInterval(id);
-        };
-    }, []);
+        if (latestState.current.wallet) {
+            initState(dispatch);
+            const id = setInterval(() => {
+                const cb = latestState.current.cookieBaker;
+                const production = getTotalCps(cb);
+                addCookie(dispatch, latestState.current, production)
+            }, 1000)
+            return () => {
+                clearInterval(id);
+            };
+        }
+        return () => { }
+    }, [dispatch]);
 
     const handleConnection = () => {
         userAddress = userAddressRef.current?.value || "";
@@ -50,30 +58,30 @@ export const Game = () => {
     };
 
     const handleCookieClick = () => {
-        addCookie(dispatch, useGame);
+        addCookie(dispatch, gameState);
     }
     const handleCursorClick = () => {
-        addCursor(dispatch, useGame);
+        addCursor(dispatch, gameState);
     }
     const handleGrandmaClick = () => {
-        addGrandma(dispatch, useGame);
+        addGrandma(dispatch, gameState);
     }
     const handleFarmClick = () => {
-        addFarm(dispatch, useGame);
+        addFarm(dispatch, gameState);
     }
     const handleMineClick = () => {
-        addMine(dispatch, useGame);
+        addMine(dispatch, gameState);
     }
 
     return <>
         <div>
             <label>
                 Public address:
-                <input type="text" name="userAddress" ref={userAddressRef} />
+                <input type="text" name="userAddress" ref={userAddressRef} defaultValue="tz1bS3Q3ReR69ne6AaLRpkM45ud85ceX9x7K" />
             </label>
             <label>
                 Private key:
-                <input type="text" name="privateKey" ref={privateKeyRef} />
+                <input type="text" name="privateKey" ref={privateKeyRef} defaultValue="edsk3171aZSpaDRGaSxah3GKnWpjxKz1tToL6PR5mTSaCpjYA1mUs4" />
             </label>
             <label>
                 Deku node URI:
@@ -81,13 +89,13 @@ export const Game = () => {
             </label>
             <button onClick={handleConnection}>Connect!</button>
         </div>
-        <CookieButton onClick={handleCookieClick} />
+        <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
         <CookieCounter value={gameState.cookieBaker.cookies} cps={getTotalCps(gameState.cookieBaker)} />
 
         <div>
             <label htmlFor="Cursors">Cursors: </label>
             <ToolCounter value={gameState.cookieBaker.cursors} />
-            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
+            <ToolButton disabled={gameState.wallet === null || !isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
                 onClick={handleCursorClick} />
             <label htmlFor="cursor_cost">Next cursor cost: </label>
             <ToolCounter value={gameState.cookieBaker.cursorCost} />
@@ -95,7 +103,7 @@ export const Game = () => {
         <div >
             <label htmlFor="Grandmas">Grandmas: </label>
             <ToolCounter value={gameState.cookieBaker.grandmas} />
-            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyGrandma)} img={grandma} alt="Buy grandma"
+            <ToolButton disabled={gameState.wallet === null || !isButtonEnabled(gameState.cookieBaker, buyGrandma)} img={grandma} alt="Buy grandma"
                 onClick={handleGrandmaClick} />
             <label htmlFor="grandma_cost">Next grandma cost:</label>
             <ToolCounter value={gameState.cookieBaker.grandmaCost} />
@@ -103,7 +111,7 @@ export const Game = () => {
         <div >
             <label htmlFor="farms">Farms: </label>
             <ToolCounter value={gameState.cookieBaker.farms} />
-            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyFarm)} img={farm} alt="Buy farm"
+            <ToolButton disabled={gameState.wallet === null || !isButtonEnabled(gameState.cookieBaker, buyFarm)} img={farm} alt="Buy farm"
                 onClick={handleFarmClick} />
             <label htmlFor="farm_cost">Next farm cost: </label>
             <ToolCounter value={gameState.cookieBaker.farmCost} />
@@ -111,7 +119,7 @@ export const Game = () => {
         <div >
             <label htmlFor="mines">Mines: </label>
             <ToolCounter value={gameState.cookieBaker.mines} />
-            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyMine)} img={mine} alt="Buy mine"
+            <ToolButton disabled={gameState.wallet === null || !isButtonEnabled(gameState.cookieBaker, buyMine)} img={mine} alt="Buy mine"
                 onClick={handleMineClick} />
             <label htmlFor="mine_cost">Next mine cost: </label>
             <ToolCounter value={gameState.cookieBaker.mineCost} />

@@ -61,10 +61,10 @@ export const clearError = (): action => ({
     type: "CLEAR_ERROR"
 });
 
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, getState: (() => state), payload: number = 1): Promise<void> => {
+const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: state, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
-        const signer = getState().wallet;
+        const signer = state.wallet;
         if (!signer) {
             throw new Error("Wallet must be saved before minting");
         }
@@ -96,11 +96,4 @@ export const addMine = add("ADD_MINE");
 export const initState = async (dispatch: React.Dispatch<action>) => {
     const vmState = await getActualState();
     dispatch(fullUpdateCB(vmState));
-}
-export const startBakery = (dispatch: React.Dispatch<action>, getState: (() => state)) => {
-    return setInterval(() => {
-        const cb = getState().cookieBaker;
-        const production = getTotalCps(cb);
-        addCookie(dispatch, getState, production)
-    }, 1000)
 }

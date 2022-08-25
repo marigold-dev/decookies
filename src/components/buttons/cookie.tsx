@@ -3,10 +3,11 @@ import "./cookie.css";
 
 interface Props {
     onClick: React.MouseEventHandler<HTMLButtonElement>,
+    disabled: boolean
 };
 
-export const CookieButton: React.FC<Props> = ({ onClick }) =>
+export const CookieButton: React.FC<Props> = ({ onClick, disabled }) =>
     <button
-        onClick={onClick} >
+        onClick={onClick} disabled={disabled}  >
         <img src={cookie} className="CookieBtn" alt="logo" />
     </button>
