@@ -9,49 +9,60 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, requestInit } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, startBakery, saveNodeUri, saveWallet, initState } from '../store/actions';
 import { useEffect, useRef } from 'react'
-import { buyCursor, buyGrandma, buyFarm, buyMine } from '../store/reducer';
-import { cookieBaker, getTotalCps, isButtonEnabled } from '../store/cookieBaker';
+import { state } from '../store/reducer';
+import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
+import { InMemorySigner } from '@taquito/signer';
 
 export let userAddress: string;
 export let privateKey: string;
 export let nodeUri: string;
 
 export const Game = () => {
-    const userAddressRef = useRef(null);
-    const privateKeyRef = useRef(null);
-    const nodeUriRef = useRef(null);
     const dispatch = useGameDispatch();
-    const gameState: cookieBaker = useGame();
+    const gameState: state = useGame();
+
+    // Refs
+    const userAddressRef = useRef<HTMLInputElement | null>(null);
+    const privateKeyRef = useRef<HTMLInputElement | null>(null);
+    const nodeUriRef = useRef<HTMLInputElement | null>(null);
+
 
     useEffect(() => {
-        // No fetch is done here
-        // Since the first action is to retrieve the values from the form
-        // dispatch requestInit will be done when user clicked on submit
-    }, [dispatch]);
+        initState(dispatch);
+        const id = startBakery(dispatch, useGame);
+        return () => {
+            clearInterval(id);
+        };
+    }, []);
 
-    const handleSubmitClick = () => {
-        userAddress = userAddressRef.current.value;
-        privateKey = privateKeyRef.current.value;
-        nodeUri = nodeUriRef.current.value;
-        dispatch(requestInit(dispatch));
+    const handleConnection = () => {
+        userAddress = userAddressRef.current?.value || "";
+        dispatch(saveAddress(userAddress));
+
+        privateKey = privateKeyRef.current?.value || "";
+        const wallet = new InMemorySigner(privateKey);
+        dispatch(saveWallet(wallet));
+
+        nodeUri = nodeUriRef.current?.value || "";
+        dispatch(saveNodeUri(nodeUri));
     };
 
     const handleCookieClick = () => {
-        dispatch(addCookie(dispatch));
+        addCookie(dispatch, useGame);
     }
     const handleCursorClick = () => {
-        dispatch(addCursor(dispatch));
+        addCursor(dispatch, useGame);
     }
     const handleGrandmaClick = () => {
-        dispatch(addGrandma(dispatch));
+        addGrandma(dispatch, useGame);
     }
     const handleFarmClick = () => {
-        dispatch(addFarm(dispatch));
+        addFarm(dispatch, useGame);
     }
     const handleMineClick = () => {
-        dispatch(addMine(dispatch));
+        addMine(dispatch, useGame);
     }
 
     return <>
@@ -68,42 +79,42 @@ export const Game = () => {
                 Deku node URI:
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
             </label>
-            <button onClick={handleSubmitClick}>Save!</button>
+            <button onClick={handleConnection}>Connect!</button>
         </div>
         <CookieButton onClick={handleCookieClick} />
-        <CookieCounter value={gameState.cookies} cps={getTotalCps(gameState)} />
+        <CookieCounter value={gameState.cookieBaker.cookies} cps={getTotalCps(gameState.cookieBaker)} />
 
         <div>
             <label htmlFor="Cursors">Cursors: </label>
-            <ToolCounter value={gameState.cursors} />
-            <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
+            <ToolCounter value={gameState.cookieBaker.cursors} />
+            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
                 onClick={handleCursorClick} />
             <label htmlFor="cursor_cost">Next cursor cost: </label>
-            <ToolCounter value={gameState.cursorCost} />
+            <ToolCounter value={gameState.cookieBaker.cursorCost} />
         </div>
         <div >
             <label htmlFor="Grandmas">Grandmas: </label>
-            <ToolCounter value={gameState.grandmas} />
-            <ToolButton disabled={!isButtonEnabled(gameState, buyGrandma)} img={grandma} alt="Buy grandma"
+            <ToolCounter value={gameState.cookieBaker.grandmas} />
+            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyGrandma)} img={grandma} alt="Buy grandma"
                 onClick={handleGrandmaClick} />
             <label htmlFor="grandma_cost">Next grandma cost:</label>
-            <ToolCounter value={gameState.grandmaCost} />
+            <ToolCounter value={gameState.cookieBaker.grandmaCost} />
         </div>
         <div >
             <label htmlFor="farms">Farms: </label>
-            <ToolCounter value={gameState.farms} />
-            <ToolButton disabled={!isButtonEnabled(gameState, buyFarm)} img={farm} alt="Buy farm"
+            <ToolCounter value={gameState.cookieBaker.farms} />
+            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyFarm)} img={farm} alt="Buy farm"
                 onClick={handleFarmClick} />
             <label htmlFor="farm_cost">Next farm cost: </label>
-            <ToolCounter value={gameState.farmCost} />
+            <ToolCounter value={gameState.cookieBaker.farmCost} />
         </div>
         <div >
             <label htmlFor="mines">Mines: </label>
-            <ToolCounter value={gameState.mines} />
-            <ToolButton disabled={!isButtonEnabled(gameState, buyMine)} img={mine} alt="Buy mine"
+            <ToolCounter value={gameState.cookieBaker.mines} />
+            <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyMine)} img={mine} alt="Buy mine"
                 onClick={handleMineClick} />
             <label htmlFor="mine_cost">Next mine cost: </label>
-            <ToolCounter value={gameState.mineCost} />
+            <ToolCounter value={gameState.cookieBaker.mineCost} />
         </div>
     </>
 }

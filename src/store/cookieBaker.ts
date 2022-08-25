@@ -1,5 +1,5 @@
 /**
- * State type
+ * VM state type
  * Must be a subset of the cookieBaker defined in Deku
  */
 //TODO: use the deku cookieBaker?
@@ -42,6 +42,12 @@ export const initialState: cookieBaker = {
     farmCps: 0n,
     mineCps: 0n
 }
+
+// useful to determine if button is disabled or not
+export const buyCursor = "buy_cursor"
+export const buyGrandma = "buy_grandma"
+export const buyFarm = "buy_farm"
+export const buyMine = "buy_mine"
 
 /**
  * Calculate the total Cookie Per Second of the provided state
