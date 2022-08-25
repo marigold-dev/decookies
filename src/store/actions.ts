@@ -11,7 +11,7 @@ type addCookies = {
 }
 type successfulMint = {
     type: "SUCCESSFULLY_MINTED",
-    state: cookieBaker
+    cookieBaker: cookieBaker
 }
 type addCursors = {
     type: "ADD_CURSOR",
@@ -86,9 +86,9 @@ export const activateCursorPassiveMint = (dispatch: React.Dispatch<action>): act
     type: "CURSOR_PASSIVE_MINT",
     dispatch
 })
-export const successfullyMinted = (state: cookieBaker): action => ({
+export const successfullyMinted = (cookieBaker: cookieBaker): action => ({
     type: "SUCCESSFULLY_MINTED",
-    state
+    cookieBaker
 })
 
 export const addCookie = add("ADD_COOKIE");
