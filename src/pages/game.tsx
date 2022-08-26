@@ -23,7 +23,7 @@ export const Game = () => {
     const dispatch = useGameDispatch();
     const gameState: state = useGame();
     const latestState = useRef(gameState);
-
+    latestState.current = gameState;
     // Refs
     const userAddressRef = useRef<HTMLInputElement | null>(null);
     const privateKeyRef = useRef<HTMLInputElement | null>(null);
@@ -35,18 +35,24 @@ export const Game = () => {
             initState(dispatch);
             const id = setInterval(() => {
                 const cb = latestState.current.cookieBaker;
+                console.log(cb);
                 const production = getTotalCps(cb);
-                addCookie(dispatch, latestState.current, production)
+                try {
+                    addCookie(dispatch, latestState, Number(production))
+                } catch (error) {
+                    console.error("big error")
+                }
             }, 1000)
             return () => {
                 clearInterval(id);
             };
         }
         return () => { }
-    }, [dispatch]);
+    }, [dispatch, latestState.current.wallet]);
 
     const handleConnection = () => {
         userAddress = userAddressRef.current?.value || "";
+        console.log(userAddress);
         dispatch(saveAddress(userAddress));
 
         privateKey = privateKeyRef.current?.value || "";
@@ -58,19 +64,19 @@ export const Game = () => {
     };
 
     const handleCookieClick = () => {
-        addCookie(dispatch, gameState);
+        addCookie(dispatch, latestState);
     }
     const handleCursorClick = () => {
-        addCursor(dispatch, gameState);
+        addCursor(dispatch, latestState);
     }
     const handleGrandmaClick = () => {
-        addGrandma(dispatch, gameState);
+        addGrandma(dispatch, latestState);
     }
     const handleFarmClick = () => {
-        addFarm(dispatch, gameState);
+        addFarm(dispatch, latestState);
     }
     const handleMineClick = () => {
-        addMine(dispatch, gameState);
+        addMine(dispatch, latestState);
     }
 
     return <>

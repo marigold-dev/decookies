@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cookieBaker, getTotalCps } from './cookieBaker'
+import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
@@ -61,19 +61,19 @@ export const clearError = (): action => ({
     type: "CLEAR_ERROR"
 });
 
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: state, payload: number = 1): Promise<void> => {
+const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
-        const signer = state.wallet;
+        const signer = state.current.wallet;
         if (!signer) {
             throw new Error("Wallet must be saved before minting");
         }
         if (signer instanceof BeaconWallet) {
             throw new Error("BeaconWallet is not yet supported");
         }
-        const actions: Array<Promise<string>> = Array(payload).map(() => mint(vmAction, signer));
+        const actions: Array<Promise<string>> = Array(payload).fill(1).map( () => mint(vmAction, signer));
         const ophash = await Promise.all(actions);
-        console.debug(`New operations submitted to VM: ${ophash}`);
+        console.warn(`New operations submitted to VM:` ,ophash);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState();

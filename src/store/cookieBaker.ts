@@ -9,18 +9,11 @@ export type cookieBaker = {
     grandmas: bigint,
     farms: bigint,
     mines: bigint,
-    freeCursor: bigint,
-    freeGrandma: bigint,
-    freeFarm: bigint,
-    freeMine: bigint,
     cursorCost: bigint,
     grandmaCost: bigint,
     farmCost: bigint,
     mineCost: bigint,
-    cursorCps: number,
-    grandmaCps: bigint,
-    farmCps: bigint
-    mineCps: bigint
+    passiveCPS: bigint
 };
 
 export const initialState: cookieBaker = {
@@ -29,18 +22,11 @@ export const initialState: cookieBaker = {
     grandmas: 0n,
     farms: 0n,
     mines: 0n,
-    freeCursor: 0n,
-    freeGrandma: 0n,
-    freeFarm: 0n,
-    freeMine: 0n,
     cursorCost: 0n,
     grandmaCost: 0n,
     farmCost: 0n,
-    mineCost: 0n,
-    cursorCps: 0,
-    grandmaCps: 0n,
-    farmCps: 0n,
-    mineCps: 0n
+    mineCost:0n,
+    passiveCPS: 0n
 }
 
 // useful to determine if button is disabled or not
@@ -54,12 +40,12 @@ export const buyMine = "buy_mine"
  * @param state 
  * @returns 
  */
-export const getTotalCps = (state: cookieBaker): number => {
-    return state.cursorCps + Number(state.grandmaCps) + Number(state.farmCps) + Number(state.mineCps);
+export const getTotalCps = (state: cookieBaker): bigint => {
+    return state.passiveCPS;
 }
 
 /**
- * Determine id a button is enabled based on the provided state
+ * Determine if a button is enabled based on the provided state
  * @param state 
  * @param button 
  * @returns 

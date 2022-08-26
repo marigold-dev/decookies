@@ -1,6 +1,4 @@
-import { BeaconWallet } from '@taquito/beacon-wallet';
 import { InMemorySigner } from '@taquito/signer';
-import { type } from 'os';
 
 import { userAddress, nodeUri } from '../pages/game';
 import { initialState, cookieBaker } from './cookieBaker';
@@ -27,10 +25,14 @@ export const getActualState = async (): Promise<cookieBaker> => {
         });
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
-    console.log("Value: " + value);
-    if (value.length !== 1) {
-        console.error("More than one record for this address: " + userAddress);
+    console.log("Value: ",value);
+    if(value.length === 0) {
+        console.log("No state for this address, going with the initial empty cookieBaker");
         return initialState;
+    }
+    else if (value.length > 1) {
+        console.error("More than one record for this address: " + userAddress);
+        throw new Error ("Impossible");
     } else {
         const finalValue = JSON.parse(value[0][1], parseReviver);
         console.log("FinalValue: " + finalValue);
@@ -50,7 +52,6 @@ const parseReviver = (_key: any, value: any) => {
     }
     return value;
 }
-
 
 /**
  * Business function to mint the related thing

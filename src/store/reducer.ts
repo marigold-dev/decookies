@@ -1,10 +1,7 @@
 import { action } from './actions';
 import { InMemorySigner } from '@taquito/signer';
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { userAddress, nodeUri, privateKey } from '../pages/game';
-import { getActualState, requestBlockLevel } from './vmApi';
 import { cookieBaker, initialState as backeryInitialState } from './cookieBaker';
-import { stat } from 'fs';
 
 export type state = {
     error: string | null,
