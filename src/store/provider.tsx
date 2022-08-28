@@ -1,7 +1,6 @@
 import { createContext, useContext, useReducer } from 'react';
 import { action } from './actions';
-import { reducer } from './reducer';
-import { cookieBaker, initialState } from './cookieBaker';
+import { reducer, state, initialState } from './reducer';
 
 
 const GameContext: React.Context<any> = createContext(null);
@@ -22,6 +21,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode; }) => {
     );
 }
 
-export const useGame = (): cookieBaker => useContext(GameContext);
+export const useGame = (): state => useContext(GameContext);
 
 export const useGameDispatch = (): React.Dispatch<action> => useContext(GameDispatchContext);

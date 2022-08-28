@@ -1,85 +1,99 @@
 import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
 
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import { getActualState, mint } from './vmApi';
+import { state } from './reducer';
+import { InMemorySigner } from '@taquito/signer';
 /**
  * All the actions available
  */
-type addCookies = {
-    type: "ADD_COOKIE",
-    dispatch: React.Dispatch<action>
+type fullUpdateCB = {
+    type: "FULL_UPDATE_COOKIE_BAKER",
+    payload: cookieBaker
 }
-type successfulMint = {
-    type: "SUCCESSFULLY_MINTED",
-    state: cookieBaker
+type addError = {
+    type: "ADD_ERROR",
+    payload: string
 }
-type addCursors = {
-    type: "ADD_CURSOR",
-    dispatch: React.Dispatch<action>
+type clearError = {
+    type: "CLEAR_ERROR"
 }
-type addGrandmas = {
-    type: "ADD_GRANDMA",
-    dispatch: React.Dispatch<action>
+type saveWallet = {
+    type: "SAVE_WALLET",
+    payload: InMemorySigner | BeaconWallet | null
 }
-type addFarms = {
-    type: "ADD_FARM",
-    dispatch: React.Dispatch<action>
+type saveAddress = {
+    type: "SAVE_ADDRESS",
+    payload: string | null
 }
-type addMines = {
-    type: "ADD_MINE",
-    dispatch: React.Dispatch<action>
-}
-type initStateRequest = {
-    type: "INIT_STATE_REQUEST",
-    dispatch: React.Dispatch<action>
-}
-export type initStateOk = {
-    type: "INIT_STATE_OK",
-    dispatch: React.Dispatch<action>
-}
-export type initStateKo = {
-    type: "INIT_STATE_KO",
-    msg: string
-}
-export type cursorPassiveMint = {
-    type: "CURSOR_PASSIVE_MINT",
-    dispatch: React.Dispatch<action>
-}
-export type passiveMint = {
-    type: "PASSIVE_MINT",
-    dispatch: React.Dispatch<action>
+type saveNodeUri = {
+    type: "SAVE_NODE_URI",
+    payload: string
 }
 
-export type action = addCookies | addCursors | addGrandmas | addFarms | addMines | initStateRequest | initStateOk | initStateKo | passiveMint | cursorPassiveMint | successfulMint
+// ACTIONS
+export type action = fullUpdateCB | saveWallet | saveAddress | saveNodeUri | addError | clearError
 
-// Action constructors
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => (dispatch: React.Dispatch<action>): action => ({
-    type,
-    dispatch
+// ACTION CREATORS
+export const fullUpdateCB = (payload: cookieBaker): action => ({
+    type: "FULL_UPDATE_COOKIE_BAKER",
+    payload
+});
+export const saveWallet = (payload: InMemorySigner | BeaconWallet | null): action => ({
+    type: "SAVE_WALLET",
+    payload
 });
 
-export const requestInit = (dispatch: React.Dispatch<action>): action => ({
-    type: "INIT_STATE_REQUEST",
-    dispatch
-})
-export const successfullyInit = (dispatch: React.Dispatch<action>): action => ({
-    type: "INIT_STATE_OK",
-    dispatch
-})
-export const activatePassiveMint = (dispatch: React.Dispatch<action>): action => ({
-    type: "PASSIVE_MINT",
-    dispatch
-})
-export const activateCursorPassiveMint = (dispatch: React.Dispatch<action>): action => ({
-    type: "CURSOR_PASSIVE_MINT",
-    dispatch
-})
-export const successfullyMinted = (state: cookieBaker): action => ({
-    type:"SUCCESSFULLY_MINTED",
-    state
-})
+export const saveAddress = (payload: string | null): action => ({
+    type: "SAVE_ADDRESS",
+    payload
+});
+export const saveNodeUri = (payload: string): action => ({
+    type: "SAVE_NODE_URI",
+    payload
+});
+export const addError = (payload: string): action => ({
+    type: "ADD_ERROR",
+    payload
+});
+export const clearError = (): action => ({
+    type: "CLEAR_ERROR"
+});
+
+const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
+    try {
+        const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
+        const signer = state.current.wallet;
+        if (!signer) {
+            throw new Error("Wallet must be saved before minting");
+        }
+        if (signer instanceof BeaconWallet) {
+            throw new Error("BeaconWallet is not yet supported");
+        }
+        const actions: Array<Promise<string>> = Array(payload).fill(1).map( () => mint(vmAction, signer));
+        const ophash = await Promise.all(actions);
+        console.warn(`New operations submitted to VM:` ,ophash);
+        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
+        setTimeout(async (): Promise<void> => {
+            const vmState = await getActualState();
+            dispatch(fullUpdateCB(vmState));
+        }, 2000);
+    } catch (err) {
+        console.error(err);
+        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+        dispatch(addError(error_msg));
+        throw err;
+    }
+}
 
 export const addCookie = add("ADD_COOKIE");
 export const addCursor = add("ADD_CURSOR");
 export const addGrandma = add("ADD_GRANDMA");
 export const addFarm = add("ADD_FARM");
 export const addMine = add("ADD_MINE");
+
+export const initState = async (dispatch: React.Dispatch<action>) => {
+    const vmState = await getActualState();
+    dispatch(fullUpdateCB(vmState));
+}
