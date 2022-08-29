@@ -14,6 +14,10 @@ import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
 import { InMemorySigner } from '@taquito/signer';
+import { ConnectButton } from '../components/buttons/connectWallet';
+import { BeaconWallet } from '@taquito/beacon-wallet';
+import { TezosToolkit } from '@taquito/taquito';
+import { NetworkType } from "@airgap/beacon-sdk";
 
 export let userAddress: string;
 export let privateKey: string;
@@ -31,16 +35,18 @@ export const Game = () => {
 
 
     useEffect(() => {
-        if (latestState.current.wallet) {
-            initState(dispatch);
+        if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
+            initState(dispatch, latestState.current.address, latestState.current.nodeUri);
             const id = setInterval(() => {
-                const cb = latestState.current.cookieBaker;
-                console.log(cb);
-                const production = getTotalCps(cb);
-                try {
-                    addCookie(dispatch, latestState, Number(production))
-                } catch (error) {
-                    console.error("big error")
+                if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
+                    const cb = latestState.current.cookieBaker;
+                    console.log(cb);
+                    const production = getTotalCps(cb);
+                    try {
+                        addCookie(dispatch, latestState, Number(production))
+                    } catch (error) {
+                        console.error("big error")
+                    }
                 }
             }, 1000)
             return () => {
@@ -64,19 +70,53 @@ export const Game = () => {
     };
 
     const handleCookieClick = () => {
-        addCookie(dispatch, latestState);
+            addCookie(dispatch, latestState);
     }
     const handleCursorClick = () => {
-        addCursor(dispatch, latestState);
+            addCursor(dispatch, latestState);
     }
     const handleGrandmaClick = () => {
-        addGrandma(dispatch, latestState);
+            addGrandma(dispatch, latestState);
     }
     const handleFarmClick = () => {
-        addFarm(dispatch, latestState);
+            addFarm(dispatch, latestState);
     }
     const handleMineClick = () => {
-        addMine(dispatch, latestState);
+            addMine(dispatch, latestState);
+    }
+    const handleBeaconConnection = async () => {
+        nodeUri = nodeUriRef.current?.value || "";
+        dispatch(saveNodeUri(nodeUri));
+        console.log("Je suis appelée");
+
+        const createWallet = (): void => {
+            console.log("CreateWallet");
+            console.log("je crée un wallet");
+            const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
+            // creates a wallet instance if not exists
+            const myWallet = new BeaconWallet({
+                name: "decookies"
+            });
+
+            // regarding the documentation this step is necessary
+            Tezos.setWalletProvider(myWallet);
+            dispatch(saveWallet(myWallet));
+        }
+        try {
+            if (!latestState.current.wallet) return createWallet();
+            if (latestState.current.wallet instanceof BeaconWallet) {
+                await latestState.current.wallet.requestPermissions({
+                    network: {
+                        type: NetworkType.CUSTOM,
+                        rpcUrl: "https://mainnet.tezos.marigold.dev/"
+                    }
+                });
+                const address = await latestState.current.wallet.getPKH();
+                dispatch(saveAddress(address));
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return <>
@@ -94,6 +134,9 @@ export const Game = () => {
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
             </label>
             <button onClick={handleConnection}>Connect!</button>
+            <div>Hello {gameState.address}</div>
+            :
+            <ConnectButton onClick={handleBeaconConnection} ></ConnectButton>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
         <CookieCounter value={gameState.cookieBaker.cookies} cps={getTotalCps(gameState.cookieBaker)} />
