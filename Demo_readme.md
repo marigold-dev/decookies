@@ -23,6 +23,14 @@ First build the deku project, then build the VM (sometime we have to remove the 
 
 When the `Deku-cluster` is running, then go inside the `decookie` branch and run:
 
+### Install wallet libraries
+
+#### Airgraph
+
+```
+npm install --save @airgap/beacon-sdk
+```
+
 ```
 ./dapp.sh build_decookie
 ./dapp.sh build_start
