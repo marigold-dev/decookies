@@ -110,7 +110,8 @@ export const Game = () => {
             const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
             // creates a wallet instance if not exists
             const myWallet = new BeaconWallet({
-                name: "decookies"
+                name: "decookies",
+                preferredNetwork: NetworkType.CUSTOM,
             });
 
             // regarding the documentation this step is necessary
