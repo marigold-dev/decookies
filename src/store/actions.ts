@@ -5,6 +5,7 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
 import { state } from './reducer';
 import { InMemorySigner } from '@taquito/signer';
+
 /**
  * All the actions available
  */
@@ -68,21 +69,21 @@ const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "A
         const address = state.current.address;
         const nodeUri = state.current.nodeUri;
         if (!signer || !address || !nodeUri) {
+            console.log("empty wallet");
             throw new Error("Wallet must be saved before minting");
         }
         const actions: Array<Promise<string>> = Array(payload).fill(1).map(() => mint(vmAction, signer, address, nodeUri));
         const ophash = await Promise.all(actions);
-        console.warn(`New operations submitted to VM:` ,ophash);
+        console.warn(`New operations submitted to VM:`, ophash);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(address, nodeUri);
             dispatch(fullUpdateCB(vmState));
         }, 2000);
     } catch (err) {
-        console.error(err);
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
-        throw err;
+        throw new Error(error_msg);
     }
 }
 
@@ -93,6 +94,12 @@ export const addFarm = add("ADD_FARM");
 export const addMine = add("ADD_MINE");
 
 export const initState = async (dispatch: React.Dispatch<action>, userAddress: string, nodeUri: string) => {
-    const vmState = await getActualState(userAddress, nodeUri);
-    dispatch(fullUpdateCB(vmState));
+    try {
+        const vmState = await getActualState(userAddress, nodeUri);
+        dispatch(fullUpdateCB(vmState));
+    } catch (err) {
+        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+        dispatch(addError(error_msg));
+        throw new Error(error_msg);
+    }
 }

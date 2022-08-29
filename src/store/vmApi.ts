@@ -28,7 +28,7 @@ export const getActualState = async (userAddress: string, nodeUri: string): Prom
     const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
     console.log("Value: ", value);
     if (value.length === 0) {
-        console.log("No state for this address, going with the initial empty cookieBaker");
+        console.info("Starting new game for address:", userAddress);
         return initialState;
     }
     else if (value.length > 1) {
@@ -129,7 +129,7 @@ export const mint = async (action: string, signer: InMemorySigner | BeaconWallet
             });
         return outerHash;
     } catch (err) {
-        console.error(err);
-        throw err;
+        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+        throw new Error(error_msg);;
     }
 }
