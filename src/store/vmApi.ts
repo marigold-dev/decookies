@@ -26,17 +26,14 @@ export const getActualState = async (userAddress: string, nodeUri: string): Prom
         });
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
-    console.log("Value: ", value);
     if (value.length === 0) {
         console.info("Starting new game for address:", userAddress);
         return initialState;
     }
     else if (value.length > 1) {
-        console.error("More than one record for this address: " + userAddress);
-        throw new Error("Impossible");
+        throw new Error(("Found more than one state for this address" + userAddress));
     } else {
         const finalValue = JSON.parse(value[0][1], parseReviver);
-        console.log("FinalValue: " + finalValue);
         return finalValue;
     }
 }

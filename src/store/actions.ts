@@ -69,12 +69,9 @@ const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "A
         const address = state.current.address;
         const nodeUri = state.current.nodeUri;
         if (!signer || !address || !nodeUri) {
-            console.log("empty wallet");
             throw new Error("Wallet must be saved before minting");
         }
-        const actions: Array<Promise<string>> = Array(payload).fill(1).map(() => mint(vmAction, signer, address, nodeUri));
-        const ophash = await Promise.all(actions);
-        console.warn(`New operations submitted to VM:`, ophash);
+        Array(payload).fill(1).map(() => mint(vmAction, signer, address, nodeUri));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(address, nodeUri);

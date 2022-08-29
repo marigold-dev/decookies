@@ -9,7 +9,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState, clearError } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState, clearError, addError } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
@@ -44,12 +44,13 @@ export const Game = () => {
             const id = setInterval(() => {
                 if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
-                    console.log(cb);
                     const production = getTotalCps(cb);
                     try {
                         addCookie(dispatch, latestState, Number(production))
-                    } catch (error) {
-                        console.error("big error")
+                    } catch (err) {
+                        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+                        dispatch(addError(error_msg));
+                        throw new Error(error_msg);
                     }
                 }
             }, 1000)
@@ -61,9 +62,8 @@ export const Game = () => {
     }, [dispatch, latestState.current.wallet]);
 
     useEffect(() => {
-        if (latestState.current.error !== null && latestState.current.error !== undefined) {
-            console.log("Error: ", latestState.current.error);
-            toast.error("Error: " + latestState.current.error, {
+        if (latestState.current.error) {
+            toast.error(latestState.current.error, {
                 position: toast.POSITION.TOP_RIGHT,
                 autoClose: 5000,
                 onClose: () => dispatch(clearError())
@@ -73,7 +73,6 @@ export const Game = () => {
 
     const handleConnection = () => {
         userAddress = userAddressRef.current?.value || "";
-        console.log(userAddress);
         dispatch(saveAddress(userAddress));
 
         privateKey = privateKeyRef.current?.value || "";
@@ -102,11 +101,8 @@ export const Game = () => {
     const handleBeaconConnection = async () => {
         nodeUri = nodeUriRef.current?.value || "";
         dispatch(saveNodeUri(nodeUri));
-        console.log("Je suis appelée");
 
         const createWallet = (): void => {
-            console.log("CreateWallet");
-            console.log("je crée un wallet");
             const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
             // creates a wallet instance if not exists
             const myWallet = new BeaconWallet({
@@ -130,8 +126,10 @@ export const Game = () => {
                 const address = await latestState.current.wallet.getPKH();
                 dispatch(saveAddress(address));
             }
-        } catch (error) {
-            console.log(error);
+        } catch (err) {
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+            dispatch(addError(error_msg));
+            throw new Error(error_msg);
         }
     }
 
