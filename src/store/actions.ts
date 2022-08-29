@@ -65,18 +65,17 @@ const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "A
     try {
         const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const signer = state.current.wallet;
-        if (!signer) {
+        const address = state.current.address;
+        const nodeUri = state.current.nodeUri;
+        if (!signer || !address || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        if (signer instanceof BeaconWallet) {
-            throw new Error("BeaconWallet is not yet supported");
-        }
-        const actions: Array<Promise<string>> = Array(payload).fill(1).map( () => mint(vmAction, signer));
+        const actions: Array<Promise<string>> = Array(payload).fill(1).map(() => mint(vmAction, signer, address, nodeUri));
         const ophash = await Promise.all(actions);
         console.warn(`New operations submitted to VM:` ,ophash);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualState();
+            const vmState = await getActualState(address, nodeUri);
             dispatch(fullUpdateCB(vmState));
         }, 2000);
     } catch (err) {
@@ -93,7 +92,7 @@ export const addGrandma = add("ADD_GRANDMA");
 export const addFarm = add("ADD_FARM");
 export const addMine = add("ADD_MINE");
 
-export const initState = async (dispatch: React.Dispatch<action>) => {
-    const vmState = await getActualState();
+export const initState = async (dispatch: React.Dispatch<action>, userAddress: string, nodeUri: string) => {
+    const vmState = await getActualState(userAddress, nodeUri);
     dispatch(fullUpdateCB(vmState));
 }
