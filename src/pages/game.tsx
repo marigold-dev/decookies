@@ -92,11 +92,16 @@ export const Game = () => {
         const createWallet = (): void => {
             console.log("CreateWallet");
             console.log("je crée un wallet");
+            // https://tezostaquito.io/docs/rpc_nodes/#list-of-community-run-nodes
             const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
             // creates a wallet instance if not exists
             const myWallet = new BeaconWallet({
                 name: "decookies",
-                preferredNetwork: NetworkType.CUSTOM,
+                // Kukai wallet:
+                // If this property does not declare, Kukai wallet
+                // will open the version Mainnet.
+                // Kukai wallet does not support Custom network
+                preferredNetwork: NetworkType.MAINNET,
             });
 
             // regarding the documentation this step is necessary
@@ -108,7 +113,7 @@ export const Game = () => {
             if (latestState.current.wallet instanceof BeaconWallet) {
                 await latestState.current.wallet.requestPermissions({
                     network: {
-                        type: NetworkType.CUSTOM,
+                        type: NetworkType.MAINNET,
                         rpcUrl: "https://mainnet.tezos.marigold.dev/"
                     }
                 });
