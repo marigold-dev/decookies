@@ -1,6 +1,7 @@
 import cursor from '../../resources/cursor.png';
 import grandma from '../../resources/grandma.png';
 import farm from '../../resources/farm.png';
+import money from '../../resources/money.png';
 
 import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
@@ -11,6 +12,7 @@ import { useGameDispatch, useGame } from '../store/provider';
 import { addCookie, addFarm, addGrandma, addCursor, requestInit, state } from '../store/actions';
 import { useEffect } from 'react'
 import { getTotalCps, isButtonEnabled, buyCursor, buyGrandma, buyFarm } from '../store/reducer';
+import { ResetButton } from '../components/buttons/reset';
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -34,35 +36,61 @@ export const Game = () => {
     const handleFarmClick = () => {
         dispatch(addFarm(gameState, dispatch));
     }
+    const handleResetClick = () => {
+       window.location.reload();
+    }
 
 
     return <>
         <CookieButton onClick={handleCookieClick} />
+        <ResetButton onClick ={handleResetClick }></ResetButton>
         <CookieCounter value={gameState.numberOfCookie} cps={getTotalCps(gameState)} />
-
-        <div>
-            <label htmlFor="Cursors">Cursors: </label>
-            <ToolCounter value={gameState.numberOfCursor} />
+        <div className='content'>
+        <div className='wrapper'>
             <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
                 onClick={handleCursorClick} />
-            <label htmlFor="cursor_cost">Next cursor cost: </label>
-            <ToolCounter value={gameState.cursorCost} />
+            <section className="items">
+                <div>
+                    <label htmlFor="Cursors">Cursors: </label>
+                    <ToolCounter value={gameState.numberOfCursor} />
+                </div>
+                <div>
+                    <img src={money} className="money" alt="Money"></img>
+                    <label htmlFor="cursor_cost"> Price: </label>
+                    <ToolCounter value={gameState.cursorCost} />
+                </div>
+            </section>
         </div>
-        <div >
-            <label htmlFor="Grandmas">Grandmas: </label>
-            <ToolCounter value={gameState.numberOfGrandma} />
+        <div className='wrapper'>
             <ToolButton disabled={!isButtonEnabled(gameState, buyGrandma)} img={grandma} alt="Buy grandma"
                 onClick={handleGrandmaClick} />
-            <label htmlFor="grandma_cost">Next grandma cost:</label>
-            <ToolCounter value={gameState.grandmaCost} />
+            <section className="items">
+                <div>
+                    <label htmlFor="Grandmas">Grandmas: </label>
+                    <ToolCounter value={gameState.numberOfGrandma} />
+                </div>
+                <div>
+                    <img src={money} className="money" alt="Money"></img>
+                    <label htmlFor="cursor_cost"> Price: </label>
+                    <ToolCounter value={gameState.grandmaCost} />
+                </div>
+            </section>
         </div>
-        <div >
-            <label htmlFor="farms">Farms: </label>
-            <ToolCounter value={gameState.numberOfFarm} />
-            <ToolButton disabled={!isButtonEnabled(gameState, buyFarm)} img={farm} alt="Buy farm"
+        <div  className='wrapper'>
+             <ToolButton disabled={!isButtonEnabled(gameState, buyFarm)} img={farm} alt="Buy farm"
                 onClick={handleFarmClick} />
-            <label htmlFor="farm_cost">Next farm cost: </label>
-            <ToolCounter value={gameState.farmCost} />
+            <section className="items">
+                <div>
+                    <label htmlFor="farms">Farms: </label>
+                    <ToolCounter value={gameState.numberOfFarm} />
+                </div>
+                <div>
+                    <img src={money} className="money" alt="Money"></img>
+                    <label htmlFor="cursor_cost"> Price: </label>
+                    <ToolCounter value={gameState.farmCost} />
+                </div>
+            </section>
+        </div>
         </div>
     </>
 }

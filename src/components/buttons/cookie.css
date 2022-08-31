@@ -1,6 +1,8 @@
 .CookieBtn {
-  height: 40vmin;
+  height: 35vmin;
   pointer-events: none;
+  padding: 0 50px;
+  
 }
 
 @media (prefers-reduced-motion: no-preference) {

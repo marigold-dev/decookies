@@ -2,19 +2,21 @@
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 
 
 body {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 75vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(10px + 1vmin);
   color: white;
+  overflow: hidden;
 }
 
 form {
@@ -36,4 +38,36 @@ button:disabled {
 
 .App-link {
   color: #61dafb;
+}
+
+.money {
+  height:1.5vh;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+  padding:  10px;
+
+}
+
+
+@media (min-width: 890px) { 
+  body {
+    min-height: 100vh;
+  }
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin: 3vh;
+   }
+  }
+.wrapper button { 
+  padding-left: 10vh;
+}
+
+.items {
+  text-align: left;
 }

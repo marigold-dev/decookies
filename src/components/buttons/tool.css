@@ -1,4 +1,12 @@
 img {
-    height: 10vmin;
+    height: 6vmin;
     pointer-events: none;
+}
+
+.cookiesCounter {
+    padding-top: 10px;
+}
+
+.cpsCounter {
+    padding-bottom: 20px;
 }
