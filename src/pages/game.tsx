@@ -9,7 +9,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState, clearError, addError } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
@@ -18,6 +18,10 @@ import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
 import { NetworkType } from "@airgap/beacon-sdk";
+
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export let userAddress: string;
 export let privateKey: string;
@@ -40,12 +44,13 @@ export const Game = () => {
             const id = setInterval(() => {
                 if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
-                    console.log(cb);
                     const production = getTotalCps(cb);
                     try {
                         addCookie(dispatch, latestState, Number(production))
-                    } catch (error) {
-                        console.error("big error")
+                    } catch (err) {
+                        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+                        dispatch(addError(error_msg));
+                        throw new Error(error_msg);
                     }
                 }
             }, 1000)
@@ -56,9 +61,18 @@ export const Game = () => {
         return () => { }
     }, [dispatch, latestState.current.wallet]);
 
+    useEffect(() => {
+        if (latestState.current.error) {
+            toast.error(latestState.current.error, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 5000,
+                onClose: () => dispatch(clearError())
+            });
+        }
+    }, [dispatch, latestState.current.error]);
+
     const handleConnection = () => {
         userAddress = userAddressRef.current?.value || "";
-        console.log(userAddress);
         dispatch(saveAddress(userAddress));
 
         privateKey = privateKeyRef.current?.value || "";
@@ -70,28 +84,25 @@ export const Game = () => {
     };
 
     const handleCookieClick = () => {
-            addCookie(dispatch, latestState);
+        addCookie(dispatch, latestState);
     }
     const handleCursorClick = () => {
-            addCursor(dispatch, latestState);
+        addCursor(dispatch, latestState);
     }
     const handleGrandmaClick = () => {
-            addGrandma(dispatch, latestState);
+        addGrandma(dispatch, latestState);
     }
     const handleFarmClick = () => {
-            addFarm(dispatch, latestState);
+        addFarm(dispatch, latestState);
     }
     const handleMineClick = () => {
-            addMine(dispatch, latestState);
+        addMine(dispatch, latestState);
     }
     const handleBeaconConnection = async () => {
         nodeUri = nodeUriRef.current?.value || "";
         dispatch(saveNodeUri(nodeUri));
-        console.log("Je suis appelée");
 
         const createWallet = (): void => {
-            console.log("CreateWallet");
-            console.log("je crée un wallet");
             const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
             // creates a wallet instance if not exists
             const myWallet = new BeaconWallet({
@@ -115,13 +126,16 @@ export const Game = () => {
                 const address = await latestState.current.wallet.getPKH();
                 dispatch(saveAddress(address));
             }
-        } catch (error) {
-            console.log(error);
+        } catch (err) {
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+            dispatch(addError(error_msg));
+            throw new Error(error_msg);
         }
     }
 
     return <>
         <div>
+            <ToastContainer />
             <label>
                 Public address:
                 <input type="text" name="userAddress" ref={userAddressRef} defaultValue="tz1bS3Q3ReR69ne6AaLRpkM45ud85ceX9x7K" />
