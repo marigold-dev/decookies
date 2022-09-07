@@ -4,7 +4,6 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
 import { state } from './reducer';
-import { InMemorySigner } from '@taquito/signer';
 
 /**
  * All the actions available
@@ -22,11 +21,7 @@ type clearError = {
 }
 type saveWallet = {
     type: "SAVE_WALLET",
-    payload: InMemorySigner | BeaconWallet | null
-}
-type saveAddress = {
-    type: "SAVE_ADDRESS",
-    payload: string | null
+    payload: BeaconWallet | null
 }
 type saveNodeUri = {
     type: "SAVE_NODE_URI",
@@ -34,30 +29,29 @@ type saveNodeUri = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveAddress | saveNodeUri | addError | clearError
+export type action = fullUpdateCB | saveWallet | saveNodeUri | addError | clearError
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
     type: "FULL_UPDATE_COOKIE_BAKER",
     payload
 });
-export const saveWallet = (payload: InMemorySigner | BeaconWallet | null): action => ({
+
+export const saveWallet = (payload: BeaconWallet | null): action => ({
     type: "SAVE_WALLET",
     payload
 });
 
-export const saveAddress = (payload: string | null): action => ({
-    type: "SAVE_ADDRESS",
-    payload
-});
 export const saveNodeUri = (payload: string): action => ({
     type: "SAVE_NODE_URI",
     payload
 });
+
 export const addError = (payload: string): action => ({
     type: "ADD_ERROR",
     payload
 });
+
 export const clearError = (): action => ({
     type: "CLEAR_ERROR"
 });
@@ -66,15 +60,14 @@ const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "A
     try {
         const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const signer = state.current.wallet;
-        const address = state.current.address;
         const nodeUri = state.current.nodeUri;
-        if (!signer || !address || !nodeUri) {
+        if (!signer || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, signer, address, nodeUri));
+        Array(payload).fill(1).map(() => mint(vmAction, nodeUri));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualState(address, nodeUri);
+            const vmState = await getActualState(nodeUri);
             dispatch(fullUpdateCB(vmState));
         }, 2000);
     } catch (err) {
@@ -90,9 +83,10 @@ export const addGrandma = add("ADD_GRANDMA");
 export const addFarm = add("ADD_FARM");
 export const addMine = add("ADD_MINE");
 
-export const initState = async (dispatch: React.Dispatch<action>, userAddress: string, nodeUri: string) => {
+export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string) => {
     try {
-        const vmState = await getActualState(userAddress, nodeUri);
+        //const userAddress = await signer.publicKeyHash();
+        const vmState = await getActualState(nodeUri);
         dispatch(fullUpdateCB(vmState));
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;

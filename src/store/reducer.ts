@@ -1,12 +1,10 @@
 import { action } from './actions';
-import { InMemorySigner } from '@taquito/signer';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { cookieBaker, initialState as backeryInitialState } from './cookieBaker';
 
 export type state = {
     error: string | null,
-    wallet: InMemorySigner | BeaconWallet | null,
-    address: string | null, // TODO: improve with a type Address
+    wallet: BeaconWallet | null,
     nodeUri: string | null, // TODO: improve with a type URI
     cookieBaker: cookieBaker
 }
@@ -14,7 +12,6 @@ export type state = {
 export const initialState: state = {
     error: null,
     wallet: null,
-    address: null,
     nodeUri: null,
     cookieBaker: backeryInitialState
 }
@@ -38,9 +35,6 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_WALLET": {
             return { ...state, wallet: action.payload }
-        }
-        case "SAVE_ADDRESS": {
-            return { ...state, address: action.payload }
         }
         case "SAVE_NODE_URI": {
             return { ...state, nodeUri: action.payload }

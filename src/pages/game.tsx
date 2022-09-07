@@ -9,11 +9,10 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveAddress, saveNodeUri, saveWallet, initState, clearError, addError } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveNodeUri, saveWallet, initState, clearError, addError } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
-import { InMemorySigner } from '@taquito/signer';
 import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
@@ -23,8 +22,9 @@ import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export let userAddress: string;
-export let privateKey: string;
+import * as ed from '@noble/ed25519';
+import { PREFIX, toB58Hash } from '../store/utils';
+
 export let nodeUri: string;
 
 export const Game = () => {
@@ -33,16 +33,13 @@ export const Game = () => {
     const latestState = useRef(gameState);
     latestState.current = gameState;
     // Refs
-    const userAddressRef = useRef<HTMLInputElement | null>(null);
-    const privateKeyRef = useRef<HTMLInputElement | null>(null);
     const nodeUriRef = useRef<HTMLInputElement | null>(null);
 
-
     useEffect(() => {
-        if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
-            initState(dispatch, latestState.current.address, latestState.current.nodeUri);
+        if (latestState.current.wallet && latestState.current.nodeUri) {
+            initState(dispatch, latestState.current.nodeUri);
             const id = setInterval(() => {
-                if (latestState.current.wallet && latestState.current.address && latestState.current.nodeUri) {
+                if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
                     const production = getTotalCps(cb);
                     try {
@@ -70,18 +67,6 @@ export const Game = () => {
             });
         }
     }, [dispatch, latestState.current.error]);
-
-    const handleConnection = () => {
-        userAddress = userAddressRef.current?.value || "";
-        dispatch(saveAddress(userAddress));
-
-        privateKey = privateKeyRef.current?.value || "";
-        const wallet = new InMemorySigner(privateKey);
-        dispatch(saveWallet(wallet));
-
-        nodeUri = nodeUriRef.current?.value || "";
-        dispatch(saveNodeUri(nodeUri));
-    };
 
     const handleCookieClick = () => {
         addCookie(dispatch, latestState);
@@ -116,16 +101,20 @@ export const Game = () => {
         }
         try {
             if (!latestState.current.wallet) return createWallet();
-            if (latestState.current.wallet instanceof BeaconWallet) {
-                await latestState.current.wallet.requestPermissions({
-                    network: {
-                        type: NetworkType.CUSTOM,
-                        rpcUrl: "https://mainnet.tezos.marigold.dev/"
-                    }
-                });
-                const address = await latestState.current.wallet.getPKH();
-                dispatch(saveAddress(address));
-            }
+            await latestState.current.wallet.requestPermissions({
+                network: {
+                    type: NetworkType.CUSTOM,
+                    rpcUrl: "https://mainnet.tezos.marigold.dev/"
+                }
+            });
+            // generate random private key to use InMemorySigner
+            const privateKey = ed.utils.randomPrivateKey();
+
+            const realPrivateKey = toB58Hash(PREFIX.edsk, ed.utils.bytesToHex(privateKey))
+            console.log("set privateKey: ", realPrivateKey);
+            // save private key in the locale storage, to retrieve a game already launched
+            localStorage.setItem("privateKey", realPrivateKey);
+
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;
             dispatch(addError(error_msg));
@@ -137,20 +126,9 @@ export const Game = () => {
         <div>
             <ToastContainer />
             <label>
-                Public address:
-                <input type="text" name="userAddress" ref={userAddressRef} defaultValue="tz1bS3Q3ReR69ne6AaLRpkM45ud85ceX9x7K" />
-            </label>
-            <label>
-                Private key:
-                <input type="text" name="privateKey" ref={privateKeyRef} defaultValue="edsk3171aZSpaDRGaSxah3GKnWpjxKz1tToL6PR5mTSaCpjYA1mUs4" />
-            </label>
-            <label>
                 Deku node URI:
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
             </label>
-            <button onClick={handleConnection}>Connect!</button>
-            <div>Hello {gameState.address}</div>
-            :
             <ConnectButton onClick={handleBeaconConnection} ></ConnectButton>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
