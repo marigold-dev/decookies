@@ -5,9 +5,9 @@ interface Props {
 
 export const CookieCounter: React.FC<Props> = ({ value, cps }) => <>
     <div className="cookiesCounter">
-        {value.toString()} cookies
+        Cookies: {value.toString()} 
     </div>
     <div className="cpsCounter">
-        per second: {cps.toString()}
+        Cooies per second: {cps.toString()}
     </div>
 </>
