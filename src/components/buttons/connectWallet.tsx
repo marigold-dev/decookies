@@ -9,9 +9,7 @@ export const ConnectButton: React.FC<Props> = ({
     return (
         <div className="buttons">
             <button className="button" onClick={onClick}>
-                <span>
-                    <i className="fas fa-wallet"></i>&nbsp; Connect with wallet
-                </span>
+                Connect with wallet
             </button>
         </div>
     );
