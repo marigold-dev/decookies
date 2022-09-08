@@ -3,6 +3,9 @@ import { InMemorySigner } from '@taquito/signer';
 import { initialState, cookieBaker } from './cookieBaker';
 import { createHash, createNonce, parseReviver, stringToHex } from './utils';
 
+import * as crypto from 'crypto-js';
+import { nickName } from '../pages/game';
+
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
     const blockRequest = await fetch(nodeUri + "/block-level",
         {
@@ -18,8 +21,10 @@ export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
  */
 export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
 
-    const gamingPrivateKey = localStorage.getItem("privateKey");
-    if (gamingPrivateKey) {
+    const encryptedPrivateKey = localStorage.getItem("privateKey");
+    if (encryptedPrivateKey) {
+        const bytes = crypto.AES.decrypt(encryptedPrivateKey, nickName);
+        const gamingPrivateKey = bytes.toString(crypto.enc.Utf8);
         const signer = new InMemorySigner(gamingPrivateKey);
         const userAddress = await signer.publicKeyHash();
         const stateRequest = await fetch(nodeUri + "/vm-state",
@@ -30,7 +35,6 @@ export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
         const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
         const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
         if (value.length === 0) {
-            console.info("Starting new game for address:", userAddress);
             return initialState;
         }
         else if (value.length > 1) {
@@ -49,8 +53,10 @@ export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
  * @returns {Promise<string>} The hash of the submitted operation
  */
 export const mint = async (action: string, nodeUri: string): Promise<string> => {
-    const gamingPrivateKey = localStorage.getItem("privateKey");
-    if (gamingPrivateKey) {
+    const encryptedPrivateKey = localStorage.getItem("privateKey");
+    if (encryptedPrivateKey) {
+        const bytes = crypto.AES.decrypt(encryptedPrivateKey, nickName);
+        const gamingPrivateKey = bytes.toString(crypto.enc.Utf8);
         const signer = new InMemorySigner(gamingPrivateKey);
         try {
 

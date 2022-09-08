@@ -19,17 +19,25 @@ type addError = {
 type clearError = {
     type: "CLEAR_ERROR"
 }
+type addMessage = {
+    type: "ADD_MESSAGE",
+    payload: string
+}
+type clearMessage = {
+    type: "CLEAR_MESSAGE"
+}
 type saveWallet = {
     type: "SAVE_WALLET",
     payload: BeaconWallet | null
 }
-type saveNodeUri = {
-    type: "SAVE_NODE_URI",
-    payload: string
+type saveConfig = {
+    type: "SAVE_CONFIG",
+    nodeUri: string,
+    nickName: string
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveNodeUri | addError | clearError
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -42,9 +50,10 @@ export const saveWallet = (payload: BeaconWallet | null): action => ({
     payload
 });
 
-export const saveNodeUri = (payload: string): action => ({
-    type: "SAVE_NODE_URI",
-    payload
+export const saveConfig = (nodeUri: string, nickName: string): action => ({
+    type: "SAVE_CONFIG",
+    nodeUri,
+    nickName
 });
 
 export const addError = (payload: string): action => ({
@@ -54,6 +63,15 @@ export const addError = (payload: string): action => ({
 
 export const clearError = (): action => ({
     type: "CLEAR_ERROR"
+});
+
+export const addMessage = (payload: string): action => ({
+    type: "ADD_MESSAGE",
+    payload
+});
+
+export const clearMessage = (): action => ({
+    type: "CLEAR_MESSAGE"
 });
 
 const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {

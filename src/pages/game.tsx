@@ -9,7 +9,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveNodeUri, saveWallet, initState, clearError, addError } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addMessage } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
@@ -23,9 +23,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import * as ed from '@noble/ed25519';
+import * as crypto from 'crypto-js';
+
 import { PREFIX, toB58Hash } from '../store/utils';
 
 export let nodeUri: string;
+export let nickName: string;
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -34,6 +37,7 @@ export const Game = () => {
     latestState.current = gameState;
     // Refs
     const nodeUriRef = useRef<HTMLInputElement | null>(null);
+    const nicknameRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
@@ -66,7 +70,14 @@ export const Game = () => {
                 onClose: () => dispatch(clearError())
             });
         }
-    }, [dispatch, latestState.current.error]);
+        if (latestState.current.message) {
+            toast.info(latestState.current.message, {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: false,
+                onClose: () => dispatch(clearMessage())
+            });
+        }
+    }, [dispatch, latestState.current.error, latestState.current.message]);
 
     const handleCookieClick = () => {
         addCookie(dispatch, latestState);
@@ -85,7 +96,8 @@ export const Game = () => {
     }
     const handleBeaconConnection = async () => {
         nodeUri = nodeUriRef.current?.value || "";
-        dispatch(saveNodeUri(nodeUri));
+        nickName = nicknameRef.current?.value || "";
+        dispatch(saveConfig(nodeUri, nickName));
 
         const createWallet = (): void => {
             const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
@@ -105,15 +117,20 @@ export const Game = () => {
                 network: {
                     type: NetworkType.CUSTOM,
                     rpcUrl: "https://mainnet.tezos.marigold.dev/"
-                }
+                },
+                // Since we generate a random key, we do not need any authorization from the user
+                scopes:[]
             });
             // generate random private key to use InMemorySigner
             const privateKey = ed.utils.randomPrivateKey();
 
             const realPrivateKey = toB58Hash(PREFIX.edsk, ed.utils.bytesToHex(privateKey))
-            console.log("set privateKey: ", realPrivateKey);
+            const encryptedPrivateKey = crypto.AES.encrypt(realPrivateKey, nickName).toString();
             // save private key in the locale storage, to retrieve a game already launched
-            localStorage.setItem("privateKey", realPrivateKey);
+            localStorage.setItem("privateKey", encryptedPrivateKey);
+            const message = "Please save your encrypted privateKey: " + encryptedPrivateKey + "\nand your Nickname: " + nickName + "\nThey will be needed if you want to continue on an other device";
+            console.log(message);
+            dispatch(addMessage(message));
 
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -126,7 +143,11 @@ export const Game = () => {
         <div>
             <ToastContainer />
             <label>
-                Deku node URI:
+                Nickname: 
+                <input type="text" name="nickName" ref={nicknameRef} />
+            </label>
+            <label>
+                Deku node URI: 
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
             </label>
             <ConnectButton onClick={handleBeaconConnection} ></ConnectButton>

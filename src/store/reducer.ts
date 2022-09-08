@@ -4,15 +4,19 @@ import { cookieBaker, initialState as backeryInitialState } from './cookieBaker'
 
 export type state = {
     error: string | null,
+    message: string | null,
     wallet: BeaconWallet | null,
     nodeUri: string | null, // TODO: improve with a type URI
+    nickName: string | null, // TODO: improve with a type URI
     cookieBaker: cookieBaker
 }
 
 export const initialState: state = {
     error: null,
+    message: null,
     wallet: null,
     nodeUri: null,
+    nickName: null,
     cookieBaker: backeryInitialState
 }
 
@@ -30,14 +34,20 @@ export const reducer = (state: state, action: action): state => {
         case "CLEAR_ERROR": {
             return { ...state, error: null }
         }
+        case "ADD_MESSAGE": {
+            return { ...state, message: action.payload }
+        }
+        case "CLEAR_MESSAGE": {
+            return { ...state, message: null }
+        }
         case "FULL_UPDATE_COOKIE_BAKER": {
             return { ...state, cookieBaker: action.payload }
         }
         case "SAVE_WALLET": {
             return { ...state, wallet: action.payload }
         }
-        case "SAVE_NODE_URI": {
-            return { ...state, nodeUri: action.payload }
+        case "SAVE_CONFIG": {
+            return { ...state, nodeUri: action.nodeUri, nickName: action.nickName }
         }
     }
 }
