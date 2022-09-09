@@ -2,6 +2,7 @@ import cursor from '../../resources/cursor.png';
 import grandma from '../../resources/grandma.png';
 import farm from '../../resources/farm.png';
 import mine from '../../resources/mine.png';
+import factory from '../../resources/factory.png';
 import cookie from '../../resources/perfectCookie.png';
 
 import { CookieButton } from '../components/buttons/cookie';
@@ -10,10 +11,10 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addMessage } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addMessage, addFactory } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
-import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine } from '../store/cookieBaker';
+import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
 import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
@@ -30,6 +31,7 @@ import { PREFIX, toB58Hash } from '../store/utils';
 
 export let nodeUri: string;
 export let nickName: string;
+export let amount: bigint;
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -94,6 +96,9 @@ export const Game = () => {
     }
     const handleMineClick = () => {
         addMine(dispatch, latestState);
+    }
+    const handleFactoryClick = () => {
+        addFactory(dispatch, latestState);
     }
     const handleBeaconConnection = async () => {
         nodeUri = nodeUriRef.current?.value || "";
@@ -213,8 +218,23 @@ export const Game = () => {
                     </div>
                     <div>
                         <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="mine_cost">Next price: </label>
+                        <label htmlFor="mine_cost">Price: </label>
                         <ToolCounter value={gameState.cookieBaker.mineCost} />
+                    </div>
+                </section>
+            </div>
+            <div className='wrapper'>
+                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyFactory)} img={factory} alt="Buy factory"
+                    onClick={handleFactoryClick} />
+                <section className="items">
+                    <div>
+                        <label htmlFor="factories">Factories: </label>
+                        <ToolCounter value={gameState.cookieBaker.factories} />
+                    </div>
+                    <div>
+                        <img src={cookie} className="money" alt="Money"></img>
+                        <label htmlFor="factory_cost">Price: </label>
+                        <ToolCounter value={gameState.cookieBaker.factoryCost} />
                     </div>
                 </section>
             </div>

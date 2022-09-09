@@ -4,6 +4,8 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
 import { state } from './reducer';
+import { building, operationType, vmOperation } from './vmTypes';
+import {amount} from '../pages/game'
 
 /**
  * All the actions available
@@ -74,9 +76,9 @@ export const clearMessage = (): action => ({
     type: "CLEAR_MESSAGE"
 });
 
-const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "ADD_MINE") => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
+export const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
-        const vmAction = type.split("_")[1].toLowerCase(); // ¯\_(ツ)_/¯ Why not sharing the same action semantic
+        const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const signer = state.current.wallet;
         const nodeUri = state.current.nodeUri;
         if (!signer || !nodeUri) {
@@ -95,11 +97,13 @@ const add = (type: "ADD_COOKIE" | "ADD_CURSOR" | "ADD_GRANDMA" | "ADD_FARM" | "A
     }
 }
 
-export const addCookie = add("ADD_COOKIE");
-export const addCursor = add("ADD_CURSOR");
-export const addGrandma = add("ADD_GRANDMA");
-export const addFarm = add("ADD_FARM");
-export const addMine = add("ADD_MINE");
+export const addCookie = add({ type: operationType.mint, operation: building.cookie });
+export const addCursor = add({ type: operationType.mint, operation: building.cursor });
+export const addGrandma = add({ type: operationType.mint, operation: building.grandma });
+export const addFarm = add({ type: operationType.mint, operation: building.farm });
+export const addMine = add({ type: operationType.mint, operation: building.mine });
+export const addFactory = add({ type: operationType.mint, operation: building.factory });
+export const transfer = (to: string) => add({ type: operationType.mint, operation: { to, amount: amount } });
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string) => {
     try {

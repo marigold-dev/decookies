@@ -9,10 +9,12 @@ export type cookieBaker = {
     grandmas: bigint,
     farms: bigint,
     mines: bigint,
+    factories: bigint,
     cursorCost: bigint,
     grandmaCost: bigint,
     farmCost: bigint,
     mineCost: bigint,
+    factoryCost: bigint,
     passiveCPS: bigint
 };
 
@@ -22,10 +24,12 @@ export const initialState: cookieBaker = {
     grandmas: 0n,
     farms: 0n,
     mines: 0n,
+    factories: 0n,
     cursorCost: 0n,
     grandmaCost: 0n,
     farmCost: 0n,
     mineCost:0n,
+    factoryCost:0n,
     passiveCPS: 0n
 }
 
@@ -34,6 +38,7 @@ export const buyCursor = "buy_cursor"
 export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
 export const buyMine = "buy_mine"
+export const buyFactory = "buy_factory"
 
 /**
  * Calculate the total Cookie Per Second of the provided state
@@ -63,6 +68,9 @@ export const isButtonEnabled = (state: cookieBaker, button: string): boolean => 
         }
         case "buy_mine": {
             return (state.mineCost <= state.cookies);
+        }
+        case "buy_factory": {
+            return (state.factoryCost <= state.cookies);
         }
     }
     return true;

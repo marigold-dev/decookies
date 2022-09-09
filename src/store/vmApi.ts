@@ -5,6 +5,7 @@ import { createHash, createNonce, parseReviver, stringToHex } from './utils';
 
 import * as crypto from 'crypto-js';
 import { nickName } from '../pages/game';
+import { vmOperation } from './vmTypes';
 
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
     const blockRequest = await fetch(nodeUri + "/block-level",
@@ -52,7 +53,7 @@ export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
  * @param action 
  * @returns {Promise<string>} The hash of the submitted operation
  */
-export const mint = async (action: string, nodeUri: string): Promise<string> => {
+export const mint = async (action: vmOperation, nodeUri: string): Promise<string> => {
     const encryptedPrivateKey = localStorage.getItem("privateKey");
     if (encryptedPrivateKey) {
         const bytes = crypto.AES.decrypt(encryptedPrivateKey, nickName);
