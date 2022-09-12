@@ -8,6 +8,6 @@ export const CookieCounter: React.FC<Props> = ({ value, cps }) => <>
         Cookies: {value.toString()} 
     </div>
     <div className="cpsCounter">
-        Cooies per second: {cps.toString()}
+        Cookies per second: {cps.toString()}
     </div>
 </>
