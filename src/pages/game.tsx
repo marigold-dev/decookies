@@ -31,7 +31,6 @@ import { PREFIX, toB58Hash } from '../store/utils';
 
 export let nodeUri: string;
 export let nickName: string;
-export let amount: bigint;
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -146,7 +145,7 @@ export const Game = () => {
         } else
             dispatch(addError("Need to fulfil Nickname and Node URI"));
     }
-
+    
     return <>
         <div>
             <ToastContainer />

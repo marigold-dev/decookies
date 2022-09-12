@@ -5,7 +5,6 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
 import { state } from './reducer';
 import { building, operationType, vmOperation } from './vmTypes';
-import {amount} from '../pages/game'
 
 /**
  * All the actions available
@@ -76,7 +75,7 @@ export const clearMessage = (): action => ({
     type: "CLEAR_MESSAGE"
 });
 
-export const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
+const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const signer = state.current.wallet;
@@ -103,7 +102,8 @@ export const addGrandma = add({ type: operationType.mint, operation: building.gr
 export const addFarm = add({ type: operationType.mint, operation: building.farm });
 export const addMine = add({ type: operationType.mint, operation: building.mine });
 export const addFactory = add({ type: operationType.mint, operation: building.factory });
-export const transfer = (to: string) => add({ type: operationType.mint, operation: { to, amount: amount } });
+//TODO: add action to transfer cookies
+// export const transfer = add({ type: operationType.mint, operation: { to: recipient, amount: amount } });
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string) => {
     try {
