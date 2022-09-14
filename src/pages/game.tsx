@@ -11,21 +11,20 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addMessage, addFactory } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
 import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
-import { NetworkType } from "@airgap/beacon-sdk";
+import { NetworkType, PermissionScope, SigningType } from "@airgap/beacon-sdk";
 
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import * as ed from '@noble/ed25519';
-import crypto from 'crypto-js';
+import * as human from 'human-crypto-keys'
 
 import { PREFIX, toB58Hash } from '../store/utils';
 
@@ -43,7 +42,7 @@ export const Game = () => {
 
     useEffect(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
-            initState(dispatch, latestState.current.nodeUri);
+            initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair);
             const id = setInterval(() => {
                 if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
@@ -124,19 +123,25 @@ export const Game = () => {
                         type: NetworkType.CUSTOM,
                         rpcUrl: "https://mainnet.tezos.marigold.dev/"
                     },
-                    // Since we generate a random key, we do not need any authorization from the user
-                    scopes: []
+                    // Only neede to sign the chosen nickname
+                    scopes: [PermissionScope.SIGN]
                 });
-                // generate random private key to use InMemorySigner
-                const privateKey = ed.utils.randomPrivateKey();
 
-                const realPrivateKey = toB58Hash(PREFIX.edsk, ed.utils.bytesToHex(privateKey))
-                const encryptedPrivateKey = crypto.AES.encrypt(realPrivateKey, nickName).toString();
-                // save private key in the locale storage, to retrieve a game already launched
-                localStorage.setItem("privateKey", encryptedPrivateKey);
-                const message = "Please save your encrypted privateKey: " + encryptedPrivateKey + "\nand your Nickname: " + nickName + "\nThey will be needed if you want to continue on an other device";
-                dispatch(addMessage(message));
+                // sign the chosen nickname
+                const seed = await latestState.current.wallet.client.requestSignPayload({
+                    signingType: SigningType.RAW, payload: nickName
+                }).then(val => val.signature);
 
+                // get keyPair
+                const keyPair = await human.getKeyPairFromSeed(seed.toString(), "ed25519");
+                const rawPrivateKey = keyPair.privateKey.split("-----")[2].trim();
+                // transform to a valid secret for Deku
+                const privateKey = toB58Hash(PREFIX.edsk, rawPrivateKey);
+                // transform to a valid address for Deku
+                const rawPublicKey = keyPair.publicKey.split("-----")[2].trim();
+                const publicKey = toB58Hash(PREFIX.tz1, rawPublicKey);
+                // save them in state to use them at each needed action
+                dispatch(saveGeneratedKeyPair({ publicKey, privateKey }))
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -145,7 +150,7 @@ export const Game = () => {
         } else
             dispatch(addError("Need to fulfil Nickname and Node URI"));
     }
-    
+
     return <>
         <div>
             <ToastContainer />

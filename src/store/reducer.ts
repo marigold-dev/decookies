@@ -8,7 +8,8 @@ export type state = {
     wallet: BeaconWallet | null,
     nodeUri: string | null, // TODO: improve with a type URI
     nickName: string | null, // TODO: improve with a type URI
-    cookieBaker: cookieBaker
+    cookieBaker: cookieBaker,
+    generatedKeyPair: keyPair | null
 }
 
 export const initialState: state = {
@@ -17,7 +18,13 @@ export const initialState: state = {
     wallet: null,
     nodeUri: null,
     nickName: null,
-    cookieBaker: backeryInitialState
+    cookieBaker: backeryInitialState,
+    generatedKeyPair: null
+}
+
+export type keyPair = {
+    publicKey: string,
+    privateKey: string
 }
 
 /**
@@ -48,6 +55,9 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_CONFIG": {
             return { ...state, nodeUri: action.nodeUri, nickName: action.nickName }
+        }
+        case "SAVE_GENERATED_KEY_PAIR": {
+            return { ...state, generatedKeyPair: action.payload }
         }
     }
 }

@@ -155,6 +155,8 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.21.0"
+    "@types/human-crypto-keys": "^0.1.0",
+    "eslint": "^8.21.0",
+    "human-crypto-keys": "^0.1.4"
   }
 }

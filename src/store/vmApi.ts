@@ -3,9 +3,9 @@ import { InMemorySigner } from '@taquito/signer';
 import { initialState, cookieBaker } from './cookieBaker';
 import { createHash, createNonce, parseReviver, stringToHex } from './utils';
 
-import * as crypto from 'crypto-js';
-import { nickName } from '../pages/game';
 import { vmOperation } from './vmTypes';
+
+import { keyPair } from './reducer'
 
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
     const blockRequest = await fetch(nodeUri + "/block-level",
@@ -20,14 +20,12 @@ export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
 /**
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
-export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
-
-    const encryptedPrivateKey = localStorage.getItem("privateKey");
-    if (encryptedPrivateKey) {
-        const bytes = crypto.AES.decrypt(encryptedPrivateKey, nickName);
-        const gamingPrivateKey = bytes.toString(crypto.enc.Utf8);
-        const signer = new InMemorySigner(gamingPrivateKey);
+export const getActualState = async (nodeUri: string, keyPair: keyPair | null): Promise<cookieBaker> => {
+    if (keyPair) {
+        const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
+        console.log("userAddress: ", userAddress);
+        console.log("PublicKey: ", keyPair.publicKey);
         const stateRequest = await fetch(nodeUri + "/vm-state",
             {
                 method: "POST",
@@ -44,8 +42,9 @@ export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
             const finalValue = JSON.parse(value[0][1], parseReviver);
             return finalValue;
         }
-    } else
-        throw new Error("No private key in local storage");
+    } else {
+        throw new Error("NO PRIVATE KEY");
+    }
 }
 
 /**
@@ -53,13 +52,10 @@ export const getActualState = async (nodeUri: string): Promise<cookieBaker> => {
  * @param action 
  * @returns {Promise<string>} The hash of the submitted operation
  */
-export const mint = async (action: vmOperation, nodeUri: string): Promise<string> => {
-    const encryptedPrivateKey = localStorage.getItem("privateKey");
-    if (encryptedPrivateKey) {
-        const bytes = crypto.AES.decrypt(encryptedPrivateKey, nickName);
-        const gamingPrivateKey = bytes.toString(crypto.enc.Utf8);
-        const signer = new InMemorySigner(gamingPrivateKey);
+export const mint = async (action: vmOperation, nodeUri: string, keyPair: keyPair | null): Promise<string> => {
+    if (keyPair) {
         try {
+            const signer = new InMemorySigner(keyPair.privateKey)
 
             const address = await signer.publicKeyHash();
             const key = await signer.publicKey();
