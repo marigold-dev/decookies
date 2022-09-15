@@ -33,5 +33,5 @@ export type vmOperation = {
 
 export type transfer = {
     to: string
-    amount: bigint
+    amount: string
 }

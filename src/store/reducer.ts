@@ -9,7 +9,9 @@ export type state = {
     nodeUri: string | null, // TODO: improve with a type URI
     nickName: string | null, // TODO: improve with a type URI
     cookieBaker: cookieBaker,
-    generatedKeyPair: keyPair | null
+    generatedKeyPair: keyPair | null,
+    recipient: string | null,
+    amount: string | null
 }
 
 export const initialState: state = {
@@ -19,7 +21,9 @@ export const initialState: state = {
     nodeUri: null,
     nickName: null,
     cookieBaker: backeryInitialState,
-    generatedKeyPair: null
+    generatedKeyPair: null,
+    recipient: null,
+    amount: null
 }
 
 export type keyPair = {

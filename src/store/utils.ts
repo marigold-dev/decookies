@@ -34,6 +34,14 @@ export const parseReviver = (_key: any, value: any) => {
     return value;
 }
 
+export const stringifyReplacer = (_key: any, value: any) => {
+    if (typeof value === 'bigint') {
+        return value.toString() + 'n';
+    } else {
+        return value;
+    }
+}
+
 export const PREFIX = {
     "tz1": new Uint8Array([6]),
     "edsk": new Uint8Array([13, 15, 58, 7])
