@@ -16,6 +16,7 @@ export type cookieBaker = {
     mineCost: bigint,
     factoryCost: bigint,
     passiveCPS: bigint
+    eatenCookies: bigint
 };
 
 export const initialState: cookieBaker = {
@@ -30,7 +31,8 @@ export const initialState: cookieBaker = {
     farmCost: 0n,
     mineCost:0n,
     factoryCost:0n,
-    passiveCPS: 0n
+    passiveCPS: 0n,
+    eatenCookies: 0n
 }
 
 // useful to determine if button is disabled or not
@@ -39,15 +41,6 @@ export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
 export const buyMine = "buy_mine"
 export const buyFactory = "buy_factory"
-
-/**
- * Calculate the total Cookie Per Second of the provided state
- * @param state 
- * @returns 
- */
-export const getTotalCps = (state: cookieBaker): bigint => {
-    return state.passiveCPS;
-}
 
 /**
  * Determine if a button is enabled based on the provided state

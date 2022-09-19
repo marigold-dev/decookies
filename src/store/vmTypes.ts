@@ -1,3 +1,5 @@
+import { cookieBaker } from "./cookieBaker"
+
 export enum building {
     cookie = "cookie",
     cursor = "cursor",
@@ -34,4 +36,16 @@ export type vmOperation = {
 export type transfer = {
     to: string
     amount: string
+}
+
+export type leaderBoard = {
+    address: string,
+    eatenCookies: bigint
+}
+
+export const cookieBakerToLeaderBoard = ([address, baker]: [string, cookieBaker]): leaderBoard => {
+    console.log("address: " + address);
+    console.log("baker: " + baker);
+    console.log("eaten: " + baker.eatenCookies);
+    return { address, eatenCookies: baker.eatenCookies };
 }

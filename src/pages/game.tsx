@@ -15,7 +15,7 @@ import { useGameDispatch, useGame } from '../store/provider';
 import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferCookies } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
-import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
+import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
 import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
@@ -52,7 +52,7 @@ export const Game = () => {
             const id = setInterval(() => {
                 if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
-                    const production = getTotalCps(cb);
+                    const production = cb.passiveCPS;
                     try {
                         addCookie(dispatch, latestState, Number(production))
                     } catch (err) {
@@ -185,7 +185,7 @@ export const Game = () => {
             <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-        <CookieCounter value={gameState.cookieBaker.cookies} cps={getTotalCps(gameState.cookieBaker)} />
+        <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
         <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"

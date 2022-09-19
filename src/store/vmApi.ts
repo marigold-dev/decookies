@@ -3,7 +3,7 @@ import { InMemorySigner } from '@taquito/signer';
 import { initialState, cookieBaker } from './cookieBaker';
 import { createHash, createNonce, parseReviver, stringifyReplacer, stringToHex } from './utils';
 
-import { vmOperation } from './vmTypes';
+import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
 import { keyPair } from './reducer'
 
@@ -43,6 +43,36 @@ export const getActualState = async (nodeUri: string, keyPair: keyPair | null): 
     } else {
         throw new Error("NO PRIVATE KEY");
     }
+}
+
+/**
+ * Fetch the state from /vm-state and return the state ordered by DESC amount of cookies
+ */
+const getRawLeaderBoard = async (nodeUri: string): Promise<[[string, cookieBaker]]> => {
+    const stateRequest = await fetch(nodeUri + "/vm-state",
+        {
+            method: "POST",
+            body: JSON.stringify(null)
+        });
+    const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
+    const value = stateResponse.state.sort(((n1: any, n2: any) => {
+        const baker1: cookieBaker = JSON.parse(n1[1], parseReviver);
+        const baker2: cookieBaker = JSON.parse(n2[1], parseReviver);
+        // we want DESC ordering
+        return Number(baker2.eatenCookies - baker1.eatenCookies)
+    }));
+    console.log(value);
+    return value;
+}
+
+export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> => {
+    console.log("inside getLeaderBoard");
+    const rawLeaderBoard: [[string, cookieBaker]] = await getRawLeaderBoard(nodeUri);
+    console.log("RAWLeaderBoard: " + rawLeaderBoard);
+    console.log("first element: " + rawLeaderBoard[0][1].cookies)
+    const leaderBoard = rawLeaderBoard.map(item => cookieBakerToLeaderBoard(item));
+    console.log("leaderBoard: " + JSON.stringify(leaderBoard));
+    return leaderBoard;
 }
 
 /**

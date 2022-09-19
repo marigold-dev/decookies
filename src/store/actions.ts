@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { getActualState, mint } from './vmApi';
+import { getActualState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
 import { building, operationType, vmOperation } from './vmTypes';
 
@@ -93,6 +93,7 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
+        getLeaderBoard(nodeUri);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
@@ -104,6 +105,7 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         throw new Error(error_msg);
     }
 }
+
 export const transferCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     console.log("start transfering");
     try {
