@@ -4,7 +4,7 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { building, operationType, vmOperation } from './vmTypes';
+import { building, leaderBoard, operationType, vmOperation } from './vmTypes';
 
 /**
  * All the actions available
@@ -12,6 +12,10 @@ import { building, operationType, vmOperation } from './vmTypes';
 type fullUpdateCB = {
     type: "FULL_UPDATE_COOKIE_BAKER",
     payload: cookieBaker
+}
+type saveLeaderBoard = {
+    type: "SAVE_LEADERBOARD",
+    payload: leaderBoard[]
 }
 type addError = {
     type: "ADD_ERROR",
@@ -42,11 +46,16 @@ type saveGeneratedKeyPair = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
     type: "FULL_UPDATE_COOKIE_BAKER",
+    payload
+});
+
+export const saveLeaderBoard = (payload: leaderBoard[]): action => ({
+    type: "SAVE_LEADERBOARD",
     payload
 });
 
@@ -98,6 +107,8 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
+            const leaderBoard = await getLeaderBoard(nodeUri);
+            dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -120,6 +131,8 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
+            const leaderBoard = await getLeaderBoard(nodeUri);
+            dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -139,6 +152,8 @@ export const initState = async (dispatch: React.Dispatch<action>, nodeUri: strin
     try {
         const vmState = await getActualState(nodeUri, keyPair);
         dispatch(fullUpdateCB(vmState));
+        const leaderBoard = await getLeaderBoard(nodeUri);
+        dispatch(saveLeaderBoard(leaderBoard));
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));

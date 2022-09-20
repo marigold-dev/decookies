@@ -29,7 +29,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import * as human from 'human-crypto-keys'
 
 import { PREFIX, toB58Hash } from '../store/utils';
-import { operationType } from '../store/vmTypes';
+import { leaderBoard, operationType } from '../store/vmTypes';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -282,29 +282,43 @@ export const Game = () => {
         <div>
             <div>
                 <label>
-                    Transfer:
+                    Transfer:&nbsp;
                     <input type="text" name="amount" ref={amountToTransferRef} />
-                    cookies
+                    &nbsp; cookies
                 </label>
-            </div>
-            <div>
                 <label>
-                    to:
+                    to:&nbsp;
                     <input type="text" name="recipient" ref={transferRecipientRef} />
                 </label>
+                <ToolButton disabled={false} img={transfer} alt="transfer" onClick={handleTransferClick} />
             </div>
-            <ToolButton disabled={false} img={transfer} alt="transfer"
-                onClick={handleTransferClick} />
-        </div>
-        <div>
             <div>
                 <label>
-                    Eat:
+                    Eat:&nbsp;
                     <input type="text" name="amountToEat" ref={amountToEatRef} />
-                    cookies
+                    cookies&nbsp;
                 </label>
+                <ToolButton disabled={false} img={eat} alt="eat" onClick={handleEatClick} />
             </div>
-            <ToolButton disabled={false} img={eat} alt="eat" onClick={handleEatClick} />
         </div>
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Address</th>
+                        <th>Eaten cookies</th>
+                    </tr>
+                    {gameState.leaderBoard.map((item: leaderBoard, i: any) => (
+                        <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td>{item.address}</td>
+                            <td>{item.eatenCookies.toString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
     </>
 }
