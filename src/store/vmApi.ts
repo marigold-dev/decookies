@@ -48,7 +48,7 @@ export const getActualState = async (nodeUri: string, keyPair: keyPair | null): 
 /**
  * Fetch the state from /vm-state and return the state ordered by DESC amount of cookies
  */
-const getRawLeaderBoard = async (nodeUri: string): Promise<[[string, cookieBaker]]> => {
+const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
     const stateRequest = await fetch(nodeUri + "/vm-state",
         {
             method: "POST",
@@ -61,17 +61,12 @@ const getRawLeaderBoard = async (nodeUri: string): Promise<[[string, cookieBaker
         // we want DESC ordering
         return Number(baker2.eatenCookies - baker1.eatenCookies)
     }));
-    console.log(value);
     return value;
 }
 
 export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> => {
-    console.log("inside getLeaderBoard");
-    const rawLeaderBoard: [[string, cookieBaker]] = await getRawLeaderBoard(nodeUri);
-    console.log("RAWLeaderBoard: " + rawLeaderBoard);
-    console.log("first element: " + rawLeaderBoard[0][1].cookies)
-    const leaderBoard = rawLeaderBoard.map(item => cookieBakerToLeaderBoard(item));
-    console.log("leaderBoard: " + JSON.stringify(leaderBoard));
+    const rawLeaderBoard = await getRawLeaderBoard(nodeUri);
+    const leaderBoard = rawLeaderBoard.flatMap((item: any) => cookieBakerToLeaderBoard(item));
     return leaderBoard;
 }
 

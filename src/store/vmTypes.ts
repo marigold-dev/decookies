@@ -1,4 +1,5 @@
 import { cookieBaker } from "./cookieBaker"
+import { parseReviver } from "./utils"
 
 export enum building {
     cookie = "cookie",
@@ -25,12 +26,13 @@ export enum building {
 
 export enum operationType {
     mint = "mint",
-    transfer = "transfer"
+    transfer = "transfer",
+    eat = "eat"
 }
 
 export type vmOperation = {
     type: operationType
-    operation: building | transfer
+    operation: building | transfer | eat
 }
 
 export type transfer = {
@@ -43,9 +45,11 @@ export type leaderBoard = {
     eatenCookies: bigint
 }
 
-export const cookieBakerToLeaderBoard = ([address, baker]: [string, cookieBaker]): leaderBoard => {
-    console.log("address: " + address);
-    console.log("baker: " + baker);
-    console.log("eaten: " + baker.eatenCookies);
-    return { address, eatenCookies: baker.eatenCookies };
+export type eat = {
+    amount: string
+}
+
+export const cookieBakerToLeaderBoard = (element: any): leaderBoard => {
+    const cookieBaker: cookieBaker = JSON.parse(element[1], parseReviver);
+    return { address: element[0], eatenCookies: cookieBaker.eatenCookies };
 }

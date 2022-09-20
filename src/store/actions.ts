@@ -106,10 +106,10 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
     }
 }
 
-export const transferCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
-    console.log("start transfering");
+export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
-        const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
+        const vmAction = type;
+        console.log(type);
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
         if (!wallet || !nodeUri) {

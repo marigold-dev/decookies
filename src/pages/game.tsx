@@ -5,6 +5,7 @@ import mine from '../../resources/mine.png';
 import factory from '../../resources/factory.png';
 import cookie from '../../resources/perfectCookie.png';
 import transfer from '../../resources/transfer.png';
+import eat from '../../resources/eatcookie.png'
 
 import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
@@ -12,7 +13,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferCookies } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferOrEatCookies } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
@@ -34,6 +35,7 @@ export let nodeUri: string;
 export let nickName: string;
 export let amountToTransfer: string;
 export let transferRecipient: string;
+export let amountToEat: string;
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -45,6 +47,7 @@ export const Game = () => {
     const nicknameRef = useRef<HTMLInputElement | null>(null);
     const amountToTransferRef = useRef<HTMLInputElement | null>(null);
     const transferRecipientRef = useRef<HTMLInputElement | null>(null);
+    const amountToEatRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
@@ -109,8 +112,21 @@ export const Game = () => {
         transferRecipient = transferRecipientRef.current?.value || "";
         if (amountToTransfer && transferRecipient) {
             try {
-                transferCookies({ type: operationType.transfer, operation: { to: transferRecipient, amount: amountToTransfer } }, dispatch, latestState);
-
+                transferOrEatCookies({ type: operationType.transfer, operation: { to: transferRecipient, amount: amountToTransfer } }, dispatch, latestState);
+            } catch (err) {
+                const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+                dispatch(addError(error_msg));
+                throw new Error(error_msg);
+            }
+        }
+    }
+    const handleEatClick = () => {
+        console.log("handle eat");
+        amountToEat = amountToEatRef.current?.value || "";
+        if (amountToEat) {
+            try {
+                console.log("going to eat: " + amountToEat + " cookies!");
+                transferOrEatCookies({ type: operationType.eat, operation: { amount: amountToEat } }, dispatch, latestState);
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -279,6 +295,16 @@ export const Game = () => {
             </div>
             <ToolButton disabled={false} img={transfer} alt="transfer"
                 onClick={handleTransferClick} />
+        </div>
+        <div>
+            <div>
+                <label>
+                    Eat:
+                    <input type="text" name="amountToEat" ref={amountToEatRef} />
+                    cookies
+                </label>
+            </div>
+            <ToolButton disabled={false} img={eat} alt="eat" onClick={handleEatClick} />
         </div>
     </>
 }
