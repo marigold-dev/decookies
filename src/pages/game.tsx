@@ -13,7 +13,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferOrEatCookies } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferOrEatCookies, eatCookie, transferCookie } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
@@ -112,7 +112,7 @@ export const Game = () => {
         transferRecipient = transferRecipientRef.current?.value || "";
         if (amountToTransfer && transferRecipient) {
             try {
-                transferOrEatCookies({ type: operationType.transfer, operation: { to: transferRecipient, amount: amountToTransfer } }, dispatch, latestState);
+                transferCookie(transferRecipient, amountToTransfer, dispatch, latestState)
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -121,12 +121,10 @@ export const Game = () => {
         }
     }
     const handleEatClick = () => {
-        console.log("handle eat");
         amountToEat = amountToEatRef.current?.value || "";
         if (amountToEat) {
             try {
-                console.log("going to eat: " + amountToEat + " cookies!");
-                transferOrEatCookies({ type: operationType.eat, operation: { amount: amountToEat } }, dispatch, latestState);
+                eatCookie(amountToEat, dispatch, latestState);
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -140,7 +138,7 @@ export const Game = () => {
 
         if (nodeUri && nickName) {
             dispatch(saveConfig(nodeUri, nickName));
-            const createWallet = (): void => {
+            const createWallet = (): BeaconWallet => {
                 const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
                 // creates a wallet instance if not exists
                 const myWallet = new BeaconWallet({
@@ -150,11 +148,11 @@ export const Game = () => {
 
                 // regarding the documentation this step is necessary
                 Tezos.setWalletProvider(myWallet);
-                dispatch(saveWallet(myWallet));
+                return myWallet;
             }
             try {
-                if (!latestState.current.wallet) return createWallet();
-                await latestState.current.wallet.requestPermissions({
+                const wallet = latestState.current.wallet ? latestState.current.wallet : createWallet();
+                await wallet.requestPermissions({
                     network: {
                         type: NetworkType.CUSTOM,
                         rpcUrl: "https://mainnet.tezos.marigold.dev/"
@@ -164,7 +162,7 @@ export const Game = () => {
                 });
 
                 // sign the chosen nickname
-                const seed = await latestState.current.wallet.client.requestSignPayload({
+                const seed = await wallet.client.requestSignPayload({
                     signingType: SigningType.RAW, payload: nickName
                 }).then(val => val.signature);
 
@@ -178,6 +176,7 @@ export const Game = () => {
                 const publicKey = toB58Hash(PREFIX.tz1, rawPublicKey);
                 // save them in state to use them at each needed action
                 dispatch(saveGeneratedKeyPair({ publicKey, privateKey }))
+                dispatch(saveWallet(wallet));
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -319,6 +318,5 @@ export const Game = () => {
                 </tbody>
             </table>
         </div>
-
     </>
 }
