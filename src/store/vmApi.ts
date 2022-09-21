@@ -1,7 +1,7 @@
 import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
-import { createHash, createNonce, parseReviver, stringToHex } from './utils';
+import { createHash, createNonce, parseReviver, stringifyReplacer, stringToHex } from './utils';
 
 import { vmOperation } from './vmTypes';
 
@@ -24,8 +24,6 @@ export const getActualState = async (nodeUri: string, keyPair: keyPair | null): 
     if (keyPair) {
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
-        console.log("userAddress: ", userAddress);
-        console.log("PublicKey: ", keyPair.publicKey);
         const stateRequest = await fetch(nodeUri + "/vm-state",
             {
                 method: "POST",
@@ -78,7 +76,7 @@ export const mint = async (action: vmOperation, nodeUri: string, keyPair: keyPai
                 nonce,
                 block_height,
                 data
-            ]);
+            ], stringifyReplacer);
 
             const outerHash = createHash(fullPayload);
             const signature = await signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
