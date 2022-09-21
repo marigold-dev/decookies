@@ -3,7 +3,7 @@ import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualState, mint } from './vmApi';
-import { state } from './reducer';
+import { keyPair, state } from './reducer';
 import { building, operationType, vmOperation } from './vmTypes';
 
 /**
@@ -36,9 +36,13 @@ type saveConfig = {
     nodeUri: string,
     nickName: string
 }
+type saveGeneratedKeyPair = {
+    type: "SAVE_GENERATED_KEY_PAIR",
+    payload: keyPair
+}
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -48,6 +52,11 @@ export const fullUpdateCB = (payload: cookieBaker): action => ({
 
 export const saveWallet = (payload: BeaconWallet | null): action => ({
     type: "SAVE_WALLET",
+    payload
+});
+
+export const saveGeneratedKeyPair = (payload: keyPair): action => ({
+    type: "SAVE_GENERATED_KEY_PAIR",
     payload
 });
 
@@ -78,15 +87,15 @@ export const clearMessage = (): action => ({
 const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
-        const signer = state.current.wallet;
+        const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
-        if (!signer || !nodeUri) {
+        if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri));
+        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualState(nodeUri);
+            const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
         }, 2000);
     } catch (err) {
@@ -105,10 +114,9 @@ export const addFactory = add({ type: operationType.mint, operation: building.fa
 //TODO: add action to transfer cookies
 // export const transfer = add({ type: operationType.mint, operation: { to: recipient, amount: amount } });
 
-export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string) => {
+export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
     try {
-        //const userAddress = await signer.publicKeyHash();
-        const vmState = await getActualState(nodeUri);
+        const vmState = await getActualState(nodeUri, keyPair);
         dispatch(fullUpdateCB(vmState));
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
