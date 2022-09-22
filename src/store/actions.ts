@@ -102,13 +102,13 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
-        getLeaderBoard(nodeUri);
+        // getLeaderBoard(nodeUri);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualPlayerState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(nodeUri);
-            dispatch(saveLeaderBoard(leaderBoard));
+            // const leaderBoard = await getLeaderBoard(nodeUri);
+            // dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
