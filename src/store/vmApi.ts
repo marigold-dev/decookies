@@ -64,6 +64,7 @@ export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> =>
     const rawLeaderBoard = await getRawLeaderBoard(nodeUri);
     if (rawLeaderBoard) {
         const leaderBoard = rawLeaderBoard.flatMap((item: any) => cookieBakerToLeaderBoard(item));
+        console.log("leaderBoard: ", leaderBoard);
         return leaderBoard;
     } else {
         console.log("empty state");

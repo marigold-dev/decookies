@@ -116,30 +116,6 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
     }
 }
 
-export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
-    try {
-        const vmAction = type;
-        console.log(type);
-        const wallet = state.current.wallet;
-        const nodeUri = state.current.nodeUri;
-        if (!wallet || !nodeUri) {
-            throw new Error("Wallet must be saved before minting");
-        }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
-        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
-        setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(nodeUri, state.current.generatedKeyPair);
-            dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(nodeUri);
-            dispatch(saveLeaderBoard(leaderBoard));
-        }, 2000);
-    } catch (err) {
-        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
-    }
-}
-
 export const addCookie = add({ type: operationType.mint, operation: building.cookie });
 export const addCursor = add({ type: operationType.mint, operation: building.cursor });
 export const addGrandma = add({ type: operationType.mint, operation: building.grandma });

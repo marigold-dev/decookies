@@ -13,7 +13,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferOrEatCookies, eatCookie, transferCookie } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, eatCookie, transferCookie } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
@@ -29,7 +29,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import * as human from 'human-crypto-keys'
 
 import { PREFIX, toB58Hash } from '../store/utils';
-import { leaderBoard, operationType } from '../store/vmTypes';
+import { leaderBoard } from '../store/vmTypes';
 
 export let nodeUri: string;
 export let nickName: string;
