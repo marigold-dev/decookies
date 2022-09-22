@@ -55,17 +55,9 @@ const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
             method: "GET"
         });
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
-    console.log(stateResponse);
-    if (stateResponse) {
-        const value = stateResponse.sort(((n1: any, n2: any) => {
-            const baker1: cookieBaker = JSON.parse(n1[1], parseReviver);
-            const baker2: cookieBaker = JSON.parse(n2[1], parseReviver);
-            // we want DESC ordering
-            return Number(baker2.eatenCookies - baker1.eatenCookies)
-        }));
-        return value;
-    } else { console.log("no value in state"); }
-
+    const sorted =
+        Object.keys(stateResponse).sort((key1, key2) => Number(stateResponse[key2].eatenCookies - stateResponse[key1].eatenCookies)).map(key => [key, stateResponse[key]])
+    return sorted;
 }
 
 export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> => {
