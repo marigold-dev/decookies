@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { getActualState, getLeaderBoard, mint } from './vmApi';
+import { getActualPlayerState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
 import { building, leaderBoard, operationType, vmOperation } from './vmTypes';
 
@@ -105,7 +105,7 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         getLeaderBoard(nodeUri);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
+            const vmState = await getActualPlayerState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
             dispatch(saveLeaderBoard(leaderBoard));
@@ -129,7 +129,7 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
+            const vmState = await getActualPlayerState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
             dispatch(saveLeaderBoard(leaderBoard));
@@ -147,10 +147,12 @@ export const addGrandma = add({ type: operationType.mint, operation: building.gr
 export const addFarm = add({ type: operationType.mint, operation: building.farm });
 export const addMine = add({ type: operationType.mint, operation: building.mine });
 export const addFactory = add({ type: operationType.mint, operation: building.factory });
+export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: {to, amount} })(dispatch, state, payload);
+export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: {amount} })(dispatch, state, payload);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
     try {
-        const vmState = await getActualState(nodeUri, keyPair);
+        const vmState = await getActualPlayerState(nodeUri, keyPair);
         dispatch(fullUpdateCB(vmState));
         const leaderBoard = await getLeaderBoard(nodeUri);
         dispatch(saveLeaderBoard(leaderBoard));
