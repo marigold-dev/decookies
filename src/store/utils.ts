@@ -1,6 +1,7 @@
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 import * as blake from 'blakejs';
 import * as bs58check from 'bs58check';
+import { keyPair } from './reducer';
 
 /**
  * Create a random nonce, like in Deku
@@ -59,4 +60,15 @@ export const toB58Hash = (prefix: Uint8Array, payload: string) => {
     tmp.set(blakeHash, prefix.length);
     const b58 = bs58check.encode(Buffer.from(tmp));
     return b58;
+}
+
+
+export const getKeyair = (rawKeyPair: SimpleKeyPair): keyPair => {
+    const rawPrivateKey = rawKeyPair.privateKey.split("-----")[2].trim();
+    // transform to a valid secret for Deku
+    const privateKey = toB58Hash(PREFIX.edsk, rawPrivateKey);
+    // transform to a valid address for Deku
+    const rawPublicKey = rawKeyPair.publicKey.split("-----")[2].trim();
+    const publicKey = toB58Hash(PREFIX.tz1, rawPublicKey);
+    return { publicKey, privateKey };
 }

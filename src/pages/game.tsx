@@ -27,7 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import * as human from 'human-crypto-keys'
 
-import { PREFIX, toB58Hash } from '../store/utils';
+import { getKeyair, PREFIX, stringToHex, toB58Hash } from '../store/utils';
 import { operationType } from '../store/vmTypes';
 
 export let nodeUri: string;
@@ -149,19 +149,14 @@ export const Game = () => {
 
                 // sign the chosen nickname
                 const seed = await latestState.current.wallet.client.requestSignPayload({
-                    signingType: SigningType.RAW, payload: nickName
+                    signingType: SigningType.RAW, payload: stringToHex(nickName)
                 }).then(val => val.signature);
 
                 // get keyPair
-                const keyPair = await human.getKeyPairFromSeed(seed.toString(), "ed25519");
-                const rawPrivateKey = keyPair.privateKey.split("-----")[2].trim();
-                // transform to a valid secret for Deku
-                const privateKey = toB58Hash(PREFIX.edsk, rawPrivateKey);
-                // transform to a valid address for Deku
-                const rawPublicKey = keyPair.publicKey.split("-----")[2].trim();
-                const publicKey = toB58Hash(PREFIX.tz1, rawPublicKey);
+                const rawKeyPair = await human.getKeyPairFromSeed(seed.toString(), "ed25519");
+                const keyPair = getKeyair(rawKeyPair);
                 // save them in state to use them at each needed action
-                dispatch(saveGeneratedKeyPair({ publicKey, privateKey }))
+                dispatch(saveGeneratedKeyPair(keyPair))
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
