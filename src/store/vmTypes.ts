@@ -1,3 +1,6 @@
+import { cookieBaker } from "./cookieBaker"
+import { parseReviver } from "./utils"
+
 export enum building {
     cookie = "cookie",
     cursor = "cursor",
@@ -23,15 +26,30 @@ export enum building {
 
 export enum operationType {
     mint = "mint",
-    transfer = "transfer"
+    transfer = "transfer",
+    eat = "eat"
 }
 
 export type vmOperation = {
     type: operationType
-    operation: building | transfer
+    operation: building | transfer | eat
 }
 
 export type transfer = {
     to: string
     amount: string
+}
+
+export type leaderBoard = {
+    address: string,
+    eatenCookies: bigint
+}
+
+export type eat = {
+    amount: string
+}
+
+export const cookieBakerToLeaderBoard = (element: any): leaderBoard => {
+    const cookieBaker: cookieBaker = JSON.parse(element[1], parseReviver);
+    return { address: element[0], eatenCookies: cookieBaker.eatenCookies };
 }

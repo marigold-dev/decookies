@@ -2,9 +2,9 @@ import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { getActualState, mint } from './vmApi';
+import { getActualState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { building, operationType, vmOperation } from './vmTypes';
+import { building, leaderBoard, operationType, vmOperation } from './vmTypes';
 
 /**
  * All the actions available
@@ -12,6 +12,10 @@ import { building, operationType, vmOperation } from './vmTypes';
 type fullUpdateCB = {
     type: "FULL_UPDATE_COOKIE_BAKER",
     payload: cookieBaker
+}
+type saveLeaderBoard = {
+    type: "SAVE_LEADERBOARD",
+    payload: leaderBoard[]
 }
 type addError = {
     type: "ADD_ERROR",
@@ -42,11 +46,16 @@ type saveGeneratedKeyPair = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
     type: "FULL_UPDATE_COOKIE_BAKER",
+    payload
+});
+
+export const saveLeaderBoard = (payload: leaderBoard[]): action => ({
+    type: "SAVE_LEADERBOARD",
     payload
 });
 
@@ -93,10 +102,13 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
+        getLeaderBoard(nodeUri);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
+            const leaderBoard = await getLeaderBoard(nodeUri);
+            dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -104,10 +116,11 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         throw new Error(error_msg);
     }
 }
-export const transferCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
-    console.log("start transfering");
+
+export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
-        const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
+        const vmAction = type;
+        console.log(type);
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
         if (!wallet || !nodeUri) {
@@ -118,6 +131,8 @@ export const transferCookies = async (type: vmOperation, dispatch: React.Dispatc
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualState(nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
+            const leaderBoard = await getLeaderBoard(nodeUri);
+            dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -137,6 +152,8 @@ export const initState = async (dispatch: React.Dispatch<action>, nodeUri: strin
     try {
         const vmState = await getActualState(nodeUri, keyPair);
         dispatch(fullUpdateCB(vmState));
+        const leaderBoard = await getLeaderBoard(nodeUri);
+        dispatch(saveLeaderBoard(leaderBoard));
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));

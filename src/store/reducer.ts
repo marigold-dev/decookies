@@ -1,6 +1,7 @@
 import { action } from './actions';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { cookieBaker, initialState as backeryInitialState } from './cookieBaker';
+import { leaderBoard } from './vmTypes';
 
 export type state = {
     error: string | null,
@@ -11,7 +12,8 @@ export type state = {
     cookieBaker: cookieBaker,
     generatedKeyPair: keyPair | null,
     recipient: string | null,
-    amount: string | null
+    amount: string | null,
+    leaderBoard: leaderBoard[]
 }
 
 export const initialState: state = {
@@ -23,7 +25,8 @@ export const initialState: state = {
     cookieBaker: backeryInitialState,
     generatedKeyPair: null,
     recipient: null,
-    amount: null
+    amount: null,
+    leaderBoard: []
 }
 
 export type keyPair = {
@@ -62,6 +65,9 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_GENERATED_KEY_PAIR": {
             return { ...state, generatedKeyPair: action.payload }
+        }
+        case "SAVE_LEADERBOARD": {
+            return { ...state, leaderBoard: action.payload }
         }
     }
 }

@@ -5,6 +5,7 @@ import mine from '../../resources/mine.png';
 import factory from '../../resources/factory.png';
 import cookie from '../../resources/perfectCookie.png';
 import transfer from '../../resources/transfer.png';
+import eat from '../../resources/eatcookie.png'
 
 import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
@@ -12,10 +13,10 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferCookies } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, saveWallet, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, transferOrEatCookies } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
-import { getTotalCps, isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
+import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
 import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
@@ -27,13 +28,14 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import * as human from 'human-crypto-keys'
 
-import { getKeyair, PREFIX, stringToHex, toB58Hash } from '../store/utils';
-import { operationType } from '../store/vmTypes';
+import { getKeyair, stringToHex } from '../store/utils';
+import { leaderBoard, operationType } from '../store/vmTypes';
 
 export let nodeUri: string;
 export let nickName: string;
 export let amountToTransfer: string;
 export let transferRecipient: string;
+export let amountToEat: string;
 
 export const Game = () => {
     const dispatch = useGameDispatch();
@@ -45,6 +47,7 @@ export const Game = () => {
     const nicknameRef = useRef<HTMLInputElement | null>(null);
     const amountToTransferRef = useRef<HTMLInputElement | null>(null);
     const transferRecipientRef = useRef<HTMLInputElement | null>(null);
+    const amountToEatRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
@@ -52,7 +55,7 @@ export const Game = () => {
             const id = setInterval(() => {
                 if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
-                    const production = getTotalCps(cb);
+                    const production = cb.passiveCPS;
                     try {
                         addCookie(dispatch, latestState, Number(production))
                     } catch (err) {
@@ -109,8 +112,21 @@ export const Game = () => {
         transferRecipient = transferRecipientRef.current?.value || "";
         if (amountToTransfer && transferRecipient) {
             try {
-                transferCookies({ type: operationType.transfer, operation: { to: transferRecipient, amount: amountToTransfer } }, dispatch, latestState);
-
+                transferOrEatCookies({ type: operationType.transfer, operation: { to: transferRecipient, amount: amountToTransfer } }, dispatch, latestState);
+            } catch (err) {
+                const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+                dispatch(addError(error_msg));
+                throw new Error(error_msg);
+            }
+        }
+    }
+    const handleEatClick = () => {
+        console.log("handle eat");
+        amountToEat = amountToEatRef.current?.value || "";
+        if (amountToEat) {
+            try {
+                console.log("going to eat: " + amountToEat + " cookies!");
+                transferOrEatCookies({ type: operationType.eat, operation: { amount: amountToEat } }, dispatch, latestState);
             } catch (err) {
                 const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                 dispatch(addError(error_msg));
@@ -180,7 +196,7 @@ export const Game = () => {
             <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-        <CookieCounter value={gameState.cookieBaker.cookies} cps={getTotalCps(gameState.cookieBaker)} />
+        <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
         <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
@@ -261,19 +277,43 @@ export const Game = () => {
         <div>
             <div>
                 <label>
-                    Transfer:
+                    Transfer:&nbsp;
                     <input type="text" name="amount" ref={amountToTransferRef} />
-                    cookies
+                    &nbsp; cookies
                 </label>
+                <label>
+                    to:&nbsp;
+                    <input type="text" name="recipient" ref={transferRecipientRef} />
+                </label>
+                <ToolButton disabled={false} img={transfer} alt="transfer" onClick={handleTransferClick} />
             </div>
             <div>
                 <label>
-                    to:
-                    <input type="text" name="recipient" ref={transferRecipientRef} />
+                    Eat:&nbsp;
+                    <input type="text" name="amountToEat" ref={amountToEatRef} />
+                    cookies&nbsp;
                 </label>
+                <ToolButton disabled={false} img={eat} alt="eat" onClick={handleEatClick} />
             </div>
-            <ToolButton disabled={false} img={transfer} alt="transfer"
-                onClick={handleTransferClick} />
         </div>
+        <div>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Address</th>
+                        <th>Eaten cookies</th>
+                    </tr>
+                    {gameState.leaderBoard.map((item: leaderBoard, i: any) => (
+                        <tr key={i}>
+                            <td>{i + 1}</td>
+                            <td>{item.address}</td>
+                            <td>{item.eatenCookies.toString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
     </>
 }
