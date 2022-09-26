@@ -63,7 +63,7 @@ export const toB58Hash = (prefix: Uint8Array, payload: string) => {
 }
 
 
-export const getKeyair = (rawKeyPair: SimpleKeyPair): keyPair => {
+export const getKeyPair = (rawKeyPair: any): keyPair => {
     const rawPrivateKey = rawKeyPair.privateKey.split("-----")[2].trim();
     // transform to a valid secret for Deku
     const privateKey = toB58Hash(PREFIX.edsk, rawPrivateKey);

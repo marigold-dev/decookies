@@ -1,46 +1,61 @@
-# Getting Started with Create React App
+# Decookies
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Decookies is a front-end application, allowing players to bakes cookies on [Marigold Sidechain Deku](https://www.marigold.dev/deku).
 
-## Available Scripts
+## Run the game
 
-In the project directory, you can run:
+1. Git clone this repo
 
-### `npm start`
+2. Run `npm start` and go to `http://localhost:3000` to see the minimalist UI:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+![](resources/doc/homepage.png)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+3. Fulfill the `Nickname` with your favorite in-game pseudo.
 
-### `npm test`
+4. Filfill the `Deku node URI` with the URI of your running Deku node
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+5. Login using [`Beacon wallet`](https://docs.walletbeacon.io/supported-wallets/).
 
-### `npm run build`
+> ** ⚠️ The only thing Decookies will ask you to sign, is the hexadecimal representation of your Nickname ⚠️**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+6. Bake cookies!
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Game principles
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+We basically implemented the same scenario as [cookie-clicker](https://cookieclicker.fandom.com/wiki/Cookie_Clicker_Wiki).
 
-### `npm run eject`
+Hence, the levels are almost the same (still in WIP) and the costs calculation is almost the same.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+#### Transfer cookies
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+We added a feature to transfer cookies from your game to an other player. You simply need to fulfill the amount and the recipient address.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+#### Eating cookies
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+What is a cookie baking game if we cannot eat them?
 
-## Learn More
+Hence, we added this feature. Let's see who is the biggest eater! A leaderboard will be available to see who has eaten the more cookies! Let's eat yours!
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## FAQ
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Who are Marigold? And what are they working on?
+
+> [Marigold](https://www.marigold.dev/) is a dynamic and collaborative company, established by Gabriel Alfour in November 2020, focused on testing and developing upgrades to the Tezos Protocol.
+
+We have several projects, and one of them is the **Deku sidechain.**
+
+Decookies, is a game running on this Deku sidechain.
+
+2. Why does Decookies ask me to chose and sign my nickname?
+
+To preserve the gameplay, we need to use the [`InMemorySigner` from Taquito](https://tezostaquito.io/docs/inmemory_signer/). This signer needs the Private key and Public address of the user. Of course, we are not going to ask for your private key (because you know you must never share it).
+
+Hence, we use the Beacon SDK to sign your nickname, then use this signed-nickname to generate a `KeyPair` with [human-crypto-keys](https://github.com/ipfs-shipyard/js-human-crypto-keys).
+
+This means: you are the only one able to sign generate the same `KeyPair` because you are the only one able to provide the exact same seed every time.
+
+3. How can I know the public address of my game, to ask cookies from a friend?
+
+As seen previously, the Public address is generated. We are currently working on a proper way to display this information for you.
+
+As you must have seen, the UI is minimalist but working. We are going to enrich it a bit to provide a better experience.
