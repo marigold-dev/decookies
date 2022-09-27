@@ -1,4 +1,5 @@
 import { cookieBaker } from "./cookieBaker"
+import { parseReviver } from "./utils"
 
 export enum building {
     cookie = "cookie",
@@ -49,6 +50,6 @@ export type eat = {
 }
 
 export const cookieBakerToLeaderBoard = (element: any): leaderBoard => {
-    const cookieBaker: cookieBaker = element[1]
+    const cookieBaker: cookieBaker = JSON.parse(element[1], parseReviver);
     return { address: element[0], eatenCookies: cookieBaker.eatenCookies };
 }
