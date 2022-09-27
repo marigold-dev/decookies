@@ -13,7 +13,8 @@ export type state = {
     generatedKeyPair: keyPair | null,
     recipient: string | null,
     amount: string | null,
-    leaderBoard: leaderBoard[]
+    leaderBoard: leaderBoard[],
+    publicAddress: string | null
 }
 
 export const initialState: state = {
@@ -26,7 +27,8 @@ export const initialState: state = {
     generatedKeyPair: null,
     recipient: null,
     amount: null,
-    leaderBoard: []
+    leaderBoard: [],
+    publicAddress: null
 }
 
 export type keyPair = {
@@ -68,6 +70,9 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_LEADERBOARD": {
             return { ...state, leaderBoard: action.payload }
+        }
+        case "SAVE_PUBLIC_ADDRESS": {
+            return { ...state, publicAddress: action.payload }
         }
     }
 }

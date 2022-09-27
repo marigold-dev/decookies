@@ -44,9 +44,13 @@ type saveGeneratedKeyPair = {
     type: "SAVE_GENERATED_KEY_PAIR",
     payload: keyPair
 }
+type saveUserAddress = {
+    type: "SAVE_PUBLIC_ADDRESS",
+    payload: string
+}
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -93,6 +97,11 @@ export const clearMessage = (): action => ({
     type: "CLEAR_MESSAGE"
 });
 
+export const saveUserAddress = (payload: string): action => ({
+    type: "SAVE_PUBLIC_ADDRESS",
+    payload
+});
+
 const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
@@ -102,9 +111,34 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
+        getLeaderBoard(nodeUri);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(nodeUri, state.current.generatedKeyPair);
+            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
+            dispatch(fullUpdateCB(vmState));
+            const leaderBoard = await getLeaderBoard(nodeUri);
+            dispatch(saveLeaderBoard(leaderBoard));
+        }, 2000);
+    } catch (err) {
+        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+        dispatch(addError(error_msg));
+        throw new Error(error_msg);
+    }
+}
+
+export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
+    try {
+        const vmAction = type;
+        console.log(type);
+        const wallet = state.current.wallet;
+        const nodeUri = state.current.nodeUri;
+        if (!wallet || !nodeUri) {
+            throw new Error("Wallet must be saved before minting");
+        }
+        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
+        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
+        setTimeout(async (): Promise<void> => {
+            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
             dispatch(saveLeaderBoard(leaderBoard));
@@ -127,7 +161,7 @@ export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, stat
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
     try {
-        const vmState = await getActualPlayerState(nodeUri, keyPair);
+        const vmState = await getActualPlayerState(dispatch, nodeUri, keyPair);
         dispatch(fullUpdateCB(vmState));
         const leaderBoard = await getLeaderBoard(nodeUri);
         dispatch(saveLeaderBoard(leaderBoard));

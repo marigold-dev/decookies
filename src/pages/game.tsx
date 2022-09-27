@@ -182,8 +182,8 @@ export const Game = () => {
     }
 
     return <>
+        <ToastContainer />
         <div>
-            <ToastContainer />
             <label>
                 Nickname:
                 <input type="text" name="nickName" ref={nicknameRef} />
@@ -193,6 +193,11 @@ export const Game = () => {
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:8080" />
             </label>
             <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
+        </div>
+        <div>
+            <label hidden={!latestState.current.publicAddress}>
+                Hello {latestState.current.publicAddress}
+            </label>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
         <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />

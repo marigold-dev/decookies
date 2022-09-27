@@ -6,6 +6,7 @@ import { createNonce, parseReviver, stringifyReplacer, stringToHex } from './uti
 import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
 import { keyPair } from './reducer'
+import { action, saveUserAddress } from './actions';
 
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
     const blockRequest = await fetch(nodeUri + "/api/v1/chain/level",
@@ -19,12 +20,12 @@ export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
 /**
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
-export const getActualPlayerState = async (nodeUri: string, keyPair: keyPair | null): Promise<cookieBaker> => {
+export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null): Promise<cookieBaker> => {
     if (keyPair) {
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
-        // TODO: migrate to "/api/v1/state/unix/" + useraddress
-        const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
+        dispatch(saveUserAddress(userAddress));
+        const stateRequest = await fetch(nodeUri + "/vm-state",
             {
                 method: "GET"
             });
