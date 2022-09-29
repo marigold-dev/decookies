@@ -25,13 +25,13 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
         dispatch(saveUserAddress(userAddress));
-        const stateRequest = await fetch(nodeUri + "/vm-state",
+        const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
             {
                 method: "GET"
             });
         const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
         if (stateResponse) {
-            const cookieBaker = stateResponse[userAddress];
+            const cookieBaker = JSON.parse(stateResponse[userAddress], parseReviver);
             if (!cookieBaker) {
                 return initialState;
             } else {
@@ -41,7 +41,6 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
             console.log("no value in state");
             return initialState;
         }
-
     } else {
         throw new Error("NO PRIVATE KEY");
     }
