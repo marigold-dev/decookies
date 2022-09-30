@@ -17,7 +17,7 @@ ENV NODE_ENV production
 
 ENV SERVER_FALLBACK_PAGE /public/index.html
 
-COPY --from=builder /app/dist /public
+COPY --from=builder /app/build /public
 
 EXPOSE 80
 
