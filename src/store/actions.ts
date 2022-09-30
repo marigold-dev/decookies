@@ -17,6 +17,26 @@ type updateOven = {
     type: "UPDATE_COOKIES_IN_OVEN",
     payload: bigint
 }
+type updateCursorBasket = {
+    type: "UPDATE_CURSORS_IN_BASKET",
+    payload: bigint
+}
+type updateRecruitingGrandmas = {
+    type: "UPDATE_RECRUITING_GRANDMAS",
+    payload: bigint
+}
+type updateBuildingFarms = {
+    type: "UPDATE_BUILDING_FARMS",
+    payload: bigint
+}
+type updateDrillingMines = {
+    type: "UPDATE_DRILLING_MINES",
+    payload: bigint
+}
+type updateBuildingFactories = {
+    type: "UPDATE_BUILDING_FACTORIES",
+    payload: bigint
+}
 type saveLeaderBoard = {
     type: "SAVE_LEADERBOARD",
     payload: leaderBoard[]
@@ -54,7 +74,7 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -64,6 +84,27 @@ export const fullUpdateCB = (payload: cookieBaker): action => ({
 
 export const updateOven = (payload: bigint): action => ({
     type: "UPDATE_COOKIES_IN_OVEN",
+    payload
+});
+
+export const updateCursorBasket = (payload: bigint): action => ({
+    type: "UPDATE_CURSORS_IN_BASKET",
+    payload
+});
+export const updateRecruitingGrandmas = (payload: bigint): action => ({
+    type: "UPDATE_RECRUITING_GRANDMAS",
+    payload
+});
+export const updateBuildingFarms = (payload: bigint): action => ({
+    type: "UPDATE_BUILDING_FARMS",
+    payload
+});
+export const updateDrillingMines = (payload: bigint): action => ({
+    type: "UPDATE_DRILLING_MINES",
+    payload
+});
+export const updateBuildingFactories = (payload: bigint): action => ({
+    type: "UPDATE_BUILDING_FACTORIES",
     payload
 });
 
@@ -129,6 +170,13 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
                     dispatch(updateOven(0n));
                 else
                     dispatch(updateOven(inOven));
+            }
+            if ((vmState.cursors > state.current.cookieBaker.cursors)) {
+                const building = state.current.cursorsInBasket - (vmState.cursors - state.current.cookieBaker.cursors);
+                if (building < 0n)
+                    dispatch(updateCursorBasket(0n));
+                else
+                    dispatch(updateCursorBasket(building));
             }
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
