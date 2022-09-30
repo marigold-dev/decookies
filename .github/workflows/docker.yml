@@ -2,9 +2,8 @@ name: Docker CI
 
 on:
   push:
-    branches:
-      - "main"
-  pull_request:
+    tags:
+      - "*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,27 +32,29 @@ jobs:
         run: |
           echo "::set-output name=date::$(date +%Y-%m-%d)"
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: "Build docker image PROD"
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-        run: docker build -t ghcr.io/marigold-dev/decookies:latest .
-      - name: "Build docker image NPR"
-        if: contains(github.event.pull_request.labels.*.name, 'docker')
-        run: docker build -t ghcr.io/marigold-dev/decookies:latest .
-      - name: "Re-tag image"
-        if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') ||  contains(github.event.pull_request.labels.*.name, 'docker')}}
+      - name: "Build Deku-P"
+        if: ${{ github.ref == 'refs/heads/feat/dekuV1' }}
+        run: docker build -t ghcr.io/marigold-dev/decookies-p:latest .
+      - name: "Build Deku-C"
+        if: ${{ github.ref == 'refs/heads/feat/dekuWASM' }}
+        run: docker build -t ghcr.io/marigold-dev/decookies-c:latest .
+      - name: "Re-tag image Deku-p"
+        if: ${{ github.ref == 'refs/heads/feat/dekuV1'}}
         run: |
-          docker image tag ghcr.io/marigold-dev/decookies:latest ghcr.io/marigold-dev/decookies:stable
-          docker image tag ghcr.io/marigold-dev/decookies:latest ghcr.io/marigold-dev/decookies:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
-          docker image tag ghcr.io/marigold-dev/decookies:latest ghcr.io/marigold-dev/decookies:pr-${{ github.event.number }}-${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
-      - name: "Push image"
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          docker image tag ghcr.io/marigold-dev/decookies-p:latest ghcr.io/marigold-dev/decookies-p:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+          docker image tag ghcr.io/marigold-dev/decookies-p:latest ghcr.io/marigold-dev/decookies-p:pr-${{ github.event.number }}-${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+      - name: "Re-tag image Deku-c"
+        if: ${{ github.ref == 'refs/heads/feat/dekuWASM'}}
         run: |
-          docker image push ghcr.io/marigold-dev/decookies:stable
-          docker image push ghcr.io/marigold-dev/decookies:latest
-          docker image push ghcr.io/marigold-dev/decookies:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
-      - name: "Push image for PR"
-        # Run this if the PR has the "docker" label
-        if: contains(github.event.pull_request.labels.*.name, 'docker')
+          docker image tag ghcr.io/marigold-dev/decookies-c:latest ghcr.io/marigold-dev/decookies-c:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+          docker image tag ghcr.io/marigold-dev/decookies-c:latest ghcr.io/marigold-dev/decookies-c:pr-${{ github.event.number }}-${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+      - name: "Push image Deku-c"
+        if: ${{ github.ref == 'refs/heads/feat/dekuV1' }}
         run: |
-          docker image push ghcr.io/marigold-dev/decookies:latest
-          docker image push ghcr.io/marigold-dev/decookies:pr-${{ github.event.number }}-${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+          docker image push ghcr.io/marigold-dev/decookies-p:latest
+          docker image push ghcr.io/marigold-dev/decookies-p:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+      - name: "Push image Deku-p"
+        if: ${{ github.ref == 'refs/heads/feat/dekuWASM' }}
+        run: |
+          docker image push ghcr.io/marigold-dev/decookies-c:latest
+          docker image push ghcr.io/marigold-dev/decookies-c:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
