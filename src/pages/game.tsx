@@ -261,7 +261,7 @@ export const Game = () => {
                     <div>
                         <div>
                             <label htmlFor="recruiting_grandma"> Grandma(s) in job interview: </label>
-                            <ToolCounter value={gameState.cursorsInBasket} />
+                            <ToolCounter value={gameState.recruitingGrandmas} />
                         </div>
                         <label htmlFor="Grandmas">Grandmas: </label>
                         <ToolCounter value={gameState.cookieBaker.grandmas} />
