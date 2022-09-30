@@ -163,21 +163,50 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state, dispatch));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
-            if ((vmState.cookies > state.current.cookieBaker.cookies)) {
-                const inOven = state.current.cookiesInOven - (vmState.cookies - state.current.cookieBaker.cookies);
-                if (inOven < 0n)
-                    dispatch(updateOven(0n));
-                else
-                    dispatch(updateOven(inOven));
+        const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
+        if (vmState.cookies > state.current.cookieBaker.cookies) {
+          const inOven =
+            state.current.cookiesInOven -
+            (vmState.cookies - state.current.cookieBaker.cookies);
+          if (inOven < 0n) dispatch(updateOven(0n));
+          else dispatch(updateOven(inOven));
+        }
+        if (vmState.cursors > state.current.cookieBaker.cursors) {
+          const building =
+            state.current.cursorsInBasket -
+            (vmState.cursors - state.current.cookieBaker.cursors);
+          if (building < 0n) dispatch(updateCursorBasket(0n));
+          else dispatch(updateCursorBasket(building));
+        }
+        // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+        if (vmState.grandmas > state.current.cookieBaker.grandmas) {
+          const building =
+            state.current.recruitingGrandmas -
+            (vmState.grandmas - state.current.cookieBaker.grandmas);
+          if (building < 0n) dispatch(updateRecruitingGrandmas(0n));
+          else dispatch(updateRecruitingGrandmas(building));
+        }
+        if (vmState.farms > state.current.cookieBaker.farms) {
+          const building =
+            state.current.buildingFarms -
+            (vmState.farms - state.current.cookieBaker.farms);
+          if (building < 0n) dispatch(updateBuildingFarms(0n));
+          else dispatch(updateBuildingFarms(building));
+        }
+        if (vmState.mines > state.current.cookieBaker.mines) {
+          const building =
+            state.current.drillingMines -
+            (vmState.mines - state.current.cookieBaker.mines);
+          if (building < 0n) dispatch(updateDrillingMines(0n));
+          else dispatch(updateDrillingMines(building));
             }
-            if ((vmState.cursors > state.current.cookieBaker.cursors)) {
-                const building = state.current.cursorsInBasket - (vmState.cursors - state.current.cookieBaker.cursors);
-                if (building < 0n)
-                    dispatch(updateCursorBasket(0n));
-                else
-                    dispatch(updateCursorBasket(building));
-            }
+        if (vmState.factories > state.current.cookieBaker.factories) {
+          const building =
+            state.current.buildingFactories -
+            (vmState.factories - state.current.cookieBaker.factories);
+          if (building < 0n) dispatch(updateBuildingFactories(0n));
+          else dispatch(updateBuildingFactories(building));
+        }
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
             dispatch(saveLeaderBoard(leaderBoard));
