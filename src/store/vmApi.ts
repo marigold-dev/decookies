@@ -56,7 +56,11 @@ const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
         });
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const sorted =
-        Object.keys(stateResponse).sort((key1, key2) => Number(stateResponse[key2].eatenCookies - stateResponse[key1].eatenCookies)).map(key => [key, stateResponse[key]])
+        Object.entries(stateResponse).sort((a, b) =>  {
+            const eatenA = JSON.parse(<any>a[1], parseReviver).eatenCookies;
+            const eatenB = JSON.parse(<any>b[1], parseReviver).eatenCookies;
+            return Number(eatenB - eatenA);
+        });
     return sorted;
 }
 
