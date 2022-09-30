@@ -5,7 +5,7 @@ import { createNonce, parseReviver, stringifyReplacer, stringToHex } from './uti
 
 import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
-import { keyPair } from './reducer'
+import { keyPair, state } from './reducer'
 import { action, saveUserAddress } from './actions';
 
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
@@ -31,11 +31,11 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
             });
         const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
         if (stateResponse) {
-            const cookieBaker = JSON.parse(stateResponse[userAddress], parseReviver);
-            if (!cookieBaker) {
-                return initialState;
-            } else {
+            if (stateResponse[userAddress]) {
+                const cookieBaker = JSON.parse(stateResponse[userAddress], parseReviver);
                 return cookieBaker;
+            } else {
+                return initialState;
             }
         } else {
             console.log("no value in state");
@@ -64,7 +64,6 @@ export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> =>
     const rawLeaderBoard = await getRawLeaderBoard(nodeUri);
     if (rawLeaderBoard) {
         const leaderBoard = rawLeaderBoard.flatMap((item: any) => cookieBakerToLeaderBoard(item));
-        console.log("leaderBoard: ", leaderBoard);
         return leaderBoard;
     } else {
         console.log("empty state");
@@ -77,7 +76,8 @@ export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> =>
  * @param action 
  * @returns {Promise<string>} The hash of the submitted operation
  */
-export const mint = async (action: vmOperation, nodeUri: string, keyPair: keyPair | null): Promise<string> => {
+export const mint = async (action: vmOperation, nodeUri: string, latestState: React.MutableRefObject<state>, dispatch: React.Dispatch<action>): Promise<string> => {
+    const keyPair = latestState.current.generatedKeyPair;
     if (keyPair) {
         try {
             const signer = new InMemorySigner(keyPair.privateKey)
@@ -111,6 +111,10 @@ export const mint = async (action: vmOperation, nodeUri: string, keyPair: keyPai
                     method: "POST",
                     body: fullPayload
                 });
+            //TODO: here?
+            // const inOven = latestState.current.cookiesInOven + 1n;
+            // console.log("inOven: ", inOven);
+            // dispatch(updateOven(inOven));
             return hash.text();
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;

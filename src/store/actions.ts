@@ -13,6 +13,10 @@ type fullUpdateCB = {
     type: "FULL_UPDATE_COOKIE_BAKER",
     payload: cookieBaker
 }
+type updateOven = {
+    type: "UPDATE_COOKIES_IN_OVEN",
+    payload: bigint
+}
 type saveLeaderBoard = {
     type: "SAVE_LEADERBOARD",
     payload: leaderBoard[]
@@ -50,11 +54,16 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
     type: "FULL_UPDATE_COOKIE_BAKER",
+    payload
+});
+
+export const updateOven = (payload: bigint): action => ({
+    type: "UPDATE_COOKIES_IN_OVEN",
     payload
 });
 
@@ -110,15 +119,21 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
-        getLeaderBoard(nodeUri);
+        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state, dispatch));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
+            if ((vmState.cookies > state.current.cookieBaker.cookies)) {
+                const inOven = state.current.cookiesInOven - (vmState.cookies - state.current.cookieBaker.cookies);
+                if (inOven < 0n)
+                    dispatch(updateOven(0n));
+                else
+                    dispatch(updateOven(inOven));
+            }
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(nodeUri);
             dispatch(saveLeaderBoard(leaderBoard));
-        }, 2000);
+        }, 3000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
@@ -129,13 +144,12 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
 export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
     try {
         const vmAction = type;
-        console.log(type);
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state.current.generatedKeyPair));
+        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state, dispatch));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
             const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
@@ -156,8 +170,8 @@ export const addGrandma = add({ type: operationType.mint, operation: building.gr
 export const addFarm = add({ type: operationType.mint, operation: building.farm });
 export const addMine = add({ type: operationType.mint, operation: building.mine });
 export const addFactory = add({ type: operationType.mint, operation: building.factory });
-export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: {to, amount} })(dispatch, state, payload);
-export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: {amount} })(dispatch, state, payload);
+export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: { to, amount } })(dispatch, state, payload);
+export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: { amount } })(dispatch, state, payload);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
     try {

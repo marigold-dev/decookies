@@ -14,7 +14,8 @@ export type state = {
     recipient: string | null,
     amount: string | null,
     leaderBoard: leaderBoard[],
-    publicAddress: string | null
+    publicAddress: string | null,
+    cookiesInOven: bigint
 }
 
 export const initialState: state = {
@@ -28,7 +29,8 @@ export const initialState: state = {
     recipient: null,
     amount: null,
     leaderBoard: [],
-    publicAddress: null
+    publicAddress: null,
+    cookiesInOven: 0n
 }
 
 export type keyPair = {
@@ -73,6 +75,9 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_PUBLIC_ADDRESS": {
             return { ...state, publicAddress: action.payload }
+        }
+        case "UPDATE_COOKIES_IN_OVEN": {
+            return { ...state, cookiesInOven: action.payload }
         }
     }
 }

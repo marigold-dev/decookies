@@ -13,7 +13,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, eatCookie, transferCookie, saveWallet } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, eatCookie, transferCookie, saveWallet, updateOven } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
@@ -90,6 +90,9 @@ export const Game = () => {
     }, [dispatch, latestState.current.error, latestState.current.message]);
 
     const handleCookieClick = () => {
+        //TODO: here?
+        const inOven = latestState.current.cookiesInOven + 1n;
+        dispatch(updateOven(inOven));
         addCookie(dispatch, latestState);
     }
     const handleCursorClick = () => {
@@ -200,7 +203,11 @@ export const Game = () => {
             </label>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-        <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+        <div>
+            <label htmlFor="cursor_cost"> Cookies in oven: </label>
+            <ToolCounter value={gameState.cookiesInOven} />
+            <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+        </div>
         <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
