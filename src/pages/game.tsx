@@ -184,6 +184,13 @@ export const Game = () => {
             dispatch(addError("Need to fulfil Nickname and Node URI"));
     }
 
+    const getRandomBetaNode = () => {
+        //TODO: should always reach the same URI, load-balancing must be done on infra side!
+        const node = Math.floor(Math.random() * 4);
+        console.log("random: ", node);
+        return "https://deku-betanet-vm" + node +".deku-v1.marigold.dev/api/v1/unix/"
+    }
+
     return <>
         <ToastContainer />
         <div>
@@ -193,7 +200,7 @@ export const Game = () => {
             </label>
             <label>
                 Deku node URI:
-                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:8080" />
+                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue={getRandomBetaNode()} />
             </label>
             <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
         </div>
@@ -290,7 +297,7 @@ export const Game = () => {
                 <label>
                     Transfer:&nbsp;
                     <input type="text" name="amount" ref={amountToTransferRef} />
-                    &nbsp; cookies
+                    &nbsp; cookies &nbsp;
                 </label>
                 <label>
                     to:&nbsp;
