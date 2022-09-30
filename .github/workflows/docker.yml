@@ -2,8 +2,9 @@ name: Docker CI
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - feat/dekuV1
+      - feat/dekuWASM
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
