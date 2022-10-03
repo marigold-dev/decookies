@@ -152,7 +152,7 @@ export const saveUserAddress = (payload: string): action => ({
     payload
 });
 
-const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
+const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>): Promise<void> => {
     try {
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const wallet = state.current.wallet;
@@ -160,7 +160,7 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state, dispatch));
+        mint(vmAction, nodeUri, state, dispatch);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
         const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
@@ -241,14 +241,14 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
     }
 }
 
-export const addCookie = add({ type: operationType.mint, operation: building.cookie });
-export const addCursor = add({ type: operationType.mint, operation: building.cursor });
-export const addGrandma = add({ type: operationType.mint, operation: building.grandma });
-export const addFarm = add({ type: operationType.mint, operation: building.farm });
-export const addMine = add({ type: operationType.mint, operation: building.mine });
-export const addFactory = add({ type: operationType.mint, operation: building.factory });
-export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: { to, amount } })(dispatch, state, payload);
-export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: { amount } })(dispatch, state, payload);
+export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add({ type: operationType.mint, operation: building.cookie, amount })(dispatch, state);
+export const addCursor = add({ type: operationType.mint, operation: building.cursor, amount:"1" });
+export const addGrandma = add({ type: operationType.mint, operation: building.grandma, amount: "1" });
+export const addFarm = add({ type: operationType.mint, operation: building.farm, amount: "1" });
+export const addMine = add({ type: operationType.mint, operation: building.mine, amount: "1" });
+export const addFactory = add({ type: operationType.mint, operation: building.factory, amount: "1" });
+export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: { to, amount }, amount:"0" })(dispatch, state);
+export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: { amount }, amount: "0" })(dispatch, state);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
     try {

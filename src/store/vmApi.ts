@@ -57,8 +57,8 @@ const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
     const sorted =
         Object.entries(stateResponse).sort((a, b) =>  {
-            const eatenA = JSON.parse(<any>a[1], parseReviver).eatenCookies;
-            const eatenB = JSON.parse(<any>b[1], parseReviver).eatenCookies;
+            const eatenA = JSON.parse(a[1] as any, parseReviver).eatenCookies;
+            const eatenB = JSON.parse(b[1] as any, parseReviver).eatenCookies;
             return Number(eatenB - eatenA);
         });
     return sorted;

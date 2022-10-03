@@ -56,8 +56,13 @@ export const Game = () => {
                 if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
                     const production = cb.passiveCPS;
+                    console.log(production)
                     try {
-                        addCookie(dispatch, latestState, Number(production))
+                        if (production > 0n) {
+                            const pending = latestState.current.cookiesInOven + 1n;
+                            dispatch(updateOven(pending));
+                            addCookie(production.toString() + "n", dispatch, latestState)
+                        }
                     } catch (err) {
                         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                         dispatch(addError(error_msg));
@@ -93,7 +98,7 @@ export const Game = () => {
         //TODO: here?
         const pending = latestState.current.cookiesInOven + 1n;
         dispatch(updateOven(pending));
-        addCookie(dispatch, latestState);
+        addCookie("1n", dispatch, latestState);
     }
     const handleCursorClick = () => {
         //TODO: here?

@@ -33,6 +33,7 @@ export enum operationType {
 export type vmOperation = {
     type: operationType
     operation: building | transfer | eat
+    amount: string
 }
 
 export type transfer = {
