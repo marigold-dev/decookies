@@ -3,19 +3,3 @@
   pointer-events: none;
   padding: 0 50px;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .CookieBtn {
-    animation: Cookie-spin infinite 20s linear;
-  }
-}
-
-@keyframes Cookie-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
