@@ -59,7 +59,7 @@ export const Game = () => {
                     console.log(production)
                     try {
                         if (production > 0n) {
-                            const pending = latestState.current.cookiesInOven + 1n;
+                            const pending = latestState.current.cookiesInOven + production;
                             dispatch(updateOven(pending));
                             addCookie(production.toString() + "n", dispatch, latestState)
                         }
