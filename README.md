@@ -60,21 +60,44 @@ As seen previously, the Public address is generated. We are currently working on
 
 As you must have seen, the UI is minimalist but working. We are going to enrich it a bit to provide a better experience.
 
-
 ## State machine diagram
 
 ```mermaid
 stateDiagram-v2
-    cookieBaker --> MintCookie
+    direction LR
+    Player --> cookieBaker
+    cookieBaker --> Cursors
+    cookieBaker --> Grandmas
+    cookieBaker --> MintCookie : Click to mint one cookie
+    MintCookie --> cookieBaker : Receive one cookie
     state BuyCursor <<BuyCursor>>
         cookieBaker --> BuyCursor
-        BuyCursor --> False: if n < cursorCost
-        BuyCursor --> True : if n >= cursorCost
+        BuyCursor --> NotEnoughCookie: if cookieBaker.cookies < cursorCost
+        BuyCursor --> +1Cursor : if cookieBaker.cookies >= cursorCost
+        BuyCursor --> cookieBaker: add one cursor
     state BuyGrandma <<BuyGrandma>>
         cookieBaker --> BuyGrandma
-        BuyGrandma --> False: if n < grandmaCost
-        BuyGrandma --> True : if n >= grandmaCost
+        BuyGrandma --> NotEnoughCookie: if cookieBaker.cookies < grandmaCost
+        BuyGrandma --> +1Grandma : if cookieBaker.cookies >= grandmaCost
+        BuyGrandma --> cookieBaker: add one Grandma
+    Cursors --> MintCookie : Each cursor mint 1cps
+    MintCookie --> cookieBaker : Receive 1cps
+    Grandmas --> MintCookie : Each grandma mint 3cps
+    MintCookie --> cookieBaker : Receive 3cps
 ```
+>CPS=Cookies Per Second
+
+
+__TL;DR;__
+
+Each player as a `cookieBaker` type, which stores every counters: 
+- number of cookies
+- number of cursors
+- number of grandmas
+There are several possible actions:
+- mint a cookie => simply add one cookie in the current amount of cookies
+- buy a cursor => if enough cookie to buy one, add one cursor to the current amount of cursors. Every seconds, one cursor will mint one cookie for the user.
+- buy a grandma => if enough cookies to buy one, add one grandma to the current amount of grandams. Every secondes, one grandma will mint three cookies for the user.
 
 ## Diagram sequence
 
