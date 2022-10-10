@@ -59,3 +59,60 @@ This means: you are the only one able to sign generate the same `KeyPair` becaus
 As seen previously, the Public address is generated. We are currently working on a proper way to display this information for you.
 
 As you must have seen, the UI is minimalist but working. We are going to enrich it a bit to provide a better experience.
+
+
+## State machine diagram
+
+```mermaid
+stateDiagram-v2
+    cookieBaker --> MintCookie
+    state BuyCursor <<BuyCursor>>
+        cookieBaker --> BuyCursor
+        BuyCursor --> False: if n < cursorCost
+        BuyCursor --> True : if n >= cursorCost
+    state BuyGrandma <<BuyGrandma>>
+        cookieBaker --> BuyGrandma
+        BuyGrandma --> False: if n < grandmaCost
+        BuyGrandma --> True : if n >= grandmaCost
+```
+
+## Diagram sequence
+
+```mermaid
+sequenceDiagram
+    participant Player2
+    actor Player1
+    participant State
+    participant Cursor
+    Note right of Cursor: Cursor initial cost is 15 cookies
+    participant Grandma
+    Note right of Grandma: Grandma initial cost is 100 cookies
+    loop Each click
+        Player->State: Mint 1 cookie
+    end
+    loop Each second
+        loop Each cursor
+            Cursor->State: Mint 1 cookie
+        end
+    end
+    loop Each second
+        loop Each grandma
+            Grandma->State: Mint 3 cookies
+        end
+    end
+    critical Buy a Cursor
+        Player-->State: buy cursor
+    option Enough cookies
+        State-->State: Player has one more cursor
+    end
+    critical Buy a Grandma
+        Player-->State: buy Grandma
+    option Enough cookies
+        State-->State: Player has one more Grandma
+    end
+    critical Send cookies
+        Player1-->Player2: send 3 cookies
+    option Enough cookies
+        State-->State: Player1 has enough cookies
+    end
+```
