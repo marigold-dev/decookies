@@ -1,7 +1,8 @@
 import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
-import { createNonce, parseReviver, stringifyReplacer, stringToHex } from './utils';
+// import { createNonce, stringToHex } from './utils';
+import { parseReviver, stringifyReplacer } from './utils';
 
 import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
