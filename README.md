@@ -26,6 +26,13 @@ We basically implemented the same scenario as [cookie-clicker](https://cookiecli
 
 Hence, the levels are almost the same (still in WIP) and the costs calculation is almost the same.
 
+#### Baking cookies
+
+The goal of this game is to bake as many cookies as possible. To do so, there are several ways:
+
+- Click on the cookie button. Each click will submit one cookie to be baked to Deku (cookie in oven). Once the operation had been included in a block, you will have the cookie.
+- Buy buildings to passively bake cookies for you. For example, you can buy your first Cursor for 15 cookies. Once the cursor had been baked, it will bake one cookie per second for you.
+
 #### Transfer cookies
 
 We added a feature to transfer cookies from your game to an other player. You simply need to fulfill the amount and the recipient address.
@@ -49,10 +56,12 @@ Decookies, is a game running on this Deku sidechain.
 2. What is the cookie-clicker game?
 
 At the genesis of this project, we had two different goals:
+
 - Create a blockchain app to betatest our onboarding on Deku-P
 - Test Deku transaction per second
 
 We decided to develop a gam to do them both! We chose to do a cookie-clicker game like (we were mainly inspired by [this one](https://orteil.dashnet.org/cookieclicker/) from Orteil), because it will force us to:
+
 - reach high TPS on Deku side
 - develop blockchain app
 - develop front to interact with blockchain app
@@ -96,16 +105,17 @@ stateDiagram-v2
     Grandmas --> MintCookie : Each grandma mint 3cps
     MintCookie --> cookieBaker : Receive 3cps
 ```
->CPS=Cookies Per Second
 
+> CPS=Cookies Per Second
 
-__TL;DR;__
+**TL;DR;**
 
-Each player as a `cookieBaker` type, which stores every counters: 
+Each player as a `cookieBaker` type, which stores every counters:
+
 - number of cookies
 - number of cursors
 - number of grandmas
-There are several possible actions:
+  There are several possible actions:
 - mint a cookie => simply add one cookie in the current amount of cookies
 - buy a cursor => if enough cookie to buy one, add one cursor to the current amount of cursors. Every seconds, one cursor will mint one cookie for the user.
 - buy a grandma => if enough cookies to buy one, add one grandma to the current amount of grandams. Every secondes, one grandma will mint three cookies for the user.
