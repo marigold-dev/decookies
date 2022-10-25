@@ -16,7 +16,7 @@ Decookies is a front-end application, allowing players to bakes cookies on [Mari
 
 5. Login using [`Beacon wallet`](https://docs.walletbeacon.io/supported-wallets/).
 
-> ** ⚠️ The only thing Decookies will ask you to sign, is the hexadecimal representation of your Nickname ⚠️**
+> ** ⚠️ The only thing Decookies will ask you to sign, is the hexadecimal representation of your Nickname! All the other operations are signed using a generated secret (see FAQ), based on your signed-login from Beacon Wallet. Hence, you are the only one able to generate it. ⚠️**
 
 6. Bake cookies!
 
