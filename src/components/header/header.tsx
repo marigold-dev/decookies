@@ -15,7 +15,7 @@ border-bottom: 3px solid #7B7B7E;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 font-family: "Roboto";
 font-weight: 500;
-margin: 0.5em 0;
+margin: 0.8em 0;
 
 p {
     color: #FFFFFF;
@@ -23,10 +23,13 @@ p {
 
 a {
     text-decoration: none;
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
 }
 
 img {
-    padding: 0.8vh 2vh 1vh 5vh;
+    padding: 1.5vh 2vh 2vh 5vh;
     height: 3vh;
 }  
 `;
@@ -35,8 +38,7 @@ img {
 const Header = () => {
     return (
         <HeaderContainer>
-            <img src={cookie} alt="logo" />
-            <a href="/"><p>Decookies</p></a>
+            <a href="/"><img src={cookie} alt="decookies" /><p>Decookies</p></a>
         </HeaderContainer>
     )
 };
