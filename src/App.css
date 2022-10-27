@@ -1,86 +1,12 @@
-.App {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
 body {
-  background-color: #282c34;
-  min-height: 75vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 1vmin);
-  color: white;
-  overflow: hidden;
-}
+  margin-top: 100px;
+  background: #1C1D22;
 
-form {
-  display: flex;
-  flex-direction: column;
-}
 
-button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
 }
-
 button:disabled {
   background-color: transparent;
   border: none;
   cursor: not-allowed;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-
-}
-
-.money {
-  height: 1.5vh;
-}
-
-@media (min-width: 890px) {
-  body {
-    min-height: 100vh;
-  }
-
-  .content {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    margin: 3vh;
-  }
-}
-
-.wrapper button {
-  padding-left: 10vh;
-}
-
-.items {
-  text-align: left;
-}
-
-.button {
-  background-color: #E6E6E6;
-  max-width: 15em;
-  padding: .5em 1em;
-  color: #444;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  border: 1px solid #999;
-  border: transparent;
-  border-radius: 2px;
-  margin: 3px;
 }
