@@ -1,8 +1,44 @@
-import "./header.css";
-import cookie from '../../../resources/perfectCookie.png';
+import styled from "styled-components";
+import cookie from '../../../resources/images/cookie.png';
 
-export const Header: React.FC = () =>
-    <div className="header">
-        <img src={cookie} alt="logo" />
-        <a href="/"><p>Decookies</p></a>
-    </div>
+
+const HeaderContainer = styled.div `
+display: flex;
+background: #1C1D22;
+align-items: center;
+justify-content: left;
+top: 0;
+left: 0;
+width: 100%;
+position: absolute;
+border-bottom: 3px solid #7B7B7E;
+box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+font-family: "Roboto";
+font-weight: 500;
+margin: 0.5em 0;
+
+p {
+    color: #FFFFFF;
+}
+
+a {
+    text-decoration: none;
+}
+
+img {
+    padding: 0.8vh 2vh 1vh 5vh;
+    height: 3vh;
+}  
+`;
+
+
+const Header = () => {
+    return (
+        <HeaderContainer>
+            <img src={cookie} alt="logo" />
+            <a href="/"><p>Decookies</p></a>
+        </HeaderContainer>
+    )
+};
+
+export default Header
