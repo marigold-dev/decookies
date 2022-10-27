@@ -13,7 +13,7 @@ import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
 import { useGameDispatch, useGame } from '../store/provider';
-import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, eatCookie, transferCookie, saveWallet } from '../store/actions';
+import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, initState, clearError, addError, clearMessage, addFactory, saveGeneratedKeyPair, eatCookie, transferCookie, saveWallet, updateOven, updateCursorBasket, updateRecruitingGrandmas, updateBuildingFarms, updateDrillingMines, updateBuildingFactories } from '../store/actions';
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
@@ -56,8 +56,13 @@ export const Game = () => {
                 if (latestState.current.wallet && latestState.current.nodeUri) {
                     const cb = latestState.current.cookieBaker;
                     const production = cb.passiveCPS;
+                    console.log(production)
                     try {
-                        addCookie(dispatch, latestState, Number(production))
+                        if (production > 0n) {
+                            const pending = latestState.current.cookiesInOven + production;
+                            dispatch(updateOven(pending));
+                            addCookie(production.toString() + "n", dispatch, latestState)
+                        }
                     } catch (err) {
                         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
                         dispatch(addError(error_msg));
@@ -90,21 +95,35 @@ export const Game = () => {
     }, [dispatch, latestState.current.error, latestState.current.message]);
 
     const handleCookieClick = () => {
-        addCookie(dispatch, latestState);
+        //TODO: here?
+        const pending = latestState.current.cookiesInOven + 1n;
+        dispatch(updateOven(pending));
+        addCookie("1n", dispatch, latestState);
     }
     const handleCursorClick = () => {
+        //TODO: here?
+        const pending = latestState.current.cursorsInBasket + 1n;
+        dispatch(updateCursorBasket(pending));
         addCursor(dispatch, latestState);
     }
     const handleGrandmaClick = () => {
+        const pending = latestState.current.recruitingGrandmas + 1n;
+        dispatch(updateRecruitingGrandmas(pending));
         addGrandma(dispatch, latestState);
     }
     const handleFarmClick = () => {
+        const pending = latestState.current.buildingFarms + 1n;
+        dispatch(updateBuildingFarms(pending));
         addFarm(dispatch, latestState);
     }
     const handleMineClick = () => {
+        const pending = latestState.current.drillingMines + 1n;
+        dispatch(updateDrillingMines(pending));
         addMine(dispatch, latestState);
     }
     const handleFactoryClick = () => {
+        const pending = latestState.current.buildingFactories + 1n;
+        dispatch(updateBuildingFactories(pending));
         addFactory(dispatch, latestState);
     }
     const handleTransferClick = () => {
@@ -135,6 +154,12 @@ export const Game = () => {
     const handleBeaconConnection = async () => {
         nodeUri = nodeUriRef.current?.value || "";
         nickName = nicknameRef.current?.value || "";
+        dispatch(updateOven(0n));
+        dispatch(updateCursorBasket(0n));
+        dispatch(updateRecruitingGrandmas(0n));
+        dispatch(updateBuildingFarms(0n));
+        dispatch(updateDrillingMines(0n));
+        dispatch(updateBuildingFactories(0n));
 
         if (nodeUri && nickName) {
             dispatch(saveConfig(nodeUri, nickName));
@@ -181,6 +206,15 @@ export const Game = () => {
             dispatch(addError("Need to fulfil Nickname and Node URI"));
     }
 
+    const getRandomBetaNode = () => {
+        if (!latestState.current.nodeUri) {
+            //TODO: should always reach the same URI, load-balancing must be done on infra side!
+            const node = Math.floor(Math.random() * 4);
+            return "https://deku-p-demo-vm" + node + ".deku-v1.marigold.dev"
+        }
+        return ""
+    }
+
     return <>
         <ToastContainer />
         <div>
@@ -190,7 +224,7 @@ export const Game = () => {
             </label>
             <label>
                 Deku node URI:
-                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue="http://localhost:4440" />
+                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue={getRandomBetaNode()} />
             </label>
             <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
         </div>
@@ -200,13 +234,21 @@ export const Game = () => {
             </label>
         </div>
         <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-        <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+        <div>
+            <label htmlFor="cursor_cost"> Cookies in oven: </label>
+            <ToolCounter value={gameState.cookiesInOven} />
+            <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+        </div>
         <div className='content'>
             <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyCursor)} img={cursor} alt="Buy cursor"
+                <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
                     onClick={handleCursorClick} />
                 <section className="items">
                     <div>
+                        <div>
+                            <label htmlFor="cursor_basket"> Cursor(s) in delivery: </label>
+                            <ToolCounter value={gameState.cursorsInBasket} />
+                        </div>
                         <label htmlFor="Cursors">Cursors: </label>
                         <ToolCounter value={gameState.cookieBaker.cursors} />
                     </div>
@@ -218,10 +260,14 @@ export const Game = () => {
                 </section>
             </div>
             <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyGrandma)} img={grandma} alt="Buy grandma"
+                <ToolButton disabled={!isButtonEnabled(gameState, buyGrandma)} img={grandma} alt="Buy grandma"
                     onClick={handleGrandmaClick} />
                 <section className="items">
                     <div>
+                        <div>
+                            <label htmlFor="recruiting_grandma"> Grandma(s) in job interview: </label>
+                            <ToolCounter value={gameState.recruitingGrandmas} />
+                        </div>
                         <label htmlFor="Grandmas">Grandmas: </label>
                         <ToolCounter value={gameState.cookieBaker.grandmas} />
                     </div>
@@ -233,10 +279,14 @@ export const Game = () => {
                 </section>
             </div>
             <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyFarm)} img={farm} alt="Buy farm"
+                <ToolButton disabled={!isButtonEnabled(gameState, buyFarm)} img={farm} alt="Buy farm"
                     onClick={handleFarmClick} />
                 <section className="items">
                     <div>
+                        <div>
+                            <label htmlFor="building_farms"> Farm(s) under construction: </label>
+                            <ToolCounter value={gameState.buildingFarms} />
+                        </div>
                         <label htmlFor="farms">Farms: </label>
                         <ToolCounter value={gameState.cookieBaker.farms} />
                     </div>
@@ -248,10 +298,14 @@ export const Game = () => {
                 </section>
             </div>
             <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyMine)} img={mine} alt="Buy mine"
+                <ToolButton disabled={!isButtonEnabled(gameState, buyMine)} img={mine} alt="Buy mine"
                     onClick={handleMineClick} />
                 <section className="items">
                     <div>
+                        <div>
+                            <label htmlFor="drilling_mine"> Drilling Mine(s): </label>
+                            <ToolCounter value={gameState.drillingMines} />
+                        </div>
                         <label htmlFor="mines">Mines: </label>
                         <ToolCounter value={gameState.cookieBaker.mines} />
                     </div>
@@ -263,10 +317,14 @@ export const Game = () => {
                 </section>
             </div>
             <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState.cookieBaker, buyFactory)} img={factory} alt="Buy factory"
+                <ToolButton disabled={!isButtonEnabled(gameState, buyFactory)} img={factory} alt="Buy factory"
                     onClick={handleFactoryClick} />
                 <section className="items">
                     <div>
+                        <div>
+                            <label htmlFor="building_factories"> Building factory(ies): </label>
+                            <ToolCounter value={gameState.buildingFactories} />
+                        </div>
                         <label htmlFor="factories">Factories: </label>
                         <ToolCounter value={gameState.cookieBaker.factories} />
                     </div>
@@ -283,7 +341,7 @@ export const Game = () => {
                 <label>
                     Transfer:&nbsp;
                     <input type="text" name="amount" ref={amountToTransferRef} />
-                    &nbsp; cookies
+                    &nbsp; cookies &nbsp;
                 </label>
                 <label>
                     to:&nbsp;

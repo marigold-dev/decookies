@@ -14,7 +14,13 @@ export type state = {
     recipient: string | null,
     amount: string | null,
     leaderBoard: leaderBoard[],
-    publicAddress: string | null
+    publicAddress: string | null,
+    cookiesInOven: bigint,
+    cursorsInBasket: bigint,
+    recruitingGrandmas: bigint,
+    buildingFarms: bigint,
+    drillingMines: bigint,
+    buildingFactories: bigint
 }
 
 export const initialState: state = {
@@ -28,7 +34,13 @@ export const initialState: state = {
     recipient: null,
     amount: null,
     leaderBoard: [],
-    publicAddress: null
+    publicAddress: null,
+    cookiesInOven: 0n,
+    cursorsInBasket: 0n,
+    recruitingGrandmas: 0n,
+    buildingFarms: 0n,
+    drillingMines: 0n,
+    buildingFactories: 0n
 }
 
 export type keyPair = {
@@ -73,6 +85,24 @@ export const reducer = (state: state, action: action): state => {
         }
         case "SAVE_PUBLIC_ADDRESS": {
             return { ...state, publicAddress: action.payload }
+        }
+        case "UPDATE_COOKIES_IN_OVEN": {
+            return { ...state, cookiesInOven: action.payload }
+        }
+        case "UPDATE_CURSORS_IN_BASKET": {
+            return { ...state, cursorsInBasket: action.payload }
+        }
+        case "UPDATE_RECRUITING_GRANDMAS": {
+            return { ...state, recruitingGrandmas: action.payload }
+        }
+        case "UPDATE_BUILDING_FARMS": {
+            return { ...state, buildingFarms: action.payload }
+        }
+        case "UPDATE_DRILLING_MINES": {
+            return { ...state, drillingMines: action.payload }
+        }
+        case "UPDATE_BUILDING_FACTORIES": {
+            return { ...state, buildingFactories: action.payload }
         }
     }
 }

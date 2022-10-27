@@ -1,3 +1,5 @@
+import { state } from './reducer';
+
 /**
  * VM state type
  * Must be a subset of the cookieBaker defined in Deku
@@ -29,8 +31,8 @@ export const initialState: cookieBaker = {
     cursorCost: 0n,
     grandmaCost: 0n,
     farmCost: 0n,
-    mineCost:0n,
-    factoryCost:0n,
+    mineCost: 0n,
+    factoryCost: 0n,
     passiveCPS: 0n,
     eatenCookies: 0n
 }
@@ -48,22 +50,22 @@ export const buyFactory = "buy_factory"
  * @param button 
  * @returns 
  */
-export const isButtonEnabled = (state: cookieBaker, button: string): boolean => {
+export const isButtonEnabled = (state: state, button: string): boolean => {
     switch (button) {
         case "buy_cursor": {
-            return (state.cursorCost <= state.cookies);
+            return (state.cookieBaker.cursorCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.cursorsInBasket === 0n);
         }
         case "buy_grandma": {
-            return (state.grandmaCost <= state.cookies);
+            return (state.cookieBaker.grandmaCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.recruitingGrandmas === 0n);
         }
         case "buy_farm": {
-            return (state.farmCost <= state.cookies);
+            return (state.cookieBaker.farmCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.buildingFarms === 0n);
         }
         case "buy_mine": {
-            return (state.mineCost <= state.cookies);
+            return (state.cookieBaker.mineCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.drillingMines === 0n);
         }
         case "buy_factory": {
-            return (state.factoryCost <= state.cookies);
+            return (state.cookieBaker.factoryCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.buildingFactories === 0n);
         }
     }
     return true;

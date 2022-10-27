@@ -5,7 +5,7 @@ interface Props {
 
 export const CookieCounter: React.FC<Props> = ({ value, cps }) => <>
     <div className="cookiesCounter">
-        Cookies: {value.toString()} 
+        Baked cookies: {value.toString()}
     </div>
     <div className="cpsCounter">
         Cookies per second: {cps.toString()}

@@ -1,18 +1,20 @@
 import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
-import { createHash, createNonce, parseReviver, stringifyReplacer, stringToHex } from './utils';
+// import { createNonce, stringToHex } from './utils';
+import { parseReviver, stringifyReplacer } from './utils';
 
 import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
-import { keyPair } from './reducer'
+import { keyPair, state } from './reducer'
 import { action, saveUserAddress } from './actions';
 
+import * as deku from '@marigold-dev/deku-toolkit'
+
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
-    const blockRequest = await fetch(nodeUri + "/block-level",
+    const blockRequest = await fetch(nodeUri + "/api/v1/chain/level",
         {
-            method: "POST",
-            body: JSON.stringify(null)
+            method: "GET"
         });
     const blockResponse = await blockRequest.json();
     return blockResponse.level;
@@ -26,21 +28,21 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
         dispatch(saveUserAddress(userAddress));
-        const stateRequest = await fetch(nodeUri + "/vm-state",
+        const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
             {
-                method: "POST",
-                body: JSON.stringify(null)
+                method: "GET"
             });
         const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
-        const value = stateResponse.state.filter(([address, _gameState]: [string, any]) => address === userAddress);
-        if (value.length === 0) {
-            return initialState;
-        }
-        else if (value.length > 1) {
-            throw new Error(("Found more than one state for this address" + userAddress));
+        if (stateResponse) {
+            if (stateResponse[userAddress]) {
+                const cookieBaker = JSON.parse(stateResponse[userAddress], parseReviver);
+                return cookieBaker;
+            } else {
+                return initialState;
+            }
         } else {
-            const finalValue = JSON.parse(value[0][1], parseReviver);
-            return finalValue;
+            console.log("no value in state");
+            return initialState;
         }
     } else {
         throw new Error("NO PRIVATE KEY");
@@ -51,25 +53,29 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
  * Fetch the state from /vm-state and return the state ordered by DESC amount of cookies
  */
 const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
-    const stateRequest = await fetch(nodeUri + "/vm-state",
+    const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
         {
-            method: "POST",
-            body: JSON.stringify(null)
+            method: "GET"
         });
     const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
-    const value = stateResponse.state.sort(((n1: any, n2: any) => {
-        const baker1: cookieBaker = JSON.parse(n1[1], parseReviver);
-        const baker2: cookieBaker = JSON.parse(n2[1], parseReviver);
-        // we want DESC ordering
-        return Number(baker2.eatenCookies - baker1.eatenCookies)
-    }));
-    return value;
+    const sorted =
+        Object.entries(stateResponse).sort((a, b) => {
+            const eatenA = JSON.parse(a[1] as any, parseReviver).eatenCookies;
+            const eatenB = JSON.parse(b[1] as any, parseReviver).eatenCookies;
+            return Number(eatenB - eatenA);
+        });
+    return sorted;
 }
 
 export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> => {
     const rawLeaderBoard = await getRawLeaderBoard(nodeUri);
-    const leaderBoard = rawLeaderBoard.flatMap((item: any) => cookieBakerToLeaderBoard(item));
-    return leaderBoard;
+    if (rawLeaderBoard) {
+        const leaderBoard = rawLeaderBoard.map((item: any) => cookieBakerToLeaderBoard(item));
+        return leaderBoard;
+    } else {
+        console.log("empty state");
+        return [];
+    }
 }
 
 /**
@@ -77,54 +83,56 @@ export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> =>
  * @param action 
  * @returns {Promise<string>} The hash of the submitted operation
  */
-export const mint = async (action: vmOperation, nodeUri: string, keyPair: keyPair | null): Promise<string> => {
-    if (keyPair) {
+export const mint = async (action: vmOperation, nodeUri: string, latestState: React.MutableRefObject<state>, dispatch: React.Dispatch<action>): Promise<string> => {
+    const keyPair = latestState.current.generatedKeyPair;
+    if (keyPair && latestState.current.nodeUri) {
         try {
-            const signer = new InMemorySigner(keyPair.privateKey)
+            const inMemorySigner = new InMemorySigner(keyPair.privateKey)
+            const dekuSigner = deku.fromMemorySigner(inMemorySigner);
+            const dekuToolkit =
+                new deku.DekuToolkit(
+                    {
+                        dekuRpc: latestState.current.nodeUri,
+                        dekuSigner
+                    }
+                );
+            const hash =
+                await dekuToolkit.submitVmOperation(JSON.stringify(action, stringifyReplacer));
 
-            const address = await signer.publicKeyHash();
-            const key = await signer.publicKey();
+            // const address = await signer.publicKeyHash();
+            // const key = await signer.publicKey();
 
-            const block_height = await requestBlockLevel(nodeUri);
-            const payload = action;
-            const initialOperation = ["Vm_transaction", {
-                payload
-            }];
-            const jsonToHash = JSON.stringify([address, initialOperation]);
-            const innerHash = createHash(jsonToHash);
-            const data = {
-                hash: innerHash, //⚠ respect the order of fields in the object for serialization
-                source: address,
-                initial_operation: initialOperation,
-            }
+            // const level = await requestBlockLevel(nodeUri);
+            // const payload = action;
+            // const content = ["Vm_transaction", {
+            //     operation: JSON.stringify(payload, stringifyReplacer),
+            //     tickets: []
+            // }];
+            // const source = address;
+            // let nonce = createNonce().toString();
+            // const operation = {
+            //     level,
+            //     nonce,
+            //     source,
+            //     content
+            // };
+            // const signature = await signer.sign(stringToHex(JSON.stringify(operation))).then((val) => val.prefixSig);
+            // const fullPayload = JSON.stringify({
+            //     key,
+            //     signature,
+            //     operation
+            // }, stringifyReplacer);
 
-            let nonce = createNonce();
-            const fullPayload = JSON.stringify([ //FIXME: useless?
-                nonce,
-                block_height,
-                data
-            ], stringifyReplacer);
-
-            const outerHash = createHash(fullPayload);
-            const signature = await signer.sign(stringToHex(fullPayload)).then((val) => val.prefixSig);
-            const operation = {
-                hash: outerHash,
-                key,
-                signature,
-                nonce,
-                block_height,
-                data
-            }
-            const packet =
-                { user_operation: operation };
-            // Resolving the promess only means that the request succeed
-            // We cannot guess more wiith current VM API
-            await fetch(nodeUri + "/user-operation-gossip",
-                {
-                    method: "POST",
-                    body: JSON.stringify(packet)
-                });
-            return outerHash;
+            // const hash = await fetch(nodeUri + "/api/v1/operations",
+            //     {
+            //         method: "POST",
+            //         body: fullPayload
+            //     });
+            //TODO: here?
+            // const inOven = latestState.current.cookiesInOven + 1n;
+            // console.log("inOven: ", inOven);
+            // dispatch(updateOven(inOven));
+            return hash;
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;
             throw new Error(error_msg);;
