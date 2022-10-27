@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import cookie from '../../resources/images/cookie.png';
+import desktop from '../../resources/images/desktop-bg.png';
 import back from '../../resources/images/back.png';
 
 const RulesContainer = styled.div`
@@ -9,12 +10,75 @@ const RulesContainer = styled.div`
     align-items:center;
     font-family: 'Roboto Mono', monospace;
 
-    section {
+    @media (min-width: 900px) {
         display:grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+
+    section {
+        justify-content:left;
+        align-items:left;
+        &.right, &.left {
+            border: hidden;
+            display:block;
+        }
+        &.right {
+            margin: -10px;
+            a {
+                position:absolute;
+                top:200px;
+                right:50px;
+            }
+            img {
+                margin-left:0.8em;
+                width:100%;
+                height:600px;
+                &.cookie{
+                    height:300px;
+                    width:300px;
+                    animation: diving 2s ease-in-out infinite, diving-rotate 2s ease-in-out infinite;
+                }
+                
+            }
+        }
+        &.left {
+            padding:0 2em;
+            margin-top:-50px;
+            h2 {
+                background: none;
+                text-align: left;
+                font-size:27px;
+            }
+            a {
+                font-size:18px;
+            }
+            p {
+                font-size:20px;
+                padding-bottom: 1em;
+            }
+            li{
+                font-size:14px;
+                padding-bottom: 2em;
+            }
+        }
+    }
+    
+  }
+  @media (min-width: 1320px) {
+    section {
+        &.right {
+            a {
+                right:160px;
+            }
+        }
+    }
+  }
+  .right {
+            display: none;
+        }
+    section {
         margin: 3.5em 1em;
         border: 1px solid #7B7B7E;
-        padding: 2em 1em;
+        padding: 1.8em 1em;
 
         a {
             color: white;
@@ -69,11 +133,38 @@ const RulesContainer = styled.div`
         transform: translateY(-50%);
 }
     }
+    @keyframes diving {
+        0% {
+                margin-top:15px;
+        }
+        50% {
+                margin-top:50px;
+        }
+
+        100% {
+                margin-top:15px;
+        }
+    }
+    @keyframes diving-rotate {
+        0% {
+                transform:rotate(0deg); 
+        }
+        50% {
+                transform:rotate(3deg); 
+        }
+        75% {
+            transform:rotate(-2deg); 
+        }
+        100% {
+            transform:rotate(0deg); 
+        }
+}
+
 `;
 
 const Rules = () =>
     <RulesContainer>
-        <section>
+        <section className="left">
             <a href="/"><img src={back}></img>Back</a>
             <h2>Enjoy making cookies!</h2>
             <p>Rules are easy</p>
@@ -84,6 +175,10 @@ const Rules = () =>
                 <li>You can give cookies to a friend, because it is always great to get cookies from a friends</li>
                 <li>Eat cookies allow you to “burn” cookies and appear in the leaderboard. Who will the best cookie eater?</li>
             </ul>
+        </section>
+        <section className="right">
+            <a href="/"><img className="cookie" src={cookie} alt="cookie" /></a>
+            <img src={desktop} alt="desktop-bg"></img>
         </section>
     </RulesContainer>
 
