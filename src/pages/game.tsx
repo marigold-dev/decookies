@@ -6,6 +6,7 @@ import factory from '../../resources/factory.png';
 import cookie from '../../resources/perfectCookie.png';
 import transfer from '../../resources/transfer.png';
 import eat from '../../resources/eatcookie.png'
+import menu from '../../resources/images/menu-icon.png'
 
 import { CookieButton } from '../components/buttons/cookie';
 import { ToolButton } from '../components/buttons/tool';
@@ -17,7 +18,6 @@ import { addCookie, addFarm, addGrandma, addCursor, addMine, saveConfig, initSta
 import { useEffect, useRef } from 'react'
 import { state } from '../store/reducer';
 import { isButtonEnabled, buyCursor, buyFarm, buyGrandma, buyMine, buyFactory } from '../store/cookieBaker';
-import { ConnectButton } from '../components/buttons/connectWallet';
 import { BeaconWallet } from '@taquito/beacon-wallet';
 import { TezosToolkit } from '@taquito/taquito';
 import { NetworkType, PermissionScope, SigningType } from "@airgap/beacon-sdk";
@@ -30,6 +30,8 @@ import * as human from 'human-crypto-keys'
 
 import { getKeyPair, stringToHex } from '../store/utils';
 import { leaderBoard } from '../store/vmTypes';
+import Button from '../components/buttons/button';
+import HeaderButton from '../components/buttons/headerButton';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -217,7 +219,11 @@ export const Game = () => {
 
     return <>
         <ToastContainer />
-        <div>
+        <HeaderButton> 
+            <Button className="desktopButton" onClick={handleBeaconConnection}>Connect wallet</Button>
+            <button className="mobileButton"><img src={menu}/></button>
+        </HeaderButton>
+        {/* <div>
             <label>
                 Nickname:
                 <input type="text" name="nickName" ref={nicknameRef} />
@@ -226,7 +232,6 @@ export const Game = () => {
                 Deku node URI:
                 <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue={getRandomBetaNode()} />
             </label>
-            <ConnectButton onClick={handleBeaconConnection}></ConnectButton>
         </div>
         <div>
             <label hidden={!latestState.current.publicAddress}>
@@ -239,7 +244,7 @@ export const Game = () => {
             <ToolCounter value={gameState.cookiesInOven} />
             <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
         </div>
-        {/* <div className='content'>
+        <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
                     onClick={handleCursorClick} />

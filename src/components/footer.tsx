@@ -2,7 +2,6 @@ import styled from "styled-components";
 import marigold from '../../resources/images/marigold-logo.png';
 import github from '../../resources/images/github-logo.png';
 
-
 const FooterContainer = styled.div `
     position: absolute;
     right: 0;
@@ -22,10 +21,9 @@ a {
 
 img {
     padding: 1vh 5vh 1vh 5vh;
-    height: 2.2vh;
+    height: 2.4vh;
 }  
 `;
-
 
 const Footer = () => {
     return (

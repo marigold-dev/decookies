@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import cookie from '../../resources/images/cookie.png';
 
-
 const HeaderContainer = styled.div `
 display: flex;
 background: #1C1D22;
@@ -19,6 +18,7 @@ margin: 0.8em 0;
 
 p {
     color: #FFFFFF;
+    font-size:18px;
 }
 
 a {
@@ -29,11 +29,10 @@ a {
 }
 
 img {
-    padding: 1.5vh 2vh 2vh 5vh;
-    height: 3vh;
+    padding: 1.5vh 1.5vh 3vh 5vh;
+    height: 3.2vh;
 }  
 `;
-
 
 const Header = () => {
     return (
