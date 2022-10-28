@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import marigold from '../../../resources/images/marigold-logo.png';
-import github from '../../../resources/images/github-logo.png';
+import marigold from '../../resources/images/marigold-logo.png';
+import github from '../../resources/images/github-logo.png';
 
 
 const FooterContainer = styled.div `

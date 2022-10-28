@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import cookie from '../../../resources/images/cookie.png';
+import cookie from '../../resources/images/cookie.png';
 
 
 const HeaderContainer = styled.div `
