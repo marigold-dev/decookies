@@ -1,4 +1,4 @@
-import cookie from '../../../resources/perfectCookie.png';
+import cookie from '../../../resources/images/cookie.png';
 import "./cookie.css";
 
 interface Props {

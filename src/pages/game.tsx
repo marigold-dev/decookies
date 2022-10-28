@@ -239,7 +239,7 @@ export const Game = () => {
             <ToolCounter value={gameState.cookiesInOven} />
             <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
         </div>
-        <div className='content'>
+        {/* <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
                     onClick={handleCursorClick} />
@@ -375,6 +375,6 @@ export const Game = () => {
                     ))}
                 </tbody>
             </table>
-        </div>
+        </div> */}
     </>
 }
