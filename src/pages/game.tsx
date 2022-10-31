@@ -9,7 +9,6 @@ import eat from '../../resources/eatcookie.png'
 import menu from '../../resources/images/menu-icon.png'
 
 import { CookieButton } from '../components/buttons/cookie';
-import { ToolButton } from '../components/buttons/tool';
 import { CookieCounter } from '../components/counters/cookie';
 import { ToolCounter } from '../components/counters/tool';
 
@@ -219,43 +218,92 @@ export const Game = () => {
         return ""
     }
 
-    return <>
+    return (
+      <>
         <ToastContainer />
-        <HeaderButton> 
-            <Button className="desktopButton" onClick={handleBeaconConnection}>Connect wallet</Button>
-            <button className="mobileButton"><img src={menu}/></button>
+        <HeaderButton>
+          <Button className="desktopButton" onClick={handleBeaconConnection}>
+            Connect wallet
+          </Button>
+          <button className="mobileButton">
+            <img src={menu} />
+          </button>
         </HeaderButton>
         <GameContainer className="container">
-            <section className="left"></section>
-            <section className="middle">
+          <section className="left"></section>
+          <section className="middle">
             <p>Cookies</p>
             <div className="cookieText">
-                <ToolCounter value={gameState.cookiesInOven} /> <label htmlFor="cursor_cost"> in oven </label>
-                <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+              <ToolCounter value={gameState.cookiesInOven} />{" "}
+              <label htmlFor="cursor_cost"> in oven </label>
+              <CookieCounter
+                value={gameState.cookieBaker.cookies}
+                cps={gameState.cookieBaker.passiveCPS}
+              />
             </div>
-            <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-            </section>
-            <section className="right">
-                <Item></Item>
-                <Item></Item>
-                <Item></Item>
-            </section>
-        </GameContainer>
-        {/* <div>
-            <label>
-                Nickname:
+            <CookieButton
+              disabled={gameState.wallet === null}
+              onClick={handleCookieClick}
+            />
+          </section>
+          <section className="right">
+            <Item>
+                <div>
+                <h2>Player info</h2>
+                <label  hidden={!latestState.current.publicAddress} className="address">
+                    <p>Address:</p>
+                    <p className="description">{latestState.current.publicAddress}</p>
+                </label>
+                <label>
+                  Nickname:
+                </label>
                 <input type="text" name="nickName" ref={nicknameRef} />
-            </label>
-            <label>
-                Deku node URI:
-                <input type="text" name="nodeUri" ref={nodeUriRef} defaultValue={getRandomBetaNode()} />
-            </label>
-        </div>
-        <div>
-            <label hidden={!latestState.current.publicAddress}>
-                Hello {latestState.current.publicAddress}
-            </label>
-        </div>
+                <label>
+                  Deku node URI:
+                  </label>
+                  <input
+                    type="text"
+                    name="nodeUri"
+                    ref={nodeUriRef}
+                    defaultValue={getRandomBetaNode()}
+                  />
+                </div>
+            </Item>
+            <Item> 
+                <div>
+                <h2>Eat cookies</h2>
+                <label className="description">
+                    Number of cookies you ate
+                </label>
+                <input type="text" name="amountToEat" ref={amountToEatRef} />
+                <div className="buttonContainer">
+                    <Button type="submit" disabled={false} onClick={handleEatClick} >Submit</Button>
+                    <Button dark >Ranking</Button>
+                </div>
+                </div>
+            </Item>
+            <Item>
+            <div>
+                <h2>Tranfer cookies</h2>
+                <label className="description">
+                    Send cookies to another player
+                </label>
+                <label>
+                    Recipient address
+                </label> 
+                <input type="text" name="amount" ref={amountToTransferRef} />
+                <label>
+                    Cookies
+                </label>                    
+                <input type="text" name="recipient" ref={transferRecipientRef} />
+                <div className="buttonContainer">
+                    <Button disabled={false} onClick={handleTransferClick} >Submit</Button>
+                </div>
+            </div>
+            </Item>
+          </section>
+        </GameContainer>
+        {/* 
         <div className='content'>
             <div className='wrapper'>
                 <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
@@ -354,28 +402,6 @@ export const Game = () => {
             </div>
         </div>
         <div>
-            <div>
-                <label>
-                    Transfer:&nbsp;
-                    <input type="text" name="amount" ref={amountToTransferRef} />
-                    &nbsp; cookies &nbsp;
-                </label>
-                <label>
-                    to:&nbsp;
-                    <input type="text" name="recipient" ref={transferRecipientRef} />
-                </label>
-                <ToolButton disabled={false} img={transfer} alt="transfer" onClick={handleTransferClick} />
-            </div>
-            <div>
-                <label>
-                    Eat:&nbsp;
-                    <input type="text" name="amountToEat" ref={amountToEatRef} />
-                    cookies&nbsp;
-                </label>
-                <ToolButton disabled={false} img={eat} alt="eat" onClick={handleEatClick} />
-            </div>
-        </div>
-        <div>
             <table>
                 <tbody>
                     <tr>
@@ -393,5 +419,6 @@ export const Game = () => {
                 </tbody>
             </table>
         </div> */}
-    </>
+      </>
+    );
 }
