@@ -18,7 +18,7 @@ margin: 0.8em 0;
 
 p {
     color: #FFFFFF;
-    font-size:18px;
+    font-size:20px;
 }
 
 a {
@@ -29,7 +29,7 @@ a {
 }
 
 img {
-    padding: 2.2vh 1.7vh 3vh 5vh;
+    padding: 2.2vh 1.7vh 2.7vh 5vh;
     height: 3.3vh;
 }  
 `;

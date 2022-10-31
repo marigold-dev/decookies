@@ -1,7 +1,7 @@
 import styled from "styled-components";
 const HeaderButton = styled.div`
     position: absolute;
-    top: 18px;
+    top: 21px;
     right: 40px;
     @media (min-width: 900px) {
         button {

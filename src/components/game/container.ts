@@ -14,6 +14,10 @@ const GameContainer = styled.div`
             &.middle {
                 color: white;
                 text-align: center;
+                button {
+                    background: #1C1D22;
+                    border: none;
+                }
                 p {
                     text-align:left;
                     font-size: 18px;
@@ -32,6 +36,7 @@ const GameContainer = styled.div`
                     height: 37vmin;
                     pointer-events: none;
                     animation: animate 7s linear infinite;
+                    background:#1C1D22;
                 }
             }
             &.right {
@@ -40,7 +45,7 @@ const GameContainer = styled.div`
             }
             &.left {
                 width: 350px;
-                margin: -1.7em 0 -6em 4em;
+                margin: -1.3em 0px -5em 4em;
                 background-image: url(${left});
                 background-size: cover;
                 background-position: center;
