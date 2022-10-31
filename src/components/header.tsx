@@ -29,8 +29,8 @@ a {
 }
 
 img {
-    padding: 1.5vh 1.5vh 3vh 5vh;
-    height: 3.2vh;
+    padding: 2.2vh 1.7vh 3vh 5vh;
+    height: 3.3vh;
 }  
 `;
 

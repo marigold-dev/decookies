@@ -31,7 +31,9 @@ import * as human from 'human-crypto-keys'
 import { getKeyPair, stringToHex } from '../store/utils';
 import { leaderBoard } from '../store/vmTypes';
 import Button from '../components/buttons/button';
-import HeaderButton from '../components/buttons/headerButton';
+import HeaderButton from '../components/game/headerButton';
+import GameContainer from '../components/game/container';
+import Item from '../components/game/item';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -223,6 +225,22 @@ export const Game = () => {
             <Button className="desktopButton" onClick={handleBeaconConnection}>Connect wallet</Button>
             <button className="mobileButton"><img src={menu}/></button>
         </HeaderButton>
+        <GameContainer className="container">
+            <section className="left"></section>
+            <section className="middle">
+            <p>Cookies</p>
+            <div className="cookieText">
+                <ToolCounter value={gameState.cookiesInOven} /> <label htmlFor="cursor_cost"> in oven </label>
+                <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
+            </div>
+            <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
+            </section>
+            <section className="right">
+                <Item></Item>
+                <Item></Item>
+                <Item></Item>
+            </section>
+        </GameContainer>
         {/* <div>
             <label>
                 Nickname:
@@ -237,12 +255,6 @@ export const Game = () => {
             <label hidden={!latestState.current.publicAddress}>
                 Hello {latestState.current.publicAddress}
             </label>
-        </div>
-        <CookieButton disabled={gameState.wallet === null} onClick={handleCookieClick} />
-        <div>
-            <label htmlFor="cursor_cost"> Cookies in oven: </label>
-            <ToolCounter value={gameState.cookiesInOven} />
-            <CookieCounter value={gameState.cookieBaker.cookies} cps={gameState.cookieBaker.passiveCPS} />
         </div>
         <div className='content'>
             <div className='wrapper'>

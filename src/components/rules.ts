@@ -156,7 +156,7 @@ const RulesContainer = styled.div`
         100% {
             transform:rotate(0deg); 
         }
-}
+    }
 
 `;
 export default RulesContainer
