@@ -408,6 +408,7 @@ export const Game = () => {
             </Item>
           </section>
         </GameContainer>
+
       </>
     );
 }
