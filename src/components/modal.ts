@@ -7,7 +7,7 @@ const Modal = styled.div`
 
   h3 {
     color: white;
-    font-size:15px;
+    font-size: 15px;
   }
 
   .btn-close {
@@ -41,8 +41,11 @@ const Modal = styled.div`
     transform: translate(0, 0);
     top: 20%;
   }
+  .modal:target .header {
+    top: 3%;
+  }
   .modal-dialog {
-    border: 1px solid white;
+    border: 1px solid #7b7b7e;
     background: #1c1d22;
     margin-left: -500px;
     position: fixed;
@@ -56,10 +59,25 @@ const Modal = styled.div`
     -moz-transition: -moz-transform 0.3s ease-out;
     -o-transition: -o-transform 0.3s ease-out;
     transition: transform 0.3s ease-out;
+
+    &.mobile {
+      margin-left: -150px;
+      &.header {
+        margin-left: -2px;
+      }
+    }
   }
   .modal-body {
     text-align: center;
     padding: 20px;
+    div {
+      display: flex;
+      flex-direction: column;
+    }
+    a {
+      color: white;
+      padding: 20px;
+    }
   }
   .modal-header {
     padding: 10px 20px;
@@ -72,8 +90,9 @@ const Modal = styled.div`
     border: 1px solid white;
     margin: 0 auto;
     border-collapse: collapse;
-    th {
-        border: 1px solid white;
+    th,
+    td {
+      border: 1px solid white;
     }
   }
 `;

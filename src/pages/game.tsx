@@ -275,9 +275,29 @@ export const Game = () => {
         <Button className="desktopButton" onClick={handleBeaconConnection}>
           Connect wallet
         </Button>
-        <button className="mobileButton">
-          <img src={menu} />
-        </button>
+        <a href="#menu-modal">
+            <button className="mobileButton">
+            <img src={menu} alt="menu"/>
+            </button>
+        </a>
+            <Modal>
+                  <div className="modal" id="menu-modal" aria-hidden="true">
+                    <div className="modal-dialog mobile header">
+                      <div className="modal-header">
+                        <a href="#" className="btn-close" aria-hidden="true">
+                          ×
+                        </a>
+                      </div>
+                      <div className="modal-body">
+                        <div >
+                            <a href="#transfer-modal" aria-hidden="true">Transfer cookies</a>
+                            <a href="#eating-modal" aria-hidden="true">Eating cookies</a>
+                            <a href="/rules">Rules</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Modal>
       </HeaderButton>
       <GameContainer className="container">
         <section className="left">
@@ -404,6 +424,7 @@ export const Game = () => {
           <Line />
           <Item className="player-info">
             <div>
+            <Button onClick={handleBeaconConnection}>Connect wallet</Button>
               <h2>Player info</h2>
               <label
                 hidden={!latestState.current.publicAddress}
@@ -474,11 +495,11 @@ export const Game = () => {
                 <Button type="submit" disabled={false} onClick={handleEatClick}>
                   Submit
                 </Button>
-                <a href="#modal-one">
+                <a href="#modal-ranking">
                   <Button dark>Ranking</Button>
                 </a>
                 <Modal>
-                  <div className="modal" id="modal-one" aria-hidden="true">
+                  <div className="modal" id="modal-ranking" aria-hidden="true">
                     <div className="modal-dialog">
                       <div className="modal-header">
                         <a href="#" className="btn-close" aria-hidden="true">
