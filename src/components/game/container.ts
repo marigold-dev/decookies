@@ -11,7 +11,7 @@ const GameContainer = styled.div`
   .left {
     display: block;
     width: 207px;
-    margin: -1.3em 1px 25em 0em;
+    margin: 0em 1px 25em 0em;
     background-image: url(${left});
     background-size: cover;
     background-position: center;
@@ -19,7 +19,8 @@ const GameContainer = styled.div`
     overflow-x: hidden;
     overflow-y: scroll;
     .container {
-      padding: 1em 1em;
+        display:none;
+        padding: 1em 1em;
     }
   }
   .middle {
@@ -81,7 +82,8 @@ const GameContainer = styled.div`
         overflow-x: hidden;
         overflow-y: scroll;
         .container {
-          padding: 1em 1em;
+            display:block;
+            padding: 1em 1em;
         }
       }
     }

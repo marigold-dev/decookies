@@ -14,6 +14,7 @@ const Item = styled.div`
     position: absolute;
     background: #2b2a2e;
     width: inherit;
+    height: inherit;
     div {
       margin: 0.5em 2em 0.5em 2em;
     }
