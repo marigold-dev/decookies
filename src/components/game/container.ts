@@ -5,6 +5,14 @@ const GameContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     font-family: 'Roboto Mono', monospace;
+    .right {
+        display:none;
+    }
+    .cookieBtn {
+        height: 50vmin;
+        pointer-events: none;
+        background:#1C1D22;
+                }
     @media (min-width: 900px) {
             &.container {
             grid-template-columns: 1fr 1fr 1fr;
@@ -52,6 +60,9 @@ const GameContainer = styled.div`
                 background-repeat: no-repeat;
                 overflow-x: hidden;
                 overflow-y: scroll;
+               .container {
+                padding: 1em 1em;
+               }
             }
         }
     }

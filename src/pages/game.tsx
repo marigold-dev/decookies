@@ -1,11 +1,9 @@
-import cursor from '../../resources/cursor.png';
-import grandma from '../../resources/grandma.png';
-import farm from '../../resources/farm.png';
-import mine from '../../resources/mine.png';
-import factory from '../../resources/factory.png';
-import cookie from '../../resources/perfectCookie.png';
-import transfer from '../../resources/transfer.png';
-import eat from '../../resources/eatcookie.png'
+import cursor from '../../resources/images/cursor.png';
+import grandma from '../../resources/images/grandma.png';
+import farm from '../../resources/images/farm.png';
+import mine from '../../resources/images/mine.png';
+import factory from '../../resources/images/factory.png';
+import cookie from '../../resources/images/cookie.png';
 import menu from '../../resources/images/menu-icon.png'
 
 import { CookieButton } from '../components/buttons/cookie';
@@ -33,6 +31,8 @@ import Button from '../components/buttons/button';
 import HeaderButton from '../components/game/headerButton';
 import GameContainer from '../components/game/container';
 import Item from '../components/game/item';
+import Line from '../components/game/line';
+import GameButton from '../components/game/gameButton';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -230,7 +230,112 @@ export const Game = () => {
           </button>
         </HeaderButton>
         <GameContainer className="container">
-          <section className="left"></section>
+          <section className="left">
+            <div className="container">
+                <a href="/rules"><Button dark> Game rules</Button></a>
+            </div>
+            <Line/> 
+            <GameButton disabled={!isButtonEnabled(gameState, buyCursor)} onClick={handleCursorClick}>
+                <div className="gameButtonContainer">
+                    <img src={cursor}/>
+                    <div className="column title">
+                        <h3>Cursor</h3>
+                        <div>
+                            <img className="price"src={cookie}/>
+                            <ToolCounter value={gameState.cookieBaker.cursorCost} />
+                        </div>
+                    </div>
+                    <div className="column background">
+                        <p>In delivery</p>
+                        <ToolCounter value={gameState.cursorsInBasket} />
+                    </div>
+                    <div className="background value">
+                        <ToolCounter value={gameState.cookieBaker.cursors} />
+                    </div>
+                </div>
+            </GameButton>
+            <Line/> 
+            <GameButton disabled={!isButtonEnabled(gameState, buyGrandma)}  onClick={handleGrandmaClick}>
+                <div className="gameButtonContainer">
+                    <img src={grandma}/>
+                    <div className="column title">
+                        <h3>Grandma</h3>
+                        <div>
+                            <img className="price"src={cookie}/>
+                            <ToolCounter value={gameState.cookieBaker.grandmaCost} />
+                        </div>
+                    </div>
+                    <div className="column background">
+                        <p>In jon interview</p>
+                        <ToolCounter value={gameState.recruitingGrandmas} />
+                    </div>
+                    <div className="background value">
+                        <ToolCounter value={gameState.cookieBaker.grandmas} />
+                    </div>
+                </div>
+            </GameButton>
+            <Line/> 
+            <GameButton disabled={!isButtonEnabled(gameState, buyFarm)} onClick={handleFarmClick} >
+                <div className="gameButtonContainer">
+                    <img src={farm}/>
+                    <div className="column title">
+                        <h3>Farm</h3>
+                        <div>
+                            <img className="price"src={cookie}/>
+                            <ToolCounter value={gameState.cookieBaker.farmCost} />
+                        </div>
+                    </div>
+                    <div className="column background">
+                        <p>Under construction</p>
+                        <ToolCounter value={gameState.buildingFarms} />
+                    </div>
+                    <div className="background value">
+                        <ToolCounter value={gameState.cookieBaker.farms} />
+                    </div>
+                </div>
+            </GameButton>
+            <Line/> 
+            <GameButton disabled={!isButtonEnabled(gameState, buyMine)}  onClick={handleMineClick} >
+                <div className="gameButtonContainer">
+                    <img src={mine}/>
+                    <div className="column title">
+                        <h3>Mine</h3>
+                        <div>
+                            <img className="price"src={cookie}/>
+                            <ToolCounter value={gameState.cookieBaker.mineCost} />
+                        </div>
+                    </div>
+                    <div className="column background">
+                        <p>Drilling</p>
+                        <ToolCounter value={gameState.drillingMines} />
+                    </div>
+                    <div className="background value">
+                    <ToolCounter value={gameState.cookieBaker.mines} />
+                    </div>
+                </div>
+            </GameButton>
+            <Line/> 
+            <GameButton disabled={!isButtonEnabled(gameState, buyFactory)} onClick={handleFactoryClick} >
+                <div className="gameButtonContainer">
+                    <img src={factory}/>
+                    <div className="column title">
+                        <h3>Factory</h3>
+                        <div>
+                            <img className="price"src={cookie}/>
+                            <ToolCounter value={gameState.cookieBaker.factoryCost} />
+                        </div>
+                    </div>
+                    <div className="column background">
+                        <p>Drilling</p>
+                        <ToolCounter value={gameState.buildingFactories} />
+                    </div>
+                    <div className="background value">
+                        <ToolCounter value={gameState.cookieBaker.factories} />
+                    </div>
+                </div>
+            </GameButton>
+            <Line/> 
+          </section>
           <section className="middle">
             <p>Cookies</p>
             <div className="cookieText">
@@ -303,122 +408,6 @@ export const Game = () => {
             </Item>
           </section>
         </GameContainer>
-        {/* 
-        <div className='content'>
-            <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState, buyCursor)} img={cursor} alt="Buy cursor"
-                    onClick={handleCursorClick} />
-                <section className="items">
-                    <div>
-                        <div>
-                            <label htmlFor="cursor_basket"> Cursor(s) in delivery: </label>
-                            <ToolCounter value={gameState.cursorsInBasket} />
-                        </div>
-                        <label htmlFor="Cursors">Cursors: </label>
-                        <ToolCounter value={gameState.cookieBaker.cursors} />
-                    </div>
-                    <div>
-                        <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="cursor_cost"> Price: </label>
-                        <ToolCounter value={gameState.cookieBaker.cursorCost} />
-                    </div>
-                </section>
-            </div>
-            <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState, buyGrandma)} img={grandma} alt="Buy grandma"
-                    onClick={handleGrandmaClick} />
-                <section className="items">
-                    <div>
-                        <div>
-                            <label htmlFor="recruiting_grandma"> Grandma(s) in job interview: </label>
-                            <ToolCounter value={gameState.recruitingGrandmas} />
-                        </div>
-                        <label htmlFor="Grandmas">Grandmas: </label>
-                        <ToolCounter value={gameState.cookieBaker.grandmas} />
-                    </div>
-                    <div>
-                        <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="grandma_cost"> Price: </label>
-                        <ToolCounter value={gameState.cookieBaker.grandmaCost} />
-                    </div>
-                </section>
-            </div>
-            <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState, buyFarm)} img={farm} alt="Buy farm"
-                    onClick={handleFarmClick} />
-                <section className="items">
-                    <div>
-                        <div>
-                            <label htmlFor="building_farms"> Farm(s) under construction: </label>
-                            <ToolCounter value={gameState.buildingFarms} />
-                        </div>
-                        <label htmlFor="farms">Farms: </label>
-                        <ToolCounter value={gameState.cookieBaker.farms} />
-                    </div>
-                    <div>
-                        <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="farm_cost"> Price: </label>
-                        <ToolCounter value={gameState.cookieBaker.farmCost} />
-                    </div>
-                </section>
-            </div>
-            <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState, buyMine)} img={mine} alt="Buy mine"
-                    onClick={handleMineClick} />
-                <section className="items">
-                    <div>
-                        <div>
-                            <label htmlFor="drilling_mine"> Drilling Mine(s): </label>
-                            <ToolCounter value={gameState.drillingMines} />
-                        </div>
-                        <label htmlFor="mines">Mines: </label>
-                        <ToolCounter value={gameState.cookieBaker.mines} />
-                    </div>
-                    <div>
-                        <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="mine_cost">Price: </label>
-                        <ToolCounter value={gameState.cookieBaker.mineCost} />
-                    </div>
-                </section>
-            </div>
-            <div className='wrapper'>
-                <ToolButton disabled={!isButtonEnabled(gameState, buyFactory)} img={factory} alt="Buy factory"
-                    onClick={handleFactoryClick} />
-                <section className="items">
-                    <div>
-                        <div>
-                            <label htmlFor="building_factories"> Building factory(ies): </label>
-                            <ToolCounter value={gameState.buildingFactories} />
-                        </div>
-                        <label htmlFor="factories">Factories: </label>
-                        <ToolCounter value={gameState.cookieBaker.factories} />
-                    </div>
-                    <div>
-                        <img src={cookie} className="money" alt="Money"></img>
-                        <label htmlFor="factory_cost">Price: </label>
-                        <ToolCounter value={gameState.cookieBaker.factoryCost} />
-                    </div>
-                </section>
-            </div>
-        </div>
-        <div>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Address</th>
-                        <th>Eaten cookies</th>
-                    </tr>
-                    {gameState.leaderBoard.map((item: leaderBoard, i: any) => (
-                        <tr key={i}>
-                            <td>{i + 1}</td>
-                            <td>{item.address}</td>
-                            <td>{item.eatenCookies.toString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div> */}
       </>
     );
 }
