@@ -276,28 +276,126 @@ export const Game = () => {
           Connect wallet
         </Button>
         <a href="#menu-modal">
-            <button className="mobileButton">
-            <img src={menu} alt="menu"/>
-            </button>
+          <button className="mobileButton">
+            <img src={menu} alt="menu" />
+          </button>
         </a>
-            <Modal>
-                  <div className="modal" id="menu-modal" aria-hidden="true">
-                    <div className="modal-dialog mobile header">
-                      <div className="modal-header">
-                        <a href="#" className="btn-close" aria-hidden="true">
-                          ×
-                        </a>
-                      </div>
-                      <div className="modal-body">
-                        <div >
-                            <a href="#transfer-modal" aria-hidden="true">Transfer cookies</a>
-                            <a href="#eating-modal" aria-hidden="true">Eating cookies</a>
-                            <a href="/rules">Rules</a>
-                        </div>
+        <Modal>
+          <div className="modal " id="menu-modal">
+            <div className="modal-dialog mobile header">
+              <div className="modal-header">
+                <a href="#" className="btn-close" aria-hidden="true">
+                  ×
+                </a>
+              </div>
+              <div className="modal-body">
+                <div>
+                  <a href="#eat-modal">Eat cookies</a>
+                  <a href="#transfer-modal">Transfer cookies</a>
+                  <a href="/rules">Rules</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        <Modal>
+          <div className="modal" id="eat-modal" aria-hidden="true">
+            <div className="modal-dialog mobile header-option">
+              <div>
+                <a href="#" className="btn-close" aria-hidden="true">
+                  ×
+                </a>
+              </div>
+              <div className="modal-body">
+                <div>
+                  <Item className="modal-item">
+                    <div>
+                      <h2>Eat cookies</h2>
+                      <label className="description">
+                        Number of cookies you ate
+                      </label>
+                      <input
+                        type="text"
+                        name="amountToEat"
+                        ref={amountToEatRef}
+                      />
+                      <div className="buttonContainer">
+                        <Button
+                          type="submit"
+                          disabled={false}
+                          onClick={handleEatClick}
+                        >
+                          Submit
+                        </Button>
                       </div>
                     </div>
+                  </Item>
+                  <h3>Eat cookies Ranking</h3>
+                  <div>
+                    <table className="table">
+                      <tbody>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Address</th>
+                          <th>Eaten cookies</th>
+                        </tr>
+                        {gameState.leaderBoard.map(
+                          (item: leaderBoard, i: any) => (
+                            <tr key={i}>
+                              <td>{i + 1}</td>
+                              <td>{item.address}</td>
+                              <td>{item.eatenCookies.toString()}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
                   </div>
-                </Modal>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        <Modal>
+          <div className="modal" id="transfer-modal" aria-hidden="true">
+            <div className="modal-dialog mobile header-option">
+              <div>
+                <a href="#" className="btn-close" aria-hidden="true">
+                  ×
+                </a>
+              </div>
+              <div className="modal-body">
+                <div>
+                  <Item className="modal-item">
+                    <div>
+                      <h2>Tranfer cookies</h2>
+                      <label className="description">
+                        Send cookies to another player
+                      </label>
+                      <label>Recipient address</label>
+                      <input
+                        type="text"
+                        name="amount"
+                        ref={amountToTransferRef}
+                      />
+                      <label>Cookies</label>
+                      <input
+                        type="text"
+                        name="recipient"
+                        ref={transferRecipientRef}
+                      />
+                      <div className="buttonContainer">
+                        <Button disabled={false} onClick={handleTransferClick}>
+                          Submit
+                        </Button>
+                      </div>
+                    </div>
+                  </Item>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
       </HeaderButton>
       <GameContainer className="container">
         <section className="left">
@@ -424,7 +522,7 @@ export const Game = () => {
           <Line />
           <Item className="player-info">
             <div>
-            <Button onClick={handleBeaconConnection}>Connect wallet</Button>
+              <Button onClick={handleBeaconConnection}>Connect wallet</Button>
               <h2>Player info</h2>
               <label
                 hidden={!latestState.current.publicAddress}
@@ -495,11 +593,11 @@ export const Game = () => {
                 <Button type="submit" disabled={false} onClick={handleEatClick}>
                   Submit
                 </Button>
-                <a href="#modal-ranking">
+                <a href="#ranking">
                   <Button dark>Ranking</Button>
                 </a>
                 <Modal>
-                  <div className="modal" id="modal-ranking" aria-hidden="true">
+                  <div className="modal" id="ranking" aria-hidden="true">
                     <div className="modal-dialog">
                       <div className="modal-header">
                         <a href="#" className="btn-close" aria-hidden="true">
@@ -507,7 +605,7 @@ export const Game = () => {
                         </a>
                       </div>
                       <div className="modal-body">
-                      <h3>Eat cookies Ranking</h3>
+                        <h3>Eat cookies Ranking</h3>
                         <div>
                           <table>
                             <tbody>
