@@ -19,6 +19,12 @@ const Item = styled.div`
       margin: 0.5em 2em 0.5em 2em;
     }
   }
+  &.modal-item {
+    background: #2b2a2e;
+    width: inherit;
+    height: inherit;
+    text-align:left;
+  }
   @media (min-width: 900px) {
     &.player-info {
       display: none;

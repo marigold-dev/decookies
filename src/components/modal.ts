@@ -26,7 +26,7 @@ const Modal = styled.div`
     display: none;
     background: rgba(0, 0, 0, 0.6);
     position: fixed;
-    top: 0;
+    top: 83px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -43,6 +43,11 @@ const Modal = styled.div`
   }
   .modal:target .header {
     top: 3%;
+  }
+  .modal:target .header-option {
+    top: 70px;
+    left: 0;
+    right: 0;
   }
   .modal-dialog {
     border: 1px solid #7b7b7e;
@@ -65,6 +70,9 @@ const Modal = styled.div`
       &.header {
         margin-left: -2px;
       }
+      &.header-option {
+        margin: 20px;
+      }
     }
   }
   .modal-body {
@@ -81,6 +89,9 @@ const Modal = styled.div`
   }
   .modal-header {
     padding: 10px 20px;
+  }
+  .table {
+    width: 300px;
   }
 
   table {
