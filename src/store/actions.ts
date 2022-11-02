@@ -4,7 +4,7 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualPlayerState, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { building, leaderBoard, operationType, vmOperation } from './vmTypes';
+import { leaderBoard, vmOperation } from './vmTypes';
 import { Contract } from '@marigold-dev/deku-c-toolkit';
 
 /**
@@ -162,7 +162,7 @@ export const saveUserAddress = (payload: string): action => ({
     payload
 });
 
-const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>): Promise<void> => {
+const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>): Promise<void> => {
     try {
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const wallet = state.current.wallet;
@@ -251,14 +251,158 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
     }
 }
 
-export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add({ type: operationType.mint, operation: building.cookie, amount })(dispatch, state);
-export const addCursor = add({ type: operationType.mint, operation: building.cursor, amount: "1" });
-export const addGrandma = add({ type: operationType.mint, operation: building.grandma, amount: "1" });
-export const addFarm = add({ type: operationType.mint, operation: building.farm, amount: "1" });
-export const addMine = add({ type: operationType.mint, operation: building.mine, amount: "1" });
-export const addFactory = add({ type: operationType.mint, operation: building.factory, amount: "1" });
-export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: null, amount: "0" })(dispatch, state);
-export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: null, amount: "0" })(dispatch, state);
+export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add([
+    "Pair",
+    [
+        "Pair",
+        ["Int", amount],
+        [
+            "Option",
+            [
+                "Union",
+                [
+                    "Left",
+                    ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]]
+                ]
+            ]
+        ]
+    ],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+        ["Option", null]
+    ]
+]
+)(dispatch, state);
+export const addCursor = add(
+    [
+        "Pair",
+        [
+            "Pair",
+            ["Int", "1"],
+            [
+                "Option",
+                [
+                    "Union",
+                    [
+                        "Left",
+                        ["Union", ["Right", ["Union", ["Left", ["Unit"]]]]]
+                    ]
+                ]
+            ]
+        ],
+        [
+            "Pair",
+            ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+            ["Option", null]
+        ]
+    ]);
+export const addGrandma = add([
+    "Pair",
+    [
+        "Pair",
+        ["Int", "1"],
+        [
+            "Option",
+            [
+                "Union",
+                [
+                    "Right",
+                    ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]]
+                ]
+            ]
+        ]
+    ],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+        ["Option", null]
+    ]
+]);
+export const addFarm = add([
+    "Pair",
+    [
+        "Pair",
+        ["Int", "1"],
+        [
+            "Option",
+            [
+                "Union",
+                [
+                    "Right",
+                    ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]]
+                ]
+            ]
+        ]
+    ],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+        ["Option", null]
+    ]
+]);
+export const addMine = add([
+    "Pair",
+    [
+        "Pair",
+        ["Int", "1"],
+        [
+            "Option",
+            [
+                "Union",
+                [
+                    "Right",
+                    ["Union", ["Right", ["Union", ["Left", ["Unit"]]]]]
+                ]
+            ]
+        ]
+    ],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+        ["Option", null]
+    ]
+]);
+export const addFactory = add([
+    "Pair",
+    [
+        "Pair",
+        ["Int", "1"],
+        [
+            "Option",
+            [
+                "Union",
+                [
+                    "Left",
+                    ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]
+                ]
+            ]
+        ]
+    ],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+        ["Option", null]
+    ]
+]);
+export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add([
+    "Pair",
+    ["Pair", ["Int", amount], ["Option", null]],
+    [
+        "Pair",
+        ["Union", ["Right", ["Unit"]]],
+        ["Option", ["String", to]]
+    ]
+])(dispatch, state);
+export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add([
+    "Pair",
+    ["Pair", ["Int", amount], ["Option", null]],
+    [
+        "Pair",
+        ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]],
+        ["Option", null]
+    ]
+])(dispatch, state);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
     try {
