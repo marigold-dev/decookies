@@ -33,6 +33,7 @@ import {
   updateBuildingFarms,
   updateDrillingMines,
   updateBuildingFactories,
+  saveContract,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -63,6 +64,10 @@ import Item from "../components/game/item";
 import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";
 import Modal from "../components/modal";
+import { InMemorySigner } from '@taquito/signer';
+import * as deku from '@marigold-dev/deku-toolkit'
+import * as dekuc from '@marigold-dev/deku-c-toolkit'
+import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -84,35 +89,30 @@ export const Game = () => {
 
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
-      initState(
-        dispatch,
-        latestState.current.nodeUri,
-        latestState.current.generatedKeyPair
-      );
+      initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
       const id = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
-          console.log(production);
+          console.log(production)
           try {
             if (production > 0n) {
               const pending = latestState.current.cookiesInOven + production;
               dispatch(updateOven(pending));
-              addCookie(production.toString() + "n", dispatch, latestState);
+              addCookie(production.toString() + "n", dispatch, latestState)
             }
           } catch (err) {
-            const error_msg =
-              typeof err === "string" ? err : (err as Error).message;
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
             dispatch(addError(error_msg));
             throw new Error(error_msg);
           }
         }
-      }, 1000);
+      }, 1000)
       return () => {
         clearInterval(id);
       };
     }
-    return () => {};
+    return () => { }
   }, [dispatch, latestState.current.wallet]);
 
   useEffect(() => {
@@ -250,6 +250,18 @@ export const Game = () => {
         // save them in state to use them at each needed action
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
+        const inMemorySigner = new InMemorySigner(keyPair.privateKey)
+        const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+        const dekuToolkit =
+          new dekuc.DekuCClient(
+            {
+              dekuRpc: nodeUri,
+              ligoRpc: "", //TODO: fixme?
+              signer
+            }
+          );
+        const contract = dekuToolkit.contract("DK15KY28zesdBLQveM4Q9w17FgZzVQKhKn3K");
+        dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
           typeof err === "string" ? err : (err as Error).message;
@@ -367,7 +379,7 @@ export const Game = () => {
                     <div>
                       <h2>Tranfer cookies</h2>
                       <label className="description">
-                      Send cookies to your friend
+                        Send cookies to your friend
                       </label>
                       <label>Recipient address</label>
                       <input

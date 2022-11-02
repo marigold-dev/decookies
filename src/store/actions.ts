@@ -2,9 +2,10 @@ import * as React from 'react'
 import { cookieBaker } from './cookieBaker'
 
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { getActualPlayerState, getLeaderBoard, mint } from './vmApi';
+import { getActualPlayerState, mint } from './vmApi';
 import { keyPair, state } from './reducer';
 import { building, leaderBoard, operationType, vmOperation } from './vmTypes';
+import { Contract } from '@marigold-dev/deku-c-toolkit';
 
 /**
  * All the actions available
@@ -59,6 +60,10 @@ type saveWallet = {
     type: "SAVE_WALLET",
     payload: BeaconWallet | null
 }
+type saveContract = {
+    type: "SAVE_CONTRACT",
+    payload: Contract
+}
 type saveConfig = {
     type: "SAVE_CONFIG",
     nodeUri: string,
@@ -74,7 +79,7 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | saveContract
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -115,6 +120,11 @@ export const saveLeaderBoard = (payload: leaderBoard[]): action => ({
 
 export const saveWallet = (payload: BeaconWallet | null): action => ({
     type: "SAVE_WALLET",
+    payload
+});
+
+export const saveContract = (payload: Contract): action => ({
+    type: "SAVE_CONTRACT",
     payload
 });
 
@@ -160,56 +170,56 @@ const add = (type: vmOperation) => async (dispatch: React.Dispatch<action>, stat
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        mint(vmAction, nodeUri, state, dispatch);
+        mint(vmAction, state);
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-        const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
-        if (vmState.cookies > state.current.cookieBaker.cookies) {
-          const inOven =
-            state.current.cookiesInOven -
-            (vmState.cookies - state.current.cookieBaker.cookies);
-          if (inOven < 0n) dispatch(updateOven(0n));
-          else dispatch(updateOven(inOven));
-        }
-        if (vmState.cursors > state.current.cookieBaker.cursors) {
-          const building =
-            state.current.cursorsInBasket -
-            (vmState.cursors - state.current.cookieBaker.cursors);
-          if (building < 0n) dispatch(updateCursorBasket(0n));
-          else dispatch(updateCursorBasket(building));
-        }
-        // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
-        if (vmState.grandmas > state.current.cookieBaker.grandmas) {
-          const building =
-            state.current.recruitingGrandmas -
-            (vmState.grandmas - state.current.cookieBaker.grandmas);
-          if (building < 0n) dispatch(updateRecruitingGrandmas(0n));
-          else dispatch(updateRecruitingGrandmas(building));
-        }
-        if (vmState.farms > state.current.cookieBaker.farms) {
-          const building =
-            state.current.buildingFarms -
-            (vmState.farms - state.current.cookieBaker.farms);
-          if (building < 0n) dispatch(updateBuildingFarms(0n));
-          else dispatch(updateBuildingFarms(building));
-        }
-        if (vmState.mines > state.current.cookieBaker.mines) {
-          const building =
-            state.current.drillingMines -
-            (vmState.mines - state.current.cookieBaker.mines);
-          if (building < 0n) dispatch(updateDrillingMines(0n));
-          else dispatch(updateDrillingMines(building));
+            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair, state);
+            if (vmState.cookies > state.current.cookieBaker.cookies) {
+                const inOven =
+                    state.current.cookiesInOven -
+                    (vmState.cookies - state.current.cookieBaker.cookies);
+                if (inOven < 0n) dispatch(updateOven(0n));
+                else dispatch(updateOven(inOven));
             }
-        if (vmState.factories > state.current.cookieBaker.factories) {
-          const building =
-            state.current.buildingFactories -
-            (vmState.factories - state.current.cookieBaker.factories);
-          if (building < 0n) dispatch(updateBuildingFactories(0n));
-          else dispatch(updateBuildingFactories(building));
-        }
+            if (vmState.cursors > state.current.cookieBaker.cursors) {
+                const building =
+                    state.current.cursorsInBasket -
+                    (vmState.cursors - state.current.cookieBaker.cursors);
+                if (building < 0n) dispatch(updateCursorBasket(0n));
+                else dispatch(updateCursorBasket(building));
+            }
+            // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+            if (vmState.grandmas > state.current.cookieBaker.grandmas) {
+                const building =
+                    state.current.recruitingGrandmas -
+                    (vmState.grandmas - state.current.cookieBaker.grandmas);
+                if (building < 0n) dispatch(updateRecruitingGrandmas(0n));
+                else dispatch(updateRecruitingGrandmas(building));
+            }
+            if (vmState.farms > state.current.cookieBaker.farms) {
+                const building =
+                    state.current.buildingFarms -
+                    (vmState.farms - state.current.cookieBaker.farms);
+                if (building < 0n) dispatch(updateBuildingFarms(0n));
+                else dispatch(updateBuildingFarms(building));
+            }
+            if (vmState.mines > state.current.cookieBaker.mines) {
+                const building =
+                    state.current.drillingMines -
+                    (vmState.mines - state.current.cookieBaker.mines);
+                if (building < 0n) dispatch(updateDrillingMines(0n));
+                else dispatch(updateDrillingMines(building));
+            }
+            if (vmState.factories > state.current.cookieBaker.factories) {
+                const building =
+                    state.current.buildingFactories -
+                    (vmState.factories - state.current.cookieBaker.factories);
+                if (building < 0n) dispatch(updateBuildingFactories(0n));
+                else dispatch(updateBuildingFactories(building));
+            }
             dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(nodeUri);
-            dispatch(saveLeaderBoard(leaderBoard));
+            // const leaderBoard = await getLeaderBoard(nodeUri);
+            // dispatch(saveLeaderBoard(leaderBoard));
         }, 3000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -226,13 +236,13 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
-        Array(payload).fill(1).map(() => mint(vmAction, nodeUri, state, dispatch));
+        Array(payload).fill(1).map(() => mint(vmAction, state));
         //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
         setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair);
+            const vmState = await getActualPlayerState(dispatch, nodeUri, state.current.generatedKeyPair, state);
             dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(nodeUri);
-            dispatch(saveLeaderBoard(leaderBoard));
+            // const leaderBoard = await getLeaderBoard(nodeUri);
+            // dispatch(saveLeaderBoard(leaderBoard));
         }, 2000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -242,20 +252,20 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
 }
 
 export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add({ type: operationType.mint, operation: building.cookie, amount })(dispatch, state);
-export const addCursor = add({ type: operationType.mint, operation: building.cursor, amount:"1" });
+export const addCursor = add({ type: operationType.mint, operation: building.cursor, amount: "1" });
 export const addGrandma = add({ type: operationType.mint, operation: building.grandma, amount: "1" });
 export const addFarm = add({ type: operationType.mint, operation: building.farm, amount: "1" });
 export const addMine = add({ type: operationType.mint, operation: building.mine, amount: "1" });
 export const addFactory = add({ type: operationType.mint, operation: building.factory, amount: "1" });
-export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: { to, amount }, amount:"0" })(dispatch, state);
-export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: { amount }, amount: "0" })(dispatch, state);
+export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.transfer, operation: null, amount: "0" })(dispatch, state);
+export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add({ type: operationType.eat, operation: null, amount: "0" })(dispatch, state);
 
-export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null) => {
+export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
     try {
-        const vmState = await getActualPlayerState(dispatch, nodeUri, keyPair);
+        const vmState = await getActualPlayerState(dispatch, nodeUri, keyPair, state);
         dispatch(fullUpdateCB(vmState));
-        const leaderBoard = await getLeaderBoard(nodeUri);
-        dispatch(saveLeaderBoard(leaderBoard));
+        // const leaderBoard = await getLeaderBoard(nodeUri);
+        // dispatch(saveLeaderBoard(leaderBoard));
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));

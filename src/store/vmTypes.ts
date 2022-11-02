@@ -31,8 +31,8 @@ export enum operationType {
 }
 
 export type vmOperation = {
-    type: operationType
-    operation: building | transfer | eat
+    type: operationType,
+    operation: building | null
     amount: string
 }
 
@@ -44,10 +44,6 @@ export type transfer = {
 export type leaderBoard = {
     address: string,
     eatenCookies: bigint
-}
-
-export type eat = {
-    amount: string
 }
 
 export const cookieBakerToLeaderBoard = (element: any): leaderBoard => {

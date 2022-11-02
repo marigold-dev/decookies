@@ -2,14 +2,15 @@ import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
 // import { createNonce, stringToHex } from './utils';
-import { parseReviver, stringifyReplacer } from './utils';
+import { parseToolKitResponse } from './utils';
 
 import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
 
 import { keyPair, state } from './reducer'
 import { action, saveUserAddress } from './actions';
 
-import * as deku from '@marigold-dev/deku-toolkit'
+// import * as deku from '@marigold-dev/deku-toolkit'
+// import * as dekuc from 'deku-c'
 
 export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
     const blockRequest = await fetch(nodeUri + "/api/v1/chain/level",
@@ -23,27 +24,26 @@ export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
 /**
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
-export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null): Promise<cookieBaker> => {
-    if (keyPair) {
+//TODO: replace with toolkit.getState();
+export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>): Promise<cookieBaker> => {
+    const contract = state.current.dekucContract
+    if (keyPair && contract) {
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
         dispatch(saveUserAddress(userAddress));
-        const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
-            {
-                method: "GET"
-            });
-        const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
-        if (stateResponse) {
-            if (stateResponse[userAddress]) {
-                const cookieBaker = JSON.parse(stateResponse[userAddress], parseReviver);
-                return cookieBaker;
-            } else {
-                return initialState;
-            }
+        const globalState = await contract.getState();
+        const playerState = parseToolKitResponse(globalState, userAddress);
+        // const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
+        //     {
+        //         method: "GET"
+        //     });
+        // const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
+        if (playerState) {
+            return playerState;
         } else {
-            console.log("no value in state");
             return initialState;
         }
+
     } else {
         throw new Error("NO PRIVATE KEY");
     }
@@ -52,23 +52,23 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nod
 /**
  * Fetch the state from /vm-state and return the state ordered by DESC amount of cookies
  */
-const getRawLeaderBoard = async (nodeUri: string): Promise<any> => {
-    const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
-        {
-            method: "GET"
-        });
-    const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
-    const sorted =
-        Object.entries(stateResponse).sort((a, b) => {
-            const eatenA = JSON.parse(a[1] as any, parseReviver).eatenCookies;
-            const eatenB = JSON.parse(b[1] as any, parseReviver).eatenCookies;
-            return Number(eatenB - eatenA);
-        });
-    return sorted;
+const getRawLeaderBoard = async (state: React.MutableRefObject<state>): Promise<any> => {
+    const contract = state.current.dekucContract
+    if (contract) {
+        const globalState = await contract.getState();
+        console.log("globalState: ", globalState)
+        // const sorted =
+        //     Object.entries(stateResponse).sort((a, b) => {
+        //         const eatenA = JSON.parse(a[1] as any, parseReviver).eatenCookies;
+        //         const eatenB = JSON.parse(b[1] as any, parseReviver).eatenCookies;
+        //         return Number(eatenB - eatenA);
+        //     });
+        // return sorted;
+    }
 }
 
-export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> => {
-    const rawLeaderBoard = await getRawLeaderBoard(nodeUri);
+export const getLeaderBoard = async (state: React.MutableRefObject<state>): Promise<leaderBoard[]> => {
+    const rawLeaderBoard = await getRawLeaderBoard(state);
     if (rawLeaderBoard) {
         const leaderBoard = rawLeaderBoard.map((item: any) => cookieBakerToLeaderBoard(item));
         return leaderBoard;
@@ -83,21 +83,35 @@ export const getLeaderBoard = async (nodeUri: string): Promise<leaderBoard[]> =>
  * @param action 
  * @returns {Promise<string>} The hash of the submitted operation
  */
-export const mint = async (action: vmOperation, nodeUri: string, latestState: React.MutableRefObject<state>, dispatch: React.Dispatch<action>): Promise<string> => {
+export const mint = async (vmAction: any, latestState: React.MutableRefObject<state>): Promise<string> => {
     const keyPair = latestState.current.generatedKeyPair;
-    if (keyPair && latestState.current.nodeUri) {
+    const contract = latestState.current.dekucContract;
+    if (keyPair && latestState.current.nodeUri && contract) {
         try {
-            const inMemorySigner = new InMemorySigner(keyPair.privateKey)
-            const dekuSigner = deku.fromMemorySigner(inMemorySigner);
-            const dekuToolkit =
-                new deku.DekuToolkit(
-                    {
-                        dekuRpc: latestState.current.nodeUri,
-                        dekuSigner
-                    }
-                );
-            const hash =
-                await dekuToolkit.submitVmOperation(JSON.stringify(action, stringifyReplacer));
+            const hash = await contract.invoke(vmAction);
+            // const hash = await contract.invoke([
+            //     "Pair",
+            //     [
+            //         "Pair",
+            //         ["Int", "1"],
+            //         [
+            //             "Union",
+            //             [
+            //                 "Left",
+            //                 ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]]
+            //             ]
+            //         ]
+            //     ],
+            //     [
+            //         "Pair",
+            //         ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
+            //         ["Option", null]
+            //     ]
+            // ]);
+
+
+            // await dekuToolkit.submitVmOperation(JSON.stringify(action, stringifyReplacer));
+
 
             // const address = await signer.publicKeyHash();
             // const key = await signer.publicKey();

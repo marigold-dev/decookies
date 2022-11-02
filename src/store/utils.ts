@@ -1,6 +1,7 @@
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 import * as blake from 'blakejs';
 import * as bs58check from 'bs58check';
+import { initialState } from './cookieBaker';
 import { keyPair } from './reducer';
 
 /**
@@ -71,4 +72,34 @@ export const getKeyPair = (rawKeyPair: any): keyPair => {
     const rawPublicKey = rawKeyPair.publicKey.split("-----")[2].trim();
     const publicKey = toB58Hash(PREFIX.tz1, rawPublicKey);
     return { publicKey, privateKey };
+}
+
+export const parseToolKitResponse = (state: { [x: string]: any }, userAddress: string) => {
+    console.log("received state: ", state);
+    console.log("userAddress: ", userAddress)
+    const rawCookieBaker = state[userAddress];
+    console.log("rawCookieBaker: ", rawCookieBaker)
+    if (rawCookieBaker) {
+        console.log(rawCookieBaker);
+        const flattenRawCookieBaker = rawCookieBaker.flat(3);
+        console.log(flattenRawCookieBaker);
+        const cookieBaker = {
+            passiveCPS: flattenRawCookieBaker[0],
+            cookies: flattenRawCookieBaker[1],
+            cursors: flattenRawCookieBaker[2],
+            grandmas: flattenRawCookieBaker[3],
+            farms: flattenRawCookieBaker[4],
+            mines: flattenRawCookieBaker[5],
+            factories: flattenRawCookieBaker[6],
+            cursorCost: flattenRawCookieBaker[7],
+            grandmaCost: flattenRawCookieBaker[8],
+            farmCost: flattenRawCookieBaker[9],
+            mineCost: flattenRawCookieBaker[10],
+            factoryCost: flattenRawCookieBaker[11],
+            eatenCookies: flattenRawCookieBaker[12]
+        }
+        return cookieBaker;
+    } else {
+        return initialState;
+    }
 }
