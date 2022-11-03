@@ -7,7 +7,7 @@ const Button = styled.button<Props>`
   background-color: ${props  => props.dark ? '#2B2A2E' : '#D8464E'};
 
   padding: .8em 1em;
-  color: white;
+  color: ${props =>props.theme.palette.common.white};
   font-size: 100%;
   text-align: center;
   text-decoration-line: underline;
