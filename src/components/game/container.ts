@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import left from "../../../resources/images/left-bg.png";
 
 const GameContainer = styled.div`
   display: grid;
@@ -12,12 +11,8 @@ const GameContainer = styled.div`
     display: block;
     width: 207px;
     margin: 0em 1px 25em 0em;
-    background-image: url(${left});
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    overflow-x: hidden;
-    overflow-y: scroll;
+    border-right: 3px solid #7B7B7E;
+    border-left: 3px solid #7B7B7E;
     .container {
         display:none;
         padding: 1em 1em;
@@ -47,10 +42,10 @@ const GameContainer = styled.div`
       height: 25vmin;
       pointer-events: none;
       animation: animate 7s linear infinite;
-      background: #1c1d22;
+      background: transparent;
     }
   }
-  @media (min-width: 900px) {
+  @media (min-width: 1209px) {
     &.container {
       grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 10px;
@@ -74,13 +69,9 @@ const GameContainer = styled.div`
       &.left {
         display: block;
         width: 350px;
-        margin: -1.3em 0px -5em 4em;
-        background-image: url(${left});
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        overflow-x: hidden;
-        overflow-y: scroll;
+        margin: -1.3em 0px -3em 4em;
+        border-right: 3px solid #7B7B7E;
+        border-left: 3px solid #7B7B7E;
         .container {
             display:block;
             padding: 1em 1em;

@@ -56,11 +56,11 @@ const GameButton = styled.button`
       flex-direction: row;
     }
   }
-  @media (min-width: 900px) {
+  @media (min-width: 1209px) {
     div {
       &.gameButtonContainer {
         padding: 0 1em 0.5em 1em;
-        height: 6.5em;
+        height: 7em;
         font-size: 12px;
         width: auto;
         h3 {

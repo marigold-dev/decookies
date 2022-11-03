@@ -3,7 +3,7 @@ const HeaderButton = styled.div`
     position: absolute;
     top: 21px;
     right: 40px;
-    @media (min-width: 900px) {
+    @media (min-width: 1209px) {
         button {
             &.mobileButton {
             display:none;

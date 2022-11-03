@@ -312,7 +312,7 @@ export const Game = () => {
                     <div>
                       <h2>Eat cookies</h2>
                       <label className="description">
-                        Number of cookies you ate
+                        Number of cookies you want to eat
                       </label>
                       <input
                         type="text"
@@ -370,7 +370,7 @@ export const Game = () => {
                     <div>
                       <h2>Tranfer cookies</h2>
                       <label className="description">
-                        Send cookies to another player
+                      Send cookies to your friend
                       </label>
                       <label>Recipient address</label>
                       <input
@@ -442,7 +442,7 @@ export const Game = () => {
                 </div>
               </div>
               <div className="column background">
-                <p>In jon interview</p>
+                <p>In job interview</p>
                 <ToolCounter value={gameState.recruitingGrandmas} />
               </div>
               <div className="background value">
@@ -488,7 +488,7 @@ export const Game = () => {
                 </div>
               </div>
               <div className="column background">
-                <p>Drilling</p>
+                <p>Under construction</p>
                 <ToolCounter value={gameState.drillingMines} />
               </div>
               <div className="background value">
@@ -587,7 +587,7 @@ export const Game = () => {
           <Item>
             <div>
               <h2>Eat cookies</h2>
-              <label className="description">Number of cookies you ate</label>
+              <label className="description"> Number of cookies you want to eat</label>
               <input type="text" name="amountToEat" ref={amountToEatRef} />
               <div className="buttonContainer">
                 <Button type="submit" disabled={false} onClick={handleEatClick}>
@@ -637,7 +637,7 @@ export const Game = () => {
             <div>
               <h2>Tranfer cookies</h2>
               <label className="description">
-                Send cookies to another player
+                Send cookies to your friend
               </label>
               <label>Recipient address</label>
               <input type="text" name="amount" ref={amountToTransferRef} />

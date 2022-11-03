@@ -25,7 +25,7 @@ const Item = styled.div`
     height: inherit;
     text-align:left;
   }
-  @media (min-width: 900px) {
+  @media (min-width: 1209px) {
     &.player-info {
       display: none;
     }
