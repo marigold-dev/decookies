@@ -17,17 +17,17 @@ const GameButton = styled.button`
     height: auto;
     overflow-y: scroll;
     font-size: 7px;
-    color: #858080;
+    color: ${props =>props.theme.palette.primary.contrastText};
     width: 195px;
     h3 {
-      color: white;
+      color: ${props =>props.theme.palette.common.white};
     }
     .background {
       justify-content: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: #2b2a2e;
+      background: ${props =>props.theme.palette.common.darkGray};
       margin: 0.3em;
       height: 40px;
     }
@@ -64,7 +64,7 @@ const GameButton = styled.button`
         font-size: 12px;
         width: auto;
         h3 {
-          color: white;
+          color: ${props =>props.theme.palette.common.white};
         }
         .background {
           margin: 0.3em;

@@ -6,7 +6,7 @@ const Modal = styled.div`
   }
 
   h3 {
-    color: white;
+    color: ${props =>props.theme.palette.common.white};
     font-size: 15px;
   }
 
@@ -83,7 +83,7 @@ const Modal = styled.div`
       flex-direction: column;
     }
     a {
-      color: white;
+      color: ${props =>props.theme.palette.common.white};
       padding: 20px;
     }
   }
@@ -95,7 +95,7 @@ const Modal = styled.div`
   }
 
   table {
-    color: white;
+    color: ${props =>props.theme.palette.common.white};
     width: 600px;
     line-height: 30px;
     border: 1px solid white;

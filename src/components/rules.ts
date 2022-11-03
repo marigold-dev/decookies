@@ -79,7 +79,7 @@ const RulesContainer = styled.div`
         padding: 1.8em 1em;
 
         a {
-            color: white;
+            color: ${props =>props.theme.palette.common.white};
             font-weight: 400;
             font-size:14px;
             img {
@@ -90,8 +90,8 @@ const RulesContainer = styled.div`
         h2 {
             margin: 0.6rem 0;
             width:100%;
-            color: white;
-            background: #2B2A2E;
+            color: ${props =>props.theme.palette.common.white};
+            background: ${props =>props.theme.palette.common.darkGray};
             height:36px;
             text-align: center;
             justify-content:center;
@@ -100,7 +100,7 @@ const RulesContainer = styled.div`
             font-size:15px;
         }
         p {
-            color:#858080;
+            color:${props =>props.theme.palette.primary.contrastText};;
             margin:0;
             font-size:15px;
         }

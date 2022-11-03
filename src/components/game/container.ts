@@ -22,7 +22,7 @@ const GameContainer = styled.div`
     color: white;
     text-align: center;
     button {
-      background: #1c1d22;
+      background: ${props =>props.theme.palette.primary.main};
       border: none;
     }
     p {
@@ -31,7 +31,7 @@ const GameContainer = styled.div`
       padding-left: 2.8em;
     }
     .cookieText {
-      color: #858080;
+      color: ${props =>props.theme.palette.primary.contrastText};;
       text-align: left;
       margin-top: -10px;
       padding: 0 0 3em 0;

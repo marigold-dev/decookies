@@ -12,7 +12,7 @@ const Item = styled.div`
 
   &.player-info {
     position: absolute;
-    background: #2b2a2e;
+    background: ${props =>props.theme.palette.common.darkGray};
     width: inherit;
     height: inherit;
     div {
@@ -20,10 +20,11 @@ const Item = styled.div`
     }
   }
   &.modal-item {
-    background: #2b2a2e;
+    background: ${props =>props.theme.palette.common.darkGray};
     width: inherit;
     height: inherit;
     text-align:left;
+    margin: 1.5em 0;
   }
   @media (min-width: 1209px) {
     &.player-info {
@@ -39,24 +40,24 @@ const Item = styled.div`
 
     input {
       background: #383539;
-      border: 1px solid #ffffff;
-      color: #858080;
+      border: 1px solid  ${props =>props.theme.palette.common.white};;
+      color: ${props =>props.theme.palette.primary.contrastText};;
       font-size: 10px;
       margin-bottom: 5px;
     }
 
     h2 {
-      color: white;
+      color: ${props =>props.theme.palette.common.white};
       font-size: 15px;
       margin-top: 6px;
     }
     label {
-      color: white;
+      color: ${props =>props.theme.palette.common.white};
       margin-bottom: 5px;
       &.description {
         margin-top: -10px;
         margin-bottom: 10px;
-        color: #858080;
+        color: ${props =>props.theme.palette.primary.contrastText};;
       }
     }
     .buttonContainer {
@@ -72,7 +73,7 @@ const Item = styled.div`
 
     .address {
       margin-top: -16px;
-      color: #858080;
+      color: ${props =>props.theme.palette.primary.contrastText};
       font-size: 10px;
       display: flex;
       .description {

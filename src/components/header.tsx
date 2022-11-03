@@ -3,7 +3,7 @@ import cookie from '../../resources/images/cookie.png';
 
 const HeaderContainer = styled.div `
 display: flex;
-background: #1C1D22;
+background: ${props =>props.theme.palette.primary.main};
 align-items: center;
 justify-content: left;
 top: 0;
@@ -17,7 +17,7 @@ font-weight: 500;
 margin: 0.8em 0;
 
 p {
-    color: #FFFFFF;
+    color:${props =>props.theme.palette.common.white};
     font-size:20px;
 }
 
