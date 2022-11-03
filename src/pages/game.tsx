@@ -488,7 +488,7 @@ export const Game = () => {
                 </div>
               </div>
               <div className="column background">
-                <p>Under construction</p>
+                <p>Drilling in progress</p>
                 <ToolCounter value={gameState.drillingMines} />
               </div>
               <div className="background value">
@@ -511,7 +511,7 @@ export const Game = () => {
                 </div>
               </div>
               <div className="column background">
-                <p>Drilling</p>
+                <p>Under construction</p>
                 <ToolCounter value={gameState.buildingFactories} />
               </div>
               <div className="background value">
