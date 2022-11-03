@@ -19,7 +19,7 @@ const App = () =>
           <Route path='/' element={<Game />} />
           <Route path='/rules' element={<Rules />} />
         </Routes>
-        <Footer />
+        <Footer/>
       </GameProvider>
     </ThemeProvider>
   </Router>

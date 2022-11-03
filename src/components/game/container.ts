@@ -19,7 +19,7 @@ const GameContainer = styled.div`
     }
   }
   .middle {
-    color: white;
+    color: ${props =>props.theme.palette.common.white};
     text-align: center;
     button {
       background: ${props =>props.theme.palette.primary.main};
