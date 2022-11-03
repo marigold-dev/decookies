@@ -637,7 +637,11 @@ export const Game = () => {
             <div>
               <h2>Tranfer cookies</h2>
               <label className="description">
+<<<<<<< HEAD
                 Send cookies to your friend
+=======
+                Send cookies to another player
+>>>>>>> 9ed84574d98b95768eccb7613a20bb2cf516d40a
               </label>
               <label>Recipient address</label>
               <input type="text" name="amount" ref={amountToTransferRef} />
