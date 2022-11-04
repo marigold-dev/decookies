@@ -79,6 +79,15 @@ const GameContainer = styled.div`
       }
     }
   }
+  @media (min-width: 1410px) {
+  &.container {
+    section {
+      &.left {
+        height: fit-content;
+      }
+    }
+  }
+  }
   @keyframes animate {
     0% {
       transform: rotate(0deg);

@@ -14,7 +14,7 @@ border-bottom: 3px solid #7B7B7E;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 font-family: "Roboto";
 font-weight: 500;
-margin: 0.8em 0;
+height: 76px;
 
 p {
     color:${props =>props.theme.palette.common.white};
@@ -26,6 +26,7 @@ a {
     display:flex;
     flex-direction:row;
     justify-content:center;
+    align-items:center;
 }
 
 img {
