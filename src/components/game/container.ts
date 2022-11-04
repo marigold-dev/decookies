@@ -79,7 +79,7 @@ const GameContainer = styled.div`
       }
     }
   }
-  @media (min-width: 1410px) {
+  @media (min-width: 1450px) {
   &.container {
     section {
       &.left {
