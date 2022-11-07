@@ -72,21 +72,13 @@ const GameContainer = styled.div`
         margin: -1.3em 0px -3em 4em;
         border-right: 3px solid #7B7B7E;
         border-left: 3px solid #7B7B7E;
+        height: fit-content;
         .container {
             display:block;
             padding: 1em 1em;
         }
       }
     }
-  }
-  @media (min-width: 1450px) {
-  &.container {
-    section {
-      &.left {
-        height: fit-content;
-      }
-    }
-  }
   }
   @keyframes animate {
     0% {

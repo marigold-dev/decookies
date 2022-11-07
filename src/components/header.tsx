@@ -8,13 +8,16 @@ align-items: center;
 justify-content: left;
 top: 0;
 left: 0;
-width: 100%;
+width: 103%;
 position: absolute;
 border-bottom: 3px solid #7B7B7E;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 font-family: "Roboto";
 font-weight: 500;
-height: 76px;
+height: 65px;
+@media (min-width: 1209px) {
+    height: 74px;
+}
 
 p {
     color:${props =>props.theme.palette.common.white};

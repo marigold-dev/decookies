@@ -58,7 +58,7 @@ import { getKeyPair, stringToHex } from "../store/utils";
 import { leaderBoard } from "../store/vmTypes";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
-import GameContainer from "../components/game/container";
+import GameContainer from "../components/game/gameContainer";
 import Item from "../components/game/item";
 import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";

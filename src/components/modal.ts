@@ -26,7 +26,7 @@ const Modal = styled.div`
     display: none;
     background: rgba(0, 0, 0, 0.6);
     position: fixed;
-    top: 83px;
+    top: 73px;
     left: 0;
     right: 0;
     bottom: 0;

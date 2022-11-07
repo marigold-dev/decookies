@@ -14,12 +14,12 @@ const App = () =>
   <Router>
     <ThemeProvider theme={defaultTheme}>
       <GameProvider>
-        <Header />
-        <Routes>
-          <Route path='/' element={<Game />} />
-          <Route path='/rules' element={<Rules />} />
-        </Routes>
-        <Footer/>
+          <Header />
+          <Routes>
+            <Route path='/' element={<Game />} />
+            <Route path='/rules' element={<Rules />} />
+          </Routes>
+          <Footer/>
       </GameProvider>
     </ThemeProvider>
   </Router>

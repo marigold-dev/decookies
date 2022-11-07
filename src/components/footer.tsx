@@ -3,16 +3,15 @@ import marigold from '../../resources/images/marigold-logo.png';
 import github from '../../resources/images/github-logo.png';
 
 const FooterContainer = styled.div `
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
     border-top: 3px solid #7B7B7E;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    right: 0;
+    width: 100%;
+    position: fixed;
+    left: 0;
+    bottom:0;
     background:${props =>props.theme.palette.primary.main};
     display:flex;
     justify-content:space-between;
-
 
 a {
     text-decoration: none;

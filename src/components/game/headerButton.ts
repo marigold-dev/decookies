@@ -1,20 +1,23 @@
 import styled from "styled-components";
 const HeaderButton = styled.div`
     position: absolute;
-    top: 21px;
-    right: 40px;
+    top: 18px;
+    right: 35px;
     @media (min-width: 1209px) {
+        top: 18px;
+        right: 40px;
         button {
             &.mobileButton {
             display:none;
-            background: none;
             border: 0;
             color: inherit;
+            height:30px;
             }
         }
         button {
             &.desktopButton {
-         display:block;
+            display:block;
+            font-size:12px;
         }
 }
     }
