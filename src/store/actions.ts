@@ -6,6 +6,14 @@ import { getActualPlayerState, mint } from './vmApi';
 import { keyPair, state } from './reducer';
 import { leaderBoard, vmOperation } from './vmTypes';
 import { Contract } from '@marigold-dev/deku-c-toolkit';
+import { cursor } from './vmActions/cursor';
+import { cookie } from './vmActions/cookie';
+import { grandma } from './vmActions/grandma';
+import { farm } from './vmActions/farm';
+import { mine } from './vmActions/mine';
+import { factory } from './vmActions/factory';
+import { eat } from './vmActions/eat';
+import { transfer } from './vmActions/transfer';
 
 /**
  * All the actions available
@@ -251,178 +259,36 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
     }
 }
 
-export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add(
-    ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option",
-                        ["Some",
-                            ["Union",
-                                ["Left",
-                                    ["Union",
-                                        ["Left",
-                                            ["Union",
-                                                ["Right", ["Unit"]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Left",
-                            ["Union",
-                                ["Right",
-                                    ["Unit"]
-                                ]
-                            ]
-                        ]
-                    ],
-                    ["Option",
-                        ["None", {}]
-                    ]
-                ]
-            ]
-        ]
-    ]
-)(dispatch, state);
-export const addCursor = add(
-    [
-        "Pair",
-        [
-            "Pair",
-            ["Int", "1"],
-            [
-                "Option",
-                [
-                    "Union",
-                    [
-                        "Left",
-                        ["Union", ["Right", ["Union", ["Left", ["Unit"]]]]]
-                    ]
-                ]
-            ]
-        ],
-        [
-            "Pair",
-            ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-            ["Option", null]
-        ]
-    ]);
-export const addGrandma = add([
-    "Pair",
-    [
-        "Pair",
-        ["Int", "1"],
-        [
-            "Option",
-            [
-                "Union",
-                [
-                    "Right",
-                    ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]]
-                ]
-            ]
-        ]
-    ],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-        ["Option", null]
-    ]
-]);
-export const addFarm = add([
-    "Pair",
-    [
-        "Pair",
-        ["Int", "1"],
-        [
-            "Option",
-            [
-                "Union",
-                [
-                    "Right",
-                    ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]]
-                ]
-            ]
-        ]
-    ],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-        ["Option", null]
-    ]
-]);
-export const addMine = add([
-    "Pair",
-    [
-        "Pair",
-        ["Int", "1"],
-        [
-            "Option",
-            [
-                "Union",
-                [
-                    "Right",
-                    ["Union", ["Right", ["Union", ["Left", ["Unit"]]]]]
-                ]
-            ]
-        ]
-    ],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-        ["Option", null]
-    ]
-]);
-export const addFactory = add([
-    "Pair",
-    [
-        "Pair",
-        ["Int", "1"],
-        [
-            "Option",
-            [
-                "Union",
-                [
-                    "Left",
-                    ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]
-                ]
-            ]
-        ]
-    ],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-        ["Option", null]
-    ]
-]);
-export const transferCookie = (to: string, amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add([
-    "Pair",
-    ["Pair", ["Int", amount], ["Option", null]],
-    [
-        "Pair",
-        ["Union", ["Right", ["Unit"]]],
-        ["Option", ["String", to]]
-    ]
-])(dispatch, state);
-export const eatCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1) => add([
-    "Pair",
-    ["Pair", ["Int", amount], ["Option", null]],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]],
-        ["Option", null]
-    ]
-])(dispatch, state);
+export const addCookie = (amount: string,
+    dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) =>
+    add(cookie(amount))
+        (dispatch, state);
+
+export const addCursor = add(cursor);
+
+export const addGrandma = add(grandma);
+
+export const addFarm = add(farm);
+
+export const addMine = add(mine);
+
+export const addFactory = add(factory);
+
+export const transferCookie = (to: string,
+    amount: string,
+    dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>,
+    payload: number = 1) =>
+    add(transfer(amount, to))
+        (dispatch, state);
+
+export const eatCookie = (amount: string,
+    dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>,
+    payload: number = 1) =>
+    add(eat(amount))
+        (dispatch, state);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
     try {
