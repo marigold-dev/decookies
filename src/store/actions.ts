@@ -251,28 +251,48 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
     }
 }
 
-export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add([
-    "Pair",
-    [
-        "Pair",
-        ["Int", amount],
+export const addCookie = (amount: string, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => add(
+    ["Pair",
         [
-            "Option",
-            [
-                "Union",
+            ["Pair",
                 [
-                    "Left",
-                    ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]]
+                    ["Int", amount],
+                    ["Option",
+                        ["Some",
+                            ["Union",
+                                ["Left",
+                                    ["Union",
+                                        ["Left",
+                                            ["Union",
+                                                ["Right", ["Unit"]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            ["Pair",
+                [
+                    ["Union",
+                        ["Left",
+                            ["Union",
+                                ["Right",
+                                    ["Unit"]
+                                ]
+                            ]
+                        ]
+                    ],
+                    ["Option",
+                        ["None", {}]
+                    ]
                 ]
             ]
         ]
-    ],
-    [
-        "Pair",
-        ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-        ["Option", null]
     ]
-]
 )(dispatch, state);
 export const addCursor = add(
     [

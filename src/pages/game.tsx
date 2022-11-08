@@ -94,7 +94,7 @@ export const Game = () => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
-          console.log(production)
+          console.log(production);
           try {
             if (production > 0n) {
               const pending = latestState.current.cookiesInOven + production;
@@ -112,7 +112,7 @@ export const Game = () => {
         clearInterval(id);
       };
     }
-    return () => { }
+    return () => { };
   }, [dispatch, latestState.current.wallet]);
 
   useEffect(() => {
@@ -260,7 +260,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK15KY28zesdBLQveM4Q9w17FgZzVQKhKn3K");
+        const contract = dekuToolkit.contract("DK1SDi2bJvpWLQPjsCWrr7eTSJ2xvN4E63Yv");
         dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
