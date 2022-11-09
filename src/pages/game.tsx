@@ -136,7 +136,7 @@ export const Game = () => {
     //TODO: here?
     const pending = latestState.current.cookiesInOven + 1n;
     dispatch(updateOven(pending));
-    addCookie("1n", dispatch, latestState);
+    addCookie("1", dispatch, latestState);
   };
   const handleCursorClick = () => {
     //TODO: here?
