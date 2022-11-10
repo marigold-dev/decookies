@@ -561,7 +561,7 @@ export const Game = () => {
           />
         </section>
         <section className="right">
-          <Item>
+          <Item className="playerInfo">
             <div>
               <h2>Player info</h2>
               <label
@@ -584,7 +584,7 @@ export const Game = () => {
               />
             </div>
           </Item>
-          <Item>
+          <Item className="eatCookies">
             <div>
               <h2>Eat cookies</h2>
               <label className="description"> Number of cookies you want to eat</label>
@@ -633,7 +633,7 @@ export const Game = () => {
               </div>
             </div>
           </Item>
-          <Item>
+          <Item className="transferCookies">
             <div>
               <h2>Tranfer cookies</h2>
               <label className="description">
