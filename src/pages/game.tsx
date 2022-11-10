@@ -273,7 +273,8 @@ export const Game = () => {
     if (!latestState.current.nodeUri) {
       //TODO: should always reach the same URI, load-balancing must be done on infra side!
       const node = Math.floor(Math.random() * 4);
-      return "https://deku-p-demo-vm" + node + ".deku-v1.marigold.dev";
+      return "https://deku-canonical-vm" + node + ".deku-v1.marigold.dev";
+      // https://deku-canonical-vm\{0,1,2,3\}.deku-v1.marigold.dev/api/v1/chain/level
     }
     return "";
   };
