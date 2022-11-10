@@ -3,12 +3,26 @@ import item from "../../../resources/images/info-bg.png";
 
 const Item = styled.div`
   width: 450px;
-  height: 188px;
   background-image: url(${item});
-  background-size: contain;
-  background-position: center;
+  background-size: 79% 112%;
+  background-position: 3em -0.5cm;
   margin: 0.5em 0;
   background-repeat: no-repeat;
+  &.playerInfo {
+    background-size: 79% 110%;
+    height: 206px;
+    button {
+      margin-top:6px;
+      max-width: 40%;
+    }
+  }
+  &.eatCookies {
+    height: 147px;
+  }
+  &.transferCookies {
+    background-size: 79% 110%;
+    height: 200px;
+  }
 
   &.player-info {
     position: absolute;
@@ -17,6 +31,9 @@ const Item = styled.div`
     height: inherit;
     div {
       margin: 0.5em 2em 0.5em 2em;
+    }
+    button {
+      margin: 10px 0;
     }
   }
   &.modal-item {
@@ -76,11 +93,6 @@ const Item = styled.div`
       color: ${props =>props.theme.palette.primary.contrastText};
       font-size: 10px;
       display: flex;
-      .description {
-        text-overflow: ellipsis;
-        overflow: hidden;
-        width: 40%;
-      }
     }
   }
 `;
