@@ -14,17 +14,7 @@ const HeaderButton = styled.div`
             height:30px;
             }
         }
-        button {
-            &.desktopButton {
-            display:block;
-            font-size:12px;
-        }
-}
     }
-
-.desktopButton {
-    display:none;
-}
 .mobileButton {
     display:block;
     background: none;

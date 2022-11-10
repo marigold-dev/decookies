@@ -272,9 +272,6 @@ export const Game = () => {
     <>
       <ToastContainer />
       <HeaderButton>
-        <Button className="desktopButton" onClick={handleBeaconConnection}>
-          Connect wallet
-        </Button>
         <a href="#menu-modal">
           <button className="mobileButton">
             <img src={menu} alt="menu" />
@@ -522,7 +519,6 @@ export const Game = () => {
           <Line />
           <Item className="player-info">
             <div>
-              <Button onClick={handleBeaconConnection}>Connect wallet</Button>
               <h2>Player info</h2>
               <label
                 hidden={!latestState.current.publicAddress}
@@ -542,6 +538,7 @@ export const Game = () => {
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
               />
+               <Button onClick={handleBeaconConnection}>Connect wallet </Button>
             </div>
           </Item>
         </section>
@@ -582,6 +579,7 @@ export const Game = () => {
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
               />
+              <Button onClick={handleBeaconConnection}>Connect wallet</Button>
             </div>
           </Item>
           <Item className="eatCookies">

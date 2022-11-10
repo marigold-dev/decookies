@@ -9,7 +9,12 @@ const Item = styled.div`
   margin: 0.5em 0;
   background-repeat: no-repeat;
   &.playerInfo {
-    height: 170px;
+    background-size: 79% 110%;
+    height: 206px;
+    button {
+      margin-top:6px;
+      max-width: 40%;
+    }
   }
   &.eatCookies {
     height: 147px;
@@ -26,6 +31,9 @@ const Item = styled.div`
     height: inherit;
     div {
       margin: 0.5em 2em 0.5em 2em;
+    }
+    button {
+      margin: 10px 0;
     }
   }
   &.modal-item {
