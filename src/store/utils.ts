@@ -1,7 +1,7 @@
 import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
 import * as blake from 'blakejs';
 import * as bs58check from 'bs58check';
-import { initialState } from './cookieBaker';
+import { cookieBaker, initialState } from './cookieBaker';
 import { keyPair } from './reducer';
 
 /**
@@ -74,32 +74,57 @@ export const getKeyPair = (rawKeyPair: any): keyPair => {
     return { publicKey, privateKey };
 }
 
-export const parseToolKitResponse = (state: { [x: string]: any }, userAddress: string) => {
-    console.log("received state: ", state);
-    console.log("userAddress: ", userAddress)
+export const getPlayerState = (state: { [x: string]: any }, userAddress: string) => {
     const rawCookieBaker = state[userAddress];
-    console.log("rawCookieBaker: ", rawCookieBaker)
     if (rawCookieBaker) {
-        console.log(rawCookieBaker);
-        const flattenRawCookieBaker = rawCookieBaker.flat(3);
-        console.log(flattenRawCookieBaker);
+        const flattenRawCookieBaker = rawCookieBaker.flat(4);
         const cookieBaker = {
-            passiveCPS: flattenRawCookieBaker[0],
-            cookies: flattenRawCookieBaker[1],
-            cursors: flattenRawCookieBaker[2],
-            grandmas: flattenRawCookieBaker[3],
-            farms: flattenRawCookieBaker[4],
-            mines: flattenRawCookieBaker[5],
-            factories: flattenRawCookieBaker[6],
-            cursorCost: flattenRawCookieBaker[7],
-            grandmaCost: flattenRawCookieBaker[8],
-            farmCost: flattenRawCookieBaker[9],
-            mineCost: flattenRawCookieBaker[10],
-            factoryCost: flattenRawCookieBaker[11],
-            eatenCookies: flattenRawCookieBaker[12]
+            passiveCPS: flattenRawCookieBaker[14],
+            cookies: flattenRawCookieBaker[2],
+            cursors: flattenRawCookieBaker[4],
+            grandmas: flattenRawCookieBaker[11],
+            farms: flattenRawCookieBaker[6],
+            mines: flattenRawCookieBaker[9],
+            factories: flattenRawCookieBaker[12],
+            cursorCost: flattenRawCookieBaker[3],
+            grandmaCost: flattenRawCookieBaker[10],
+            farmCost: flattenRawCookieBaker[8],
+            mineCost: flattenRawCookieBaker[12],
+            factoryCost: flattenRawCookieBaker[7],
+            eatenCookies: flattenRawCookieBaker[5]
         }
         return cookieBaker;
     } else {
         return initialState;
+    }
+}
+
+export type leaderBoard = {address: string, cookieBaker: cookieBaker}
+
+export const getSomethingState = (state: { [x: string]: any }, userAddress: string) => {
+    const rawCookieBaker = state[userAddress];
+    if (rawCookieBaker) {
+        const flattenRawCookieBaker = rawCookieBaker.flat(4);
+        const cookieBaker = {
+            passiveCPS: flattenRawCookieBaker[14],
+            cookies: flattenRawCookieBaker[2],
+            cursors: flattenRawCookieBaker[4],
+            grandmas: flattenRawCookieBaker[11],
+            farms: flattenRawCookieBaker[6],
+            mines: flattenRawCookieBaker[9],
+            factories: flattenRawCookieBaker[12],
+            cursorCost: flattenRawCookieBaker[3],
+            grandmaCost: flattenRawCookieBaker[10],
+            farmCost: flattenRawCookieBaker[8],
+            mineCost: flattenRawCookieBaker[12],
+            factoryCost: flattenRawCookieBaker[7],
+            eatenCookies: flattenRawCookieBaker[5]
+        }
+        const element: leaderBoard = {
+            address: userAddress, cookieBaker: cookieBaker
+        };
+        return element;
+    } else {
+        throw new Error("Impossible");
     }
 }

@@ -40,13 +40,3 @@ export type transfer = {
     to: string
     amount: string
 }
-
-export type leaderBoard = {
-    address: string,
-    eatenCookies: bigint
-}
-
-export const cookieBakerToLeaderBoard = (element: any): leaderBoard => {
-    const cookieBaker: cookieBaker = JSON.parse(element[1], parseReviver);
-    return { address: element[0], eatenCookies: cookieBaker.eatenCookies };
-}

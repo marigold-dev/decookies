@@ -55,8 +55,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, stringToHex } from "../store/utils";
-import { leaderBoard } from "../store/vmTypes";
+import { getKeyPair, leaderBoard, stringToHex } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -94,12 +93,11 @@ export const Game = () => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
-          console.log(production);
           try {
-            if (production > 0n) {
-              const pending = latestState.current.cookiesInOven + production;
+            if (BigInt(production) > 0n) {
+              const pending = latestState.current.cookiesInOven + BigInt(production);
               dispatch(updateOven(pending));
-              addCookie(production.toString() + "n", dispatch, latestState)
+              addCookie(production.toString(), dispatch, latestState)
             }
           } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;
@@ -260,7 +258,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK1SDi2bJvpWLQPjsCWrr7eTSJ2xvN4E63Yv");
+        const contract = dekuToolkit.contract("DK18AZao3rpS4GBm2z5rshN2oNsryevttNoi");
         dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
@@ -349,11 +347,11 @@ export const Game = () => {
                           <th>Eaten cookies</th>
                         </tr>
                         {gameState.leaderBoard.map(
-                          (item: leaderBoard, i: any) => (
+                          (item: any, i: any) => (
                             <tr key={i}>
                               <td>{i + 1}</td>
-                              <td>{item.address}</td>
-                              <td>{item.eatenCookies.toString()}</td>
+                              <td>{item[1].address}</td>
+                              <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                             </tr>
                           )
                         )}
@@ -625,11 +623,11 @@ export const Game = () => {
                                 <th>Eaten cookies</th>
                               </tr>
                               {gameState.leaderBoard.map(
-                                (item: leaderBoard, i: any) => (
+                                (item: any, i: any) => (
                                   <tr key={i}>
                                     <td>{i + 1}</td>
-                                    <td>{item.address}</td>
-                                    <td>{item.eatenCookies.toString()}</td>
+                                    <td>{item[1].address}</td>
+                                    <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                                   </tr>
                                 )
                               )}

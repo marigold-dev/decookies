@@ -2,11 +2,9 @@ import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
 // import { createNonce, stringToHex } from './utils';
-import { parseToolKitResponse } from './utils';
+import { getSomethingState, getPlayerState, leaderBoard } from './utils';
 
-import { cookieBakerToLeaderBoard, leaderBoard, vmOperation } from './vmTypes';
-
-import { keyPair, state } from './reducer'
+import { state } from './reducer'
 import { action, saveUserAddress } from './actions';
 
 // import * as deku from '@marigold-dev/deku-toolkit'
@@ -25,25 +23,20 @@ export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
 //TODO: replace with toolkit.getState();
-export const getActualPlayerState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>): Promise<cookieBaker> => {
+export const getActualPlayerState = async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>): Promise<cookieBaker> => {
     const contract = state.current.dekucContract
+    const keyPair = state.current.generatedKeyPair;
     if (keyPair && contract) {
         const signer = new InMemorySigner(keyPair.privateKey)
         const userAddress = await signer.publicKeyHash();
         dispatch(saveUserAddress(userAddress));
         const globalState = await contract.getState();
-        const playerState = parseToolKitResponse(globalState, userAddress);
-        // const stateRequest = await fetch(nodeUri + "/api/v1/state/unix/",
-        //     {
-        //         method: "GET"
-        //     });
-        // const stateResponse = JSON.parse(await stateRequest.text(), parseReviver);
+        const playerState = getPlayerState(globalState, userAddress);
         if (playerState) {
             return playerState;
         } else {
             return initialState;
         }
-
     } else {
         throw new Error("NO PRIVATE KEY");
     }
@@ -56,26 +49,24 @@ const getRawLeaderBoard = async (state: React.MutableRefObject<state>): Promise<
     const contract = state.current.dekucContract
     if (contract) {
         const globalState = await contract.getState();
-        console.log("globalState: ", globalState)
-        // const sorted =
-        //     Object.entries(stateResponse).sort((a, b) => {
-        //         const eatenA = JSON.parse(a[1] as any, parseReviver).eatenCookies;
-        //         const eatenB = JSON.parse(b[1] as any, parseReviver).eatenCookies;
-        //         return Number(eatenB - eatenA);
-        //     });
-        // return sorted;
+        console.log("globalState: ", globalState);
+        const allCookieBakers: leaderBoard[] = Object.keys(globalState).map(key => getSomethingState(globalState, key));
+        console.log("all: ", allCookieBakers)
+        const sorted =
+            Object.entries(allCookieBakers).sort((a,b) => {
+                const eatenA = a[1].cookieBaker.eatenCookies;
+                const eatenB = b[1].cookieBaker.eatenCookies;
+                return Number(eatenB - eatenA);
+            });
+        console.log("sorted: ", sorted);
+        return sorted;
     }
 }
 
 export const getLeaderBoard = async (state: React.MutableRefObject<state>): Promise<leaderBoard[]> => {
+    console.log("leaderboard");
     const rawLeaderBoard = await getRawLeaderBoard(state);
-    if (rawLeaderBoard) {
-        const leaderBoard = rawLeaderBoard.map((item: any) => cookieBakerToLeaderBoard(item));
-        return leaderBoard;
-    } else {
-        console.log("empty state");
-        return [];
-    }
+    return rawLeaderBoard;
 }
 
 /**
