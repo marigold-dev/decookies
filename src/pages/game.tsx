@@ -166,6 +166,8 @@ export const Game = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
+      console.log("amount: ", amountToTransfer);
+      console.log("recipient: ", transferRecipient);
       try {
         transferCookie(
           transferRecipient,
@@ -258,7 +260,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK1ByVwYLmdJAg2g41CJ2XxrzviptfdCoAKD");
+        const contract = dekuToolkit.contract("DK1BQwnV9R6eGPXsAT5siM6qRrF4viqV6kha");
         dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
@@ -383,14 +385,14 @@ export const Game = () => {
                       <label>Recipient address</label>
                       <input
                         type="text"
-                        name="amount"
-                        ref={amountToTransferRef}
+                        name="recipient"
+                        ref={transferRecipientRef}
                       />
                       <label>Cookies</label>
                       <input
                         type="text"
-                        name="recipient"
-                        ref={transferRecipientRef}
+                        name="amount"
+                        ref={amountToTransferRef}
                       />
                       <div className="buttonContainer">
                         <Button disabled={false} onClick={handleTransferClick}>
@@ -549,7 +551,7 @@ export const Game = () => {
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
               />
-               <Button onClick={handleBeaconConnection}>Connect wallet </Button>
+              <Button onClick={handleBeaconConnection}>Connect wallet </Button>
             </div>
           </Item>
         </section>
@@ -649,9 +651,9 @@ export const Game = () => {
                 Send cookies to your friend
               </label>
               <label>Recipient address</label>
-              <input type="text" name="amount" ref={amountToTransferRef} />
-              <label>Cookies</label>
               <input type="text" name="recipient" ref={transferRecipientRef} />
+              <label>Cookies</label>
+              <input type="text" name="amount" ref={amountToTransferRef} />
               <div className="buttonContainer">
                 <Button disabled={false} onClick={handleTransferClick}>
                   Submit

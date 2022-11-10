@@ -280,9 +280,12 @@ export const transferCookie = (to: string,
     amount: string,
     dispatch: React.Dispatch<action>,
     state: React.MutableRefObject<state>,
-    payload: number = 1) =>
+    payload: number = 1) => {
+    console.log("amount: ", amount)
+    console.log("recipient: ", to)
     add(transfer(amount, to))
         (dispatch, state);
+}
 
 export const eatCookie = (amount: string,
     dispatch: React.Dispatch<action>,
