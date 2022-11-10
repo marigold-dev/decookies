@@ -258,7 +258,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK18AZao3rpS4GBm2z5rshN2oNsryevttNoi");
+        const contract = dekuToolkit.contract("DK1ByVwYLmdJAg2g41CJ2XxrzviptfdCoAKD");
         dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =

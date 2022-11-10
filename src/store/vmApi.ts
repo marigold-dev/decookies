@@ -7,18 +7,6 @@ import { getSomethingState, getPlayerState, leaderBoard } from './utils';
 import { state } from './reducer'
 import { action, saveUserAddress } from './actions';
 
-// import * as deku from '@marigold-dev/deku-toolkit'
-// import * as dekuc from 'deku-c'
-
-export const requestBlockLevel = async (nodeUri: string): Promise<number> => {
-    const blockRequest = await fetch(nodeUri + "/api/v1/chain/level",
-        {
-            method: "GET"
-        });
-    const blockResponse = await blockRequest.json();
-    return blockResponse.level;
-}
-
 /**
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
@@ -53,7 +41,7 @@ const getRawLeaderBoard = async (state: React.MutableRefObject<state>): Promise<
         const allCookieBakers: leaderBoard[] = Object.keys(globalState).map(key => getSomethingState(globalState, key));
         console.log("all: ", allCookieBakers)
         const sorted =
-            Object.entries(allCookieBakers).sort((a,b) => {
+            Object.entries(allCookieBakers).sort((a, b) => {
                 const eatenA = a[1].cookieBaker.eatenCookies;
                 const eatenB = b[1].cookieBaker.eatenCookies;
                 return Number(eatenB - eatenA);
