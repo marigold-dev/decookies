@@ -22,6 +22,8 @@ export type state = {
     buildingFarms: bigint,
     drillingMines: bigint,
     buildingFactories: bigint,
+    buildingBanks: bigint,
+    buildingTemples: bigint,
     dekucContract: Contract | null
 }
 
@@ -43,6 +45,8 @@ export const initialState: state = {
     buildingFarms: 0n,
     drillingMines: 0n,
     buildingFactories: 0n,
+    buildingBanks: 0n,
+    buildingTemples: 0n,
     dekucContract: null
 }
 
@@ -106,6 +110,12 @@ export const reducer = (state: state, action: action): state => {
         }
         case "UPDATE_BUILDING_FACTORIES": {
             return { ...state, buildingFactories: action.payload }
+        }
+        case "UPDATE_BUILDING_BANKS": {
+            return { ...state, buildingBanks: action.payload }
+        }
+        case "UPDATE_BUILDING_TEMPLES": {
+            return { ...state, buildingTemples: action.payload }
         }
         case "SAVE_CONTRACT": {
             return { ...state, dekucContract: action.payload }

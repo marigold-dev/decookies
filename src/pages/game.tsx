@@ -3,6 +3,8 @@ import grandma from "../../resources/images/grandma.png";
 import farm from "../../resources/images/farm.png";
 import mine from "../../resources/images/mine.png";
 import factory from "../../resources/images/factory.png";
+import bank from "../../resources/images/bank.png";
+import temple from "../../resources/images/temple.png";
 import cookie from "../../resources/images/cookie.png";
 import menu from "../../resources/images/menu-icon.png";
 
@@ -34,6 +36,10 @@ import {
   updateDrillingMines,
   updateBuildingFactories,
   saveContract,
+  updateBuildingBanks,
+  updateBuildingTemples,
+  addBank,
+  addTemple,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -44,6 +50,8 @@ import {
   buyGrandma,
   buyMine,
   buyFactory,
+  buyBank,
+  buyTemple,
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
@@ -161,6 +169,16 @@ export const Game = () => {
     const pending = latestState.current.buildingFactories + 1n;
     dispatch(updateBuildingFactories(pending));
     addFactory(dispatch, latestState);
+  };  
+  const handleBankClick = () => {
+    const pending = latestState.current.buildingBanks + 1n;
+    dispatch(updateBuildingBanks(pending));
+    addBank(dispatch, latestState);
+  };
+  const handleTempleClick = () => {
+    const pending = latestState.current.buildingTemples + 1n;
+    dispatch(updateBuildingTemples(pending));
+    addTemple(dispatch, latestState);
   };
   const handleTransferClick = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
@@ -205,6 +223,8 @@ export const Game = () => {
     dispatch(updateBuildingFarms(0n));
     dispatch(updateDrillingMines(0n));
     dispatch(updateBuildingFactories(0n));
+    dispatch(updateBuildingBanks(0n));
+    dispatch(updateBuildingTemples(0n));
 
     if (nodeUri && nickName) {
       dispatch(saveConfig(nodeUri, nickName));
@@ -260,7 +280,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK1BQwnV9R6eGPXsAT5siM6qRrF4viqV6kha");
+        const contract = dekuToolkit.contract("DK1HyawZsRswfj3KwCM7rvMhvFkV83KcbszG");
         dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
@@ -526,6 +546,52 @@ export const Game = () => {
               </div>
               <div className="background value">
                 <ToolCounter value={gameState.cookieBaker.factories} />
+              </div>
+            </div>
+          </GameButton>
+          <Line />
+          <GameButton
+            disabled={!isButtonEnabled(gameState, buyBank)}
+            onClick={handleBankClick}
+          >
+            <div className="gameButtonContainer">
+              <img src={bank} />
+              <div className="column title">
+                <h3>Banks</h3>
+                <div>
+                  <img className="price" src={cookie} />
+                  <ToolCounter value={gameState.cookieBaker.bankCost} />
+                </div>
+              </div>
+              <div className="column background">
+                <p>Under construction</p>
+                <ToolCounter value={gameState.buildingBanks} />
+              </div>
+              <div className="background value">
+                <ToolCounter value={gameState.cookieBaker.banks} />
+              </div>
+            </div>
+          </GameButton>
+          <Line />
+          <GameButton
+            disabled={!isButtonEnabled(gameState, buyTemple)}
+            onClick={handleTempleClick}
+          >
+            <div className="gameButtonContainer">
+              <img src={temple} />
+              <div className="column title">
+                <h3>Temples</h3>
+                <div>
+                  <img className="price" src={cookie} />
+                  <ToolCounter value={gameState.cookieBaker.templeCost} />
+                </div>
+              </div>
+              <div className="column background">
+                <p>Creating new divinity</p>
+                <ToolCounter value={gameState.buildingTemples} />
+              </div>
+              <div className="background value">
+                <ToolCounter value={gameState.cookieBaker.temples} />
               </div>
             </div>
           </GameButton>

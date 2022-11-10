@@ -12,6 +12,8 @@ import { grandma } from './vmActions/grandma';
 import { farm } from './vmActions/farm';
 import { mine } from './vmActions/mine';
 import { factory } from './vmActions/factory';
+import { bank } from './vmActions/bank';
+import { temple } from './vmActions/temple';
 import { eat } from './vmActions/eat';
 import { transfer } from './vmActions/transfer';
 import { leaderBoard } from './utils';
@@ -45,6 +47,14 @@ type updateDrillingMines = {
 }
 type updateBuildingFactories = {
     type: "UPDATE_BUILDING_FACTORIES",
+    payload: bigint
+}
+type updateBuildingBanks = {
+    type: "UPDATE_BUILDING_BANKS",
+    payload: bigint
+}
+type updateBuildingTemples = {
+    type: "UPDATE_BUILDING_TEMPLES",
     payload: bigint
 }
 type saveLeaderBoard = {
@@ -88,7 +98,7 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | saveContract
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | updateBuildingBanks | updateBuildingTemples | saveContract
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -119,6 +129,14 @@ export const updateDrillingMines = (payload: bigint): action => ({
 });
 export const updateBuildingFactories = (payload: bigint): action => ({
     type: "UPDATE_BUILDING_FACTORIES",
+    payload
+});
+export const updateBuildingBanks = (payload: bigint): action => ({
+    type: "UPDATE_BUILDING_BANKS",
+    payload
+});
+export const updateBuildingTemples = (payload: bigint): action => ({
+    type: "UPDATE_BUILDING_TEMPLES",
     payload
 });
 
@@ -226,6 +244,20 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
                 if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
                 else dispatch(updateBuildingFactories(building));
             }
+            if (vmState.banks > state.current.cookieBaker.banks) {
+                const building =
+                    BigInt(state.current.buildingBanks) -
+                    (BigInt(vmState.banks) - BigInt(state.current.cookieBaker.banks));
+                if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
+                else dispatch(updateBuildingBanks(building));
+            }
+            if (vmState.temples > state.current.cookieBaker.temples) {
+                const building =
+                    BigInt(state.current.buildingTemples) -
+                    (BigInt(vmState.temples) - BigInt(state.current.cookieBaker.temples));
+                if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
+                else dispatch(updateBuildingTemples(building));
+            }
             dispatch(fullUpdateCB(vmState));
             const leaderBoard = await getLeaderBoard(state);
             dispatch(saveLeaderBoard(leaderBoard));
@@ -275,6 +307,10 @@ export const addFarm = add(farm);
 export const addMine = add(mine);
 
 export const addFactory = add(factory);
+
+export const addBank = add(bank);
+
+export const addTemple = add(temple);
 
 export const transferCookie = (to: string,
     amount: string,

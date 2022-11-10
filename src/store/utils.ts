@@ -91,7 +91,11 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
             farmCost: flattenRawCookieBaker[8],
             mineCost: flattenRawCookieBaker[12],
             factoryCost: flattenRawCookieBaker[7],
-            eatenCookies: flattenRawCookieBaker[5]
+            eatenCookies: flattenRawCookieBaker[5],
+            templeCost: flattenRawCookieBaker[15],
+            temples: flattenRawCookieBaker[16],
+            banks: flattenRawCookieBaker[1],
+            bankCost: flattenRawCookieBaker[0]
         }
         return cookieBaker;
     } else {
@@ -118,7 +122,11 @@ export const getSomethingState = (state: { [x: string]: any }, userAddress: stri
             farmCost: flattenRawCookieBaker[8],
             mineCost: flattenRawCookieBaker[12],
             factoryCost: flattenRawCookieBaker[7],
-            eatenCookies: flattenRawCookieBaker[5]
+            eatenCookies: flattenRawCookieBaker[5],
+            templeCost: flattenRawCookieBaker[15],
+            temples: flattenRawCookieBaker[16],
+            banks: flattenRawCookieBaker[1],
+            bankCost: flattenRawCookieBaker[0]
         }
         const element: leaderBoard = {
             address: userAddress, cookieBaker: cookieBaker
