@@ -12,11 +12,15 @@ export type cookieBaker = {
     farms: bigint,
     mines: bigint,
     factories: bigint,
+    banks: bigint,
+    temples: bigint,
     cursorCost: bigint,
     grandmaCost: bigint,
     farmCost: bigint,
     mineCost: bigint,
     factoryCost: bigint,
+    bankCost: bigint,
+    templeCost: bigint,
     passiveCPS: bigint
     eatenCookies: bigint
 };
@@ -28,11 +32,15 @@ export const initialState: cookieBaker = {
     farms: 0n,
     mines: 0n,
     factories: 0n,
+    banks: 0n,
+    temples: 0n,
     cursorCost: 0n,
     grandmaCost: 0n,
     farmCost: 0n,
     mineCost: 0n,
     factoryCost: 0n,
+    bankCost: 0n,
+    templeCost: 0n,
     passiveCPS: 0n,
     eatenCookies: 0n
 }
@@ -43,6 +51,8 @@ export const buyGrandma = "buy_grandma"
 export const buyFarm = "buy_farm"
 export const buyMine = "buy_mine"
 export const buyFactory = "buy_factory"
+export const buyBank = "buy_bank"
+export const buyTemple = "buy_temple"
 
 /**
  * Determine if a button is enabled based on the provided state
@@ -66,6 +76,12 @@ export const isButtonEnabled = (state: state, button: string): boolean => {
         }
         case "buy_factory": {
             return (state.cookieBaker.factoryCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.buildingFactories === 0n);
+        }
+        case "buy_bank": {
+            return (state.cookieBaker.bankCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.buildingBanks === 0n);
+        }
+        case "buy_temple": {
+            return (state.cookieBaker.templeCost <= state.cookieBaker.cookies && state.cookieBaker.cookies > 0n && state.buildingTemples === 0n);
         }
     }
     return true;

@@ -3,6 +3,8 @@ import grandma from "../../resources/images/grandma.png";
 import farm from "../../resources/images/farm.png";
 import mine from "../../resources/images/mine.png";
 import factory from "../../resources/images/factory.png";
+import bank from "../../resources/images/bank.png";
+import temple from "../../resources/images/temple.png";
 import cookie from "../../resources/images/cookie.png";
 import menu from "../../resources/images/menu-icon.png";
 
@@ -33,6 +35,11 @@ import {
   updateBuildingFarms,
   updateDrillingMines,
   updateBuildingFactories,
+  saveContract,
+  updateBuildingBanks,
+  updateBuildingTemples,
+  addBank,
+  addTemple,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -43,6 +50,8 @@ import {
   buyGrandma,
   buyMine,
   buyFactory,
+  buyBank,
+  buyTemple,
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
@@ -54,8 +63,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, stringToHex } from "../store/utils";
-import { leaderBoard } from "../store/vmTypes";
+import { getKeyPair, leaderBoard, stringToHex } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -63,6 +71,10 @@ import Item from "../components/game/item";
 import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";
 import Modal from "../components/modal";
+import { InMemorySigner } from '@taquito/signer';
+import * as deku from '@marigold-dev/deku-toolkit'
+import * as dekuc from '@marigold-dev/deku-c-toolkit'
+import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
 
 export let nodeUri: string;
 export let nickName: string;
@@ -84,35 +96,29 @@ export const Game = () => {
 
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
-      initState(
-        dispatch,
-        latestState.current.nodeUri,
-        latestState.current.generatedKeyPair
-      );
+      initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
       const id = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
-          console.log(production);
           try {
-            if (production > 0n) {
-              const pending = latestState.current.cookiesInOven + production;
+            if (BigInt(production) > 0n) {
+              const pending = latestState.current.cookiesInOven + BigInt(production);
               dispatch(updateOven(pending));
-              addCookie(production.toString() + "n", dispatch, latestState);
+              addCookie(production.toString(), dispatch, latestState)
             }
           } catch (err) {
-            const error_msg =
-              typeof err === "string" ? err : (err as Error).message;
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
             dispatch(addError(error_msg));
             throw new Error(error_msg);
           }
         }
-      }, 1000);
+      }, 1000)
       return () => {
         clearInterval(id);
       };
     }
-    return () => {};
+    return () => { };
   }, [dispatch, latestState.current.wallet]);
 
   useEffect(() => {
@@ -136,7 +142,7 @@ export const Game = () => {
     //TODO: here?
     const pending = latestState.current.cookiesInOven + 1n;
     dispatch(updateOven(pending));
-    addCookie("1n", dispatch, latestState);
+    addCookie("1", dispatch, latestState);
   };
   const handleCursorClick = () => {
     //TODO: here?
@@ -163,11 +169,23 @@ export const Game = () => {
     const pending = latestState.current.buildingFactories + 1n;
     dispatch(updateBuildingFactories(pending));
     addFactory(dispatch, latestState);
+  };  
+  const handleBankClick = () => {
+    const pending = latestState.current.buildingBanks + 1n;
+    dispatch(updateBuildingBanks(pending));
+    addBank(dispatch, latestState);
+  };
+  const handleTempleClick = () => {
+    const pending = latestState.current.buildingTemples + 1n;
+    dispatch(updateBuildingTemples(pending));
+    addTemple(dispatch, latestState);
   };
   const handleTransferClick = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
+      console.log("amount: ", amountToTransfer);
+      console.log("recipient: ", transferRecipient);
       try {
         transferCookie(
           transferRecipient,
@@ -205,6 +223,8 @@ export const Game = () => {
     dispatch(updateBuildingFarms(0n));
     dispatch(updateDrillingMines(0n));
     dispatch(updateBuildingFactories(0n));
+    dispatch(updateBuildingBanks(0n));
+    dispatch(updateBuildingTemples(0n));
 
     if (nodeUri && nickName) {
       dispatch(saveConfig(nodeUri, nickName));
@@ -250,6 +270,18 @@ export const Game = () => {
         // save them in state to use them at each needed action
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
+        const inMemorySigner = new InMemorySigner(keyPair.privateKey)
+        const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+        const dekuToolkit =
+          new dekuc.DekuCClient(
+            {
+              dekuRpc: nodeUri,
+              ligoRpc: "", //TODO: fixme?
+              signer
+            }
+          );
+        const contract = dekuToolkit.contract("DK1HyawZsRswfj3KwCM7rvMhvFkV83KcbszG");
+        dispatch(saveContract(contract));
       } catch (err) {
         const error_msg =
           typeof err === "string" ? err : (err as Error).message;
@@ -263,7 +295,8 @@ export const Game = () => {
     if (!latestState.current.nodeUri) {
       //TODO: should always reach the same URI, load-balancing must be done on infra side!
       const node = Math.floor(Math.random() * 4);
-      return "https://deku-p-demo-vm" + node + ".deku-v1.marigold.dev";
+      return "https://deku-canonical-vm" + node + ".deku-v1.marigold.dev";
+      // https://deku-canonical-vm\{0,1,2,3\}.deku-v1.marigold.dev/api/v1/chain/level
     }
     return "";
   };
@@ -337,11 +370,11 @@ export const Game = () => {
                           <th>Eaten cookies</th>
                         </tr>
                         {gameState.leaderBoard.map(
-                          (item: leaderBoard, i: any) => (
+                          (item: any, i: any) => (
                             <tr key={i}>
                               <td>{i + 1}</td>
-                              <td>{item.address}</td>
-                              <td>{item.eatenCookies.toString()}</td>
+                              <td>{item[1].address}</td>
+                              <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                             </tr>
                           )
                         )}
@@ -367,19 +400,19 @@ export const Game = () => {
                     <div>
                       <h2>Tranfer cookies</h2>
                       <label className="description">
-                      Send cookies to your friend
+                        Send cookies to your friend
                       </label>
                       <label>Recipient address</label>
                       <input
                         type="text"
-                        name="amount"
-                        ref={amountToTransferRef}
+                        name="recipient"
+                        ref={transferRecipientRef}
                       />
                       <label>Cookies</label>
                       <input
                         type="text"
-                        name="recipient"
-                        ref={transferRecipientRef}
+                        name="amount"
+                        ref={amountToTransferRef}
                       />
                       <div className="buttonContainer">
                         <Button disabled={false} onClick={handleTransferClick}>
@@ -517,6 +550,52 @@ export const Game = () => {
             </div>
           </GameButton>
           <Line />
+          <GameButton
+            disabled={!isButtonEnabled(gameState, buyBank)}
+            onClick={handleBankClick}
+          >
+            <div className="gameButtonContainer">
+              <img src={bank} />
+              <div className="column title">
+                <h3>Banks</h3>
+                <div>
+                  <img className="price" src={cookie} />
+                  <ToolCounter value={gameState.cookieBaker.bankCost} />
+                </div>
+              </div>
+              <div className="column background">
+                <p>Under construction</p>
+                <ToolCounter value={gameState.buildingBanks} />
+              </div>
+              <div className="background value">
+                <ToolCounter value={gameState.cookieBaker.banks} />
+              </div>
+            </div>
+          </GameButton>
+          <Line />
+          <GameButton
+            disabled={!isButtonEnabled(gameState, buyTemple)}
+            onClick={handleTempleClick}
+          >
+            <div className="gameButtonContainer">
+              <img src={temple} />
+              <div className="column title">
+                <h3>Temples</h3>
+                <div>
+                  <img className="price" src={cookie} />
+                  <ToolCounter value={gameState.cookieBaker.templeCost} />
+                </div>
+              </div>
+              <div className="column background">
+                <p>Creating new divinity</p>
+                <ToolCounter value={gameState.buildingTemples} />
+              </div>
+              <div className="background value">
+                <ToolCounter value={gameState.cookieBaker.temples} />
+              </div>
+            </div>
+          </GameButton>
+          <Line />
           <Item className="player-info">
             <div>
               <h2>Player info</h2>
@@ -538,7 +617,7 @@ export const Game = () => {
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
               />
-               <Button onClick={handleBeaconConnection}>Connect wallet </Button>
+              <Button onClick={handleBeaconConnection}>Connect wallet </Button>
             </div>
           </Item>
         </section>
@@ -613,11 +692,11 @@ export const Game = () => {
                                 <th>Eaten cookies</th>
                               </tr>
                               {gameState.leaderBoard.map(
-                                (item: leaderBoard, i: any) => (
+                                (item: any, i: any) => (
                                   <tr key={i}>
                                     <td>{i + 1}</td>
-                                    <td>{item.address}</td>
-                                    <td>{item.eatenCookies.toString()}</td>
+                                    <td>{item[1].address}</td>
+                                    <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                                   </tr>
                                 )
                               )}
@@ -638,9 +717,9 @@ export const Game = () => {
                 Send cookies to your friend
               </label>
               <label>Recipient address</label>
-              <input type="text" name="amount" ref={amountToTransferRef} />
-              <label>Cookies</label>
               <input type="text" name="recipient" ref={transferRecipientRef} />
+              <label>Cookies</label>
+              <input type="text" name="amount" ref={amountToTransferRef} />
               <div className="buttonContainer">
                 <Button disabled={false} onClick={handleTransferClick}>
                   Submit

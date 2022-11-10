@@ -1,7 +1,8 @@
 import { action } from './actions';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { cookieBaker, initialState as backeryInitialState } from './cookieBaker';
-import { leaderBoard } from './vmTypes';
+import { Contract } from '@marigold-dev/deku-c-toolkit';
+import { leaderBoard } from './utils';
 
 export type state = {
     error: string | null,
@@ -20,7 +21,10 @@ export type state = {
     recruitingGrandmas: bigint,
     buildingFarms: bigint,
     drillingMines: bigint,
-    buildingFactories: bigint
+    buildingFactories: bigint,
+    buildingBanks: bigint,
+    buildingTemples: bigint,
+    dekucContract: Contract | null
 }
 
 export const initialState: state = {
@@ -40,7 +44,10 @@ export const initialState: state = {
     recruitingGrandmas: 0n,
     buildingFarms: 0n,
     drillingMines: 0n,
-    buildingFactories: 0n
+    buildingFactories: 0n,
+    buildingBanks: 0n,
+    buildingTemples: 0n,
+    dekucContract: null
 }
 
 export type keyPair = {
@@ -103,6 +110,15 @@ export const reducer = (state: state, action: action): state => {
         }
         case "UPDATE_BUILDING_FACTORIES": {
             return { ...state, buildingFactories: action.payload }
+        }
+        case "UPDATE_BUILDING_BANKS": {
+            return { ...state, buildingBanks: action.payload }
+        }
+        case "UPDATE_BUILDING_TEMPLES": {
+            return { ...state, buildingTemples: action.payload }
+        }
+        case "SAVE_CONTRACT": {
+            return { ...state, dekucContract: action.payload }
         }
     }
 }

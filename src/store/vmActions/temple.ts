@@ -1,0 +1,1 @@
+export const temple = ["Pair", [["Pair", [["Int", "1"], ["Option", ["Some", ["Union", ["Right", ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]]]]]]], ["Pair", [["Union", ["Left", ["Union", ["Right", ["Unit"]]]]], ["Option", ["None", {}]]]]]]
