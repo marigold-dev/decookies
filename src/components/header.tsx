@@ -12,7 +12,7 @@ width: 103%;
 position: absolute;
 border-bottom: 3px solid #7B7B7E;
 box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-font-family: "Roboto";
+font-family: "Roboto Mono", monospace;
 font-weight: 500;
 height: 65px;
 @media (min-width: 1209px) {
@@ -41,7 +41,7 @@ img {
 const Header = () => {
     return (
         <HeaderContainer>
-            <a href="/"><img src={cookie} alt="decookies" /><p>Decookies</p></a>
+            <a href="/"><img src={cookie} alt="decookies" /><p>Decookies </p>&nbsp;</a>
         </HeaderContainer>
     )
 };

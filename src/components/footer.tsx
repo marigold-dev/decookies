@@ -2,14 +2,14 @@ import styled from "styled-components";
 import marigold from '../../resources/images/marigold-logo.png';
 import github from '../../resources/images/github-logo.png';
 
-const FooterContainer = styled.div `
+const FooterContainer = styled.div`
     border-top: 3px solid #7B7B7E;
     right: 0;
     width: 100%;
     position: fixed;
     left: 0;
     bottom:0;
-    background:${props =>props.theme.palette.primary.main};
+    background:${props => props.theme.palette.primary.main};
     display:flex;
     justify-content:space-between;
 
@@ -27,8 +27,9 @@ img {
 const Footer = () => {
     return (
         <FooterContainer>
-             <a href="https://www.marigold.dev/"><img src={marigold} alt="marigold" /></a>
-             <a href="https://github.com/marigold-dev/decookies"><img src={github} alt="github" /></a>
+            <a href="https://www.marigold.dev/"><img src={marigold} alt="marigold" /></a>
+            <a href="https://www.marigold.dev/deku"><img src='https://uploads-ssl.webflow.com/616ab4741d375d1642c19027/62c58c16377e57478aefc716_Group%20129.svg' alt="decookies" /></a>
+            <a href="https://github.com/marigold-dev/decookies"><img src={github} alt="github" /></a>
         </FooterContainer>
     )
 };
