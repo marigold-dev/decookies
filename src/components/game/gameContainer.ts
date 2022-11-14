@@ -11,18 +11,18 @@ const GameContainer = styled.div`
     display: block;
     width: 207px;
     margin: 0em 1px 25em 0em;
-    border-right: 3px solid #7B7B7E;
-    border-left: 3px solid #7B7B7E;
+    border-right: 3px solid #7b7b7e;
+    border-left: 3px solid #7b7b7e;
     .container {
-        display:none;
-        padding: 1em 1em;
+      display: none;
+      padding: 1em 1em;
     }
   }
   .middle {
-    color: ${props =>props.theme.palette.common.white};
+    color: ${(props) => props.theme.palette.common.white};
     text-align: center;
     button {
-      background: ${props =>props.theme.palette.primary.main};
+      background: ${(props) => props.theme.palette.primary.main};
       border: none;
     }
     p {
@@ -31,7 +31,7 @@ const GameContainer = styled.div`
       padding-left: 2.8em;
     }
     .cookieText {
-      color: ${props =>props.theme.palette.primary.contrastText};;
+      color: ${(props) => props.theme.palette.primary.contrastText};
       text-align: left;
       margin-top: -10px;
       padding: 0 0 3em 0;
@@ -70,12 +70,23 @@ const GameContainer = styled.div`
         display: block;
         width: 350px;
         margin: -1.3em 0px -3em 4em;
-        border-right: 3px solid #7B7B7E;
-        border-left: 3px solid #7B7B7E;
-        height: fit-content;
+        border-right: 3px solid #7b7b7e;
+        border-left: 3px solid #7b7b7e;
+        overflow: scroll;
+        height: 544px;
+        scrollbar-width: 10px;
         .container {
-            display:block;
-            padding: 1em 1em;
+          display: block;
+          padding: 1em 1em;
+        }
+      }
+    }
+  }
+  @media (min-width: 1700px) {
+    &.container {
+      section {
+        &.left {
+          height: fit-content;
         }
       }
     }
