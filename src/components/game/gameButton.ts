@@ -16,7 +16,7 @@ const GameButton = styled.button`
     padding: 0 0.5em 0.2em 0.5em;
     height: auto;
     overflow-y: scroll;
-    font-size: 7px;
+    font-size: 6px;
     color: ${props =>props.theme.palette.primary.contrastText};
     width: 195px;
     h3 {
