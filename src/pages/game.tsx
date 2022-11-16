@@ -169,7 +169,7 @@ export const Game = () => {
     const pending = latestState.current.buildingFactories + 1n;
     dispatch(updateBuildingFactories(pending));
     addFactory(dispatch, latestState);
-  };  
+  };
   const handleBankClick = () => {
     const pending = latestState.current.buildingBanks + 1n;
     dispatch(updateBuildingBanks(pending));
@@ -184,33 +184,41 @@ export const Game = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
-      console.log("amount: ", amountToTransfer);
-      console.log("recipient: ", transferRecipient);
-      try {
-        transferCookie(
-          transferRecipient,
-          amountToTransfer,
-          dispatch,
-          latestState
-        );
-      } catch (err) {
-        const error_msg =
-          typeof err === "string" ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
+      if (!amountToTransfer.startsWith("-")) {
+        console.log("amount: ", amountToTransfer);
+        console.log("recipient: ", transferRecipient);
+        try {
+          transferCookie(
+            transferRecipient,
+            amountToTransfer,
+            dispatch,
+            latestState
+          );
+        } catch (err) {
+          const error_msg =
+            typeof err === "string" ? err : (err as Error).message;
+          dispatch(addError(error_msg));
+          throw new Error(error_msg);
+        }
+      } else {
+        dispatch(addError("Cannot transfer a negative amount of cookies"));
       }
     }
   };
   const handleEatClick = () => {
     amountToEat = amountToEatRef.current?.value || "";
     if (amountToEat) {
-      try {
-        eatCookie(amountToEat, dispatch, latestState);
-      } catch (err) {
-        const error_msg =
-          typeof err === "string" ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
+      if (!amountToEat.startsWith("-")) {
+        try {
+          eatCookie(amountToEat, dispatch, latestState);
+        } catch (err) {
+          const error_msg =
+            typeof err === "string" ? err : (err as Error).message;
+          dispatch(addError(error_msg));
+          throw new Error(error_msg);
+        }
+      } else {
+        dispatch(addError("Cannot eat a negative amount of cookies"));
       }
     }
   };
@@ -557,7 +565,7 @@ export const Game = () => {
             <div className="gameButtonContainer">
               <img src={bank} />
               <div className="column title">
-                <h3>Banks</h3>
+                <h3>Bank</h3>
                 <div>
                   <img className="price" src={cookie} />
                   <ToolCounter value={gameState.cookieBaker.bankCost} />
@@ -580,7 +588,7 @@ export const Game = () => {
             <div className="gameButtonContainer">
               <img src={temple} />
               <div className="column title">
-                <h3>Temples</h3>
+                <h3>Temple</h3>
                 <div>
                   <img className="price" src={cookie} />
                   <ToolCounter value={gameState.cookieBaker.templeCost} />
