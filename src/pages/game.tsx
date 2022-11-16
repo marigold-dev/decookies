@@ -184,7 +184,7 @@ export const Game = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
-      if (!amountToTransfer.startsWith("-")) {
+      if (!amountToTransfer.startsWith("-") && !isNaN(Number(amountToTransfer))) {
         console.log("amount: ", amountToTransfer);
         console.log("recipient: ", transferRecipient);
         try {
@@ -201,14 +201,14 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot transfer a negative amount of cookies"));
+        dispatch(addError("Cannot transfer a non numeric amount of cookies"));
       }
     }
   };
   const handleEatClick = () => {
     amountToEat = amountToEatRef.current?.value || "";
     if (amountToEat) {
-      if (!amountToEat.startsWith("-")) {
+      if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
           eatCookie(amountToEat, dispatch, latestState);
         } catch (err) {
@@ -218,7 +218,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot eat a negative amount of cookies"));
+        dispatch(addError("Cannot eat a non numeric amount of cookies"));
       }
     }
   };
