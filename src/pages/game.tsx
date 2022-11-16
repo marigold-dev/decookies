@@ -169,7 +169,7 @@ export const Game = () => {
     const pending = latestState.current.buildingFactories + 1n;
     dispatch(updateBuildingFactories(pending));
     addFactory(dispatch, latestState);
-  };
+  };  
   const handleBankClick = () => {
     const pending = latestState.current.buildingBanks + 1n;
     dispatch(updateBuildingBanks(pending));
@@ -323,6 +323,104 @@ export const Game = () => {
                   <a href="#eat-modal">Eat cookies</a>
                   <a href="#transfer-modal">Transfer cookies</a>
                   <a href="/rules">Rules</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        <Modal>
+          <div className="modal" id="eat-modal" aria-hidden="true">
+            <div className="modal-dialog mobile header-option">
+              <div>
+                <a href="#" className="btn-close" aria-hidden="true">
+                  ×
+                </a>
+              </div>
+              <div className="modal-body">
+                <div>
+                  <Item className="modal-item">
+                    <div>
+                      <h2>Eat cookies</h2>
+                      <label className="description">
+                        Number of cookies you want to eat
+                      </label>
+                      <input
+                        type="text"
+                        name="amountToEat"
+                        ref={amountToEatRef}
+                      />
+                      <div className="buttonContainer">
+                        <Button
+                          type="submit"
+                          disabled={false}
+                          onClick={handleEatClick}
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    </div>
+                  </Item>
+                  <h3>Eat cookies Ranking</h3>
+                  <div>
+                    <table className="table">
+                      <tbody>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Address</th>
+                          <th>Eaten cookies</th>
+                        </tr>
+                        {gameState.leaderBoard.map(
+                          (item: any, i: any) => (
+                            <tr key={i}>
+                              <td>{i + 1}</td>
+                              <td>{item[1].address}</td>
+                              <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        <Modal>
+          <div className="modal" id="transfer-modal" aria-hidden="true">
+            <div className="modal-dialog mobile header-option">
+              <div>
+                <a href="#" className="btn-close" aria-hidden="true">
+                  ×
+                </a>
+              </div>
+              <div className="modal-body">
+                <div>
+                  <Item className="modal-item">
+                    <div>
+                      <h2>Tranfer cookies</h2>
+                      <label className="description">
+                        Send cookies to your friend
+                      </label>
+                      <label>Recipient address</label>
+                      <input
+                        type="text"
+                        name="recipient"
+                        ref={transferRecipientRef}
+                      />
+                      <label>Cookies</label>
+                      <input
+                        type="text"
+                        name="amount"
+                        ref={amountToTransferRef}
+                      />
+                      <div className="buttonContainer">
+                        <Button disabled={false} onClick={handleTransferClick}>
+                          Submit
+                        </Button>
+                      </div>
+                    </div>
+                  </Item>
                 </div>
               </div>
             </div>
@@ -498,24 +596,45 @@ export const Game = () => {
             </div>
           </GameButton>
           <Line />
+          <Item className="player-info">
+            <div>
+              <h2>Player info</h2>
+              <label
+                hidden={!latestState.current.publicAddress}
+                className="address"
+              >
+                <p>Address:</p>
+                <p className="description">
+                  {latestState.current.publicAddress}
+                </p>
+              </label>
+              <label>Nickname:</label>
+              <input type="text" name="nickName" ref={nicknameRef} />
+              <label>Deku node URI:</label>
+              <input
+                type="text"
+                name="nodeUri"
+                ref={nodeUriRef}
+                defaultValue={getRandomBetaNode()}
+              />
+              <Button onClick={handleBeaconConnection}>Connect wallet </Button>
+            </div>
+          </Item>
         </section>
         <section className="middle">
           <p>Cookies</p>
           <div className="cookieText">
-            <ToolCounter value={gameState.cookiesInOven} />
-            <label htmlFor="in_oven"> in oven </label>
+            <ToolCounter value={gameState.cookiesInOven} />{" "}
+            <label htmlFor="cursor_cost"> in oven </label>
             <CookieCounter
               value={gameState.cookieBaker.cookies}
               cps={gameState.cookieBaker.passiveCPS}
             />
           </div>
-          <br />
-          <div>
-            <CookieButton
-              disabled={gameState.wallet === null}
-              onClick={handleCookieClick}
-            />
-          </div>
+          <CookieButton
+            disabled={gameState.wallet === null}
+            onClick={handleCookieClick}
+          />
         </section>
         <section className="right">
           <Item className="playerInfo">
@@ -523,7 +642,8 @@ export const Game = () => {
               <h2>Player info</h2>
               <label
                 hidden={!latestState.current.publicAddress}
-                className="address" >
+                className="address"
+              >
                 <p>Address:</p>
                 <p className="description">
                   {latestState.current.publicAddress}
