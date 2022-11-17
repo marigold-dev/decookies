@@ -97,7 +97,7 @@ export const Game = () => {
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
       initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
-      const id = setInterval(() => {
+      latestState.current.intervalId = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
@@ -115,7 +115,8 @@ export const Game = () => {
         }
       }, 1000)
       return () => {
-        clearInterval(id);
+        if (latestState.current.intervalId)
+          clearInterval(latestState.current.intervalId);
       };
     }
     return () => { };
@@ -184,9 +185,7 @@ export const Game = () => {
     amountToTransfer = amountToTransferRef.current?.value || "";
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
-      if (!amountToTransfer.startsWith("-")) {
-        console.log("amount: ", amountToTransfer);
-        console.log("recipient: ", transferRecipient);
+      if (!amountToTransfer.startsWith("-") && !isNaN(Number(amountToTransfer))) {
         try {
           transferCookie(
             transferRecipient,
@@ -201,14 +200,14 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot transfer a negative amount of cookies"));
+        dispatch(addError("Cannot transfer a non numeric amount of cookies"));
       }
     }
   };
   const handleEatClick = () => {
     amountToEat = amountToEatRef.current?.value || "";
     if (amountToEat) {
-      if (!amountToEat.startsWith("-")) {
+      if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
           eatCookie(amountToEat, dispatch, latestState);
         } catch (err) {
@@ -218,11 +217,13 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot eat a negative amount of cookies"));
+        dispatch(addError("Cannot eat a non numeric amount of cookies"));
       }
     }
   };
   const handleBeaconConnection = async () => {
+    if (latestState.current.intervalId)
+      clearInterval(latestState.current.intervalId);
     nodeUri = nodeUriRef.current?.value || "";
     nickName = nicknameRef.current?.value || "";
     dispatch(updateOven(0n));
