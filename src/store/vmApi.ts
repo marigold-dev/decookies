@@ -33,23 +33,20 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, sta
 /**
  * Fetch the state from /vm-state and return the state ordered by DESC amount of cookies
  */
-const getRawLeaderBoard = async (state: React.MutableRefObject<state>): Promise<any> => {
-    const contract = state.current.dekucContract
-    if (contract) {
-        const globalState = await contract.getState();
-        const allCookieBakers: leaderBoard[] = Object.keys(globalState).map(key => getSomethingState(globalState, key));
-        const sorted =
-            Object.entries(allCookieBakers).sort((a, b) => {
-                const eatenA = a[1].cookieBaker.eatenCookies;
-                const eatenB = b[1].cookieBaker.eatenCookies;
-                return Number(eatenB - eatenA);
-            });
-        return sorted;
-    }
+const getRawLeaderBoard = (vmState: any): any => {
+    // const contract = state.current.dekucContract
+    const allCookieBakers: leaderBoard[] = Object.keys(vmState).map(key => getSomethingState(vmState, key));
+    const sorted =
+        Object.entries(allCookieBakers).sort((a, b) => {
+            const eatenA = a[1].cookieBaker.eatenCookies;
+            const eatenB = b[1].cookieBaker.eatenCookies;
+            return Number(eatenB - eatenA);
+        });
+    return sorted;
 }
 
-export const getLeaderBoard = async (state: React.MutableRefObject<state>): Promise<leaderBoard[]> => {
-    const rawLeaderBoard = await getRawLeaderBoard(state);
+export const getLeaderBoard = (vmState: any): leaderBoard[] => {
+    const rawLeaderBoard = getRawLeaderBoard(vmState);
     return rawLeaderBoard;
 }
 

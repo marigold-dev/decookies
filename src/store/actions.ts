@@ -201,9 +201,7 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
         mint(vmAction, state);
         if (userAddress && state.current.dekucContract) {
             state.current.dekucContract.onNewState((newState: any) => {
-                console.log("New state received: ", newState);
                 const playerState = getPlayerState(newState, userAddress);
-                console.log("New player state: ", playerState);
                 if (playerState.cookies > state.current.cookieBaker.cookies) {
                     const inOven =
                         BigInt(state.current.cookiesInOven) -
@@ -262,8 +260,7 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
                     else dispatch(updateBuildingTemples(building));
                 }
                 dispatch(fullUpdateCB(playerState));
-            }).then(async () => {
-                const leaderBoard = await getLeaderBoard(state);
+                const leaderBoard = getLeaderBoard(newState);
                 dispatch(saveLeaderBoard(leaderBoard));
             })
         }
@@ -285,10 +282,10 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         }
         Array(payload).fill(1).map(() => mint(vmAction, state));
         if (userAddress && state.current.dekucContract)
-            state.current.dekucContract.onNewState(async (newState: any) => {
+            state.current.dekucContract.onNewState((newState: any) => {
                 const playerState = getPlayerState(newState, userAddress);
                 dispatch(fullUpdateCB(playerState));
-                const leaderBoard = await getLeaderBoard(state);
+                const leaderBoard = getLeaderBoard(newState);
                 dispatch(saveLeaderBoard(leaderBoard));
             })
 
@@ -336,14 +333,18 @@ export const eatCookie = (amount: string,
         (dispatch, state);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
-    try {
-        const vmState = await getActualPlayerState(dispatch, state);
-        dispatch(fullUpdateCB(vmState));
-        const leaderBoard = await getLeaderBoard(state);
-        dispatch(saveLeaderBoard(leaderBoard));
-    } catch (err) {
-        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
+    const contract = state.current.dekucContract;
+    if (contract) {
+        try {
+            const playerState = await getActualPlayerState(dispatch, state);
+            dispatch(fullUpdateCB(playerState));
+            const vmState = await contract.getState();
+            const leaderBoard = getLeaderBoard(vmState);
+            dispatch(saveLeaderBoard(leaderBoard));
+        } catch (err) {
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+            dispatch(addError(error_msg));
+            throw new Error(error_msg);
+        }
     }
 }
