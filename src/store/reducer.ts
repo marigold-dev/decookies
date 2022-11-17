@@ -25,6 +25,7 @@ export type state = {
     buildingBanks: bigint,
     buildingTemples: bigint,
     dekucContract: Contract | null
+    intervalId: NodeJS.Timer | null
 }
 
 export const initialState: state = {
@@ -47,7 +48,8 @@ export const initialState: state = {
     buildingFactories: 0n,
     buildingBanks: 0n,
     buildingTemples: 0n,
-    dekucContract: null
+    dekucContract: null,
+    intervalId: null
 }
 
 export type keyPair = {

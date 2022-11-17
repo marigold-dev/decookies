@@ -97,7 +97,7 @@ export const Game = () => {
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
       initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
-      const id = setInterval(() => {
+      latestState.current.intervalId = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
           const production = cb.passiveCPS;
@@ -115,7 +115,8 @@ export const Game = () => {
         }
       }, 1000)
       return () => {
-        clearInterval(id);
+        if (latestState.current.intervalId)
+          clearInterval(latestState.current.intervalId);
       };
     }
     return () => { };
@@ -221,6 +222,8 @@ export const Game = () => {
     }
   };
   const handleBeaconConnection = async () => {
+    if (latestState.current.intervalId)
+      clearInterval(latestState.current.intervalId);
     nodeUri = nodeUriRef.current?.value || "";
     nickName = nicknameRef.current?.value || "";
     dispatch(updateOven(0n));
