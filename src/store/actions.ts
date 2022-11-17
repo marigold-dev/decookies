@@ -199,11 +199,11 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
             throw new Error("Wallet must be saved before minting");
         }
         mint(vmAction, state);
-        if (userAddress && state.current.dekucContract)
-            state.current.dekucContract.onNewState(async (newState: any) => {
-                console.log("New state received");
-                const playerState = getPlayerState(newState, userAddress);
+        if (userAddress && state.current.dekucContract) {
+            state.current.dekucContract.onNewState((newState: any) => {
                 console.log("New state received: ", newState);
+                const playerState = getPlayerState(newState, userAddress);
+                console.log("New player state: ", playerState);
                 if (playerState.cookies > state.current.cookieBaker.cookies) {
                     const inOven =
                         BigInt(state.current.cookiesInOven) -
@@ -262,9 +262,11 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
                     else dispatch(updateBuildingTemples(building));
                 }
                 dispatch(fullUpdateCB(playerState));
+            }).then(async () => {
                 const leaderBoard = await getLeaderBoard(state);
                 dispatch(saveLeaderBoard(leaderBoard));
             })
+        }
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
@@ -322,8 +324,6 @@ export const transferCookie = (to: string,
     dispatch: React.Dispatch<action>,
     state: React.MutableRefObject<state>,
     payload: number = 1) => {
-    console.log("amount: ", amount)
-    console.log("recipient: ", to)
     add(transfer(amount, to))
         (dispatch, state);
 }

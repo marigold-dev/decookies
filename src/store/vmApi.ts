@@ -37,22 +37,18 @@ const getRawLeaderBoard = async (state: React.MutableRefObject<state>): Promise<
     const contract = state.current.dekucContract
     if (contract) {
         const globalState = await contract.getState();
-        console.log("globalState: ", globalState);
         const allCookieBakers: leaderBoard[] = Object.keys(globalState).map(key => getSomethingState(globalState, key));
-        console.log("all: ", allCookieBakers)
         const sorted =
             Object.entries(allCookieBakers).sort((a, b) => {
                 const eatenA = a[1].cookieBaker.eatenCookies;
                 const eatenB = b[1].cookieBaker.eatenCookies;
                 return Number(eatenB - eatenA);
             });
-        console.log("sorted: ", sorted);
         return sorted;
     }
 }
 
 export const getLeaderBoard = async (state: React.MutableRefObject<state>): Promise<leaderBoard[]> => {
-    console.log("leaderboard");
     const rawLeaderBoard = await getRawLeaderBoard(state);
     return rawLeaderBoard;
 }
