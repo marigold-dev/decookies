@@ -194,76 +194,10 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
-        const userAddress = state.current.publicAddress;
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
         mint(vmAction, state);
-        if (userAddress && state.current.dekucContract) {
-            state.current.dekucContract.onNewState((newState: any) => {
-                const playerState = getPlayerState(newState, userAddress);
-                if (playerState.cookies > state.current.cookieBaker.cookies) {
-                    const inOven =
-                        BigInt(state.current.cookiesInOven) -
-                        (BigInt(playerState.cookies) - BigInt(state.current.cookieBaker.cookies));
-                    if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
-                    else dispatch(updateOven(inOven));
-                }
-                if (playerState.cursors > state.current.cookieBaker.cursors) {
-                    const building =
-                        BigInt(state.current.cursorsInBasket) -
-                        (BigInt(playerState.cursors) - BigInt(state.current.cookieBaker.cursors));
-                    if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
-                    else dispatch(updateCursorBasket(building));
-                }
-                // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
-                if (playerState.grandmas > state.current.cookieBaker.grandmas) {
-                    const building =
-                        BigInt(state.current.recruitingGrandmas) -
-                        (BigInt(playerState.grandmas) - BigInt(state.current.cookieBaker.grandmas));
-                    if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
-                    else dispatch(updateRecruitingGrandmas(building));
-                }
-                if (playerState.farms > state.current.cookieBaker.farms) {
-                    const building =
-                        BigInt(state.current.buildingFarms) -
-                        (BigInt(playerState.farms) - BigInt(state.current.cookieBaker.farms));
-                    if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
-                    else dispatch(updateBuildingFarms(building));
-                }
-                if (playerState.mines > state.current.cookieBaker.mines) {
-                    const building =
-                        BigInt(state.current.drillingMines) -
-                        (BigInt(playerState.mines) - BigInt(state.current.cookieBaker.mines));
-                    if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
-                    else dispatch(updateDrillingMines(building));
-                }
-                if (playerState.factories > state.current.cookieBaker.factories) {
-                    const building =
-                        BigInt(state.current.buildingFactories) -
-                        (BigInt(playerState.factories) - BigInt(state.current.cookieBaker.factories));
-                    if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
-                    else dispatch(updateBuildingFactories(building));
-                }
-                if (playerState.banks > state.current.cookieBaker.banks) {
-                    const building =
-                        BigInt(state.current.buildingBanks) -
-                        (BigInt(playerState.banks) - BigInt(state.current.cookieBaker.banks));
-                    if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
-                    else dispatch(updateBuildingBanks(building));
-                }
-                if (playerState.temples > state.current.cookieBaker.temples) {
-                    const building =
-                        BigInt(state.current.buildingTemples) -
-                        (BigInt(playerState.temples) - BigInt(state.current.cookieBaker.temples));
-                    if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
-                    else dispatch(updateBuildingTemples(building));
-                }
-                dispatch(fullUpdateCB(playerState));
-                const leaderBoard = getLeaderBoard(newState);
-                dispatch(saveLeaderBoard(leaderBoard));
-            })
-        }
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
