@@ -3,11 +3,14 @@ body {
   margin-top: 100px;
   background: #1C1D22;
   overflow-x: hidden;
-
-
 }
 button:disabled {
   background-color: transparent;
   border: none;
   cursor: not-allowed;
+}
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }

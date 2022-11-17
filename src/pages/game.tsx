@@ -185,8 +185,6 @@ export const Game = () => {
     transferRecipient = transferRecipientRef.current?.value || "";
     if (amountToTransfer && transferRecipient) {
       if (!amountToTransfer.startsWith("-") && !isNaN(Number(amountToTransfer))) {
-        console.log("amount: ", amountToTransfer);
-        console.log("recipient: ", transferRecipient);
         try {
           transferCookie(
             transferRecipient,
