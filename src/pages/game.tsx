@@ -52,6 +52,7 @@ import {
   buyFactory,
   buyBank,
   buyTemple,
+  displayInfo,
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
@@ -63,7 +64,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, leaderBoard, stringToHex } from "../store/utils";
+import { getKeyPair, stringToHex } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -457,7 +458,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.cursorCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyCursor)}>
                 <p>In delivery</p>
                 <ToolCounter value={gameState.cursorsInBasket} />
               </div>
@@ -480,7 +481,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.grandmaCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyGrandma)}>
                 <p>In job interview</p>
                 <ToolCounter value={gameState.recruitingGrandmas} />
               </div>
@@ -503,7 +504,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.farmCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyFarm)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingFarms} />
               </div>
@@ -526,7 +527,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.mineCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyMine)}>
                 <p>Drilling in progress</p>
                 <ToolCounter value={gameState.drillingMines} />
               </div>
@@ -549,7 +550,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.factoryCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyFactory)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingFactories} />
               </div>
@@ -572,7 +573,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.bankCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyBank)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingBanks} />
               </div>
@@ -595,7 +596,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.templeCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyTemple)}>
                 <p>Creating new divinity</p>
                 <ToolCounter value={gameState.buildingTemples} />
               </div>
