@@ -16,7 +16,7 @@ import { bank } from './vmActions/bank';
 import { temple } from './vmActions/temple';
 import { eat } from './vmActions/eat';
 import { transfer } from './vmActions/transfer';
-import { leaderBoard } from './utils';
+import { getPlayerState, leaderBoard } from './utils';
 
 /**
  * All the actions available
@@ -194,74 +194,77 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
         const vmAction = type; // ¯\_(ツ)_/¯ Why not sharing the same action semantic
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
+        const userAddress = state.current.publicAddress;
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
         mint(vmAction, state);
-        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
-        setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, state);
-            if (vmState.cookies > state.current.cookieBaker.cookies) {
-                const inOven =
-                    BigInt(state.current.cookiesInOven) -
-                    (BigInt(vmState.cookies) - BigInt(state.current.cookieBaker.cookies));
-                if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
-                else dispatch(updateOven(inOven));
-            }
-            if (vmState.cursors > state.current.cookieBaker.cursors) {
-                const building =
-                    BigInt(state.current.cursorsInBasket) -
-                    (BigInt(vmState.cursors) - BigInt(state.current.cookieBaker.cursors));
-                if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
-                else dispatch(updateCursorBasket(building));
-            }
-            // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
-            if (vmState.grandmas > state.current.cookieBaker.grandmas) {
-                const building =
-                    BigInt(state.current.recruitingGrandmas) -
-                    (BigInt(vmState.grandmas) - BigInt(state.current.cookieBaker.grandmas));
-                if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
-                else dispatch(updateRecruitingGrandmas(building));
-            }
-            if (vmState.farms > state.current.cookieBaker.farms) {
-                const building =
-                    BigInt(state.current.buildingFarms) -
-                    (BigInt(vmState.farms) - BigInt(state.current.cookieBaker.farms));
-                if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
-                else dispatch(updateBuildingFarms(building));
-            }
-            if (vmState.mines > state.current.cookieBaker.mines) {
-                const building =
-                    BigInt(state.current.drillingMines) -
-                    (BigInt(vmState.mines) - BigInt(state.current.cookieBaker.mines));
-                if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
-                else dispatch(updateDrillingMines(building));
-            }
-            if (vmState.factories > state.current.cookieBaker.factories) {
-                const building =
-                    BigInt(state.current.buildingFactories) -
-                    (BigInt(vmState.factories) - BigInt(state.current.cookieBaker.factories));
-                if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
-                else dispatch(updateBuildingFactories(building));
-            }
-            if (vmState.banks > state.current.cookieBaker.banks) {
-                const building =
-                    BigInt(state.current.buildingBanks) -
-                    (BigInt(vmState.banks) - BigInt(state.current.cookieBaker.banks));
-                if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
-                else dispatch(updateBuildingBanks(building));
-            }
-            if (vmState.temples > state.current.cookieBaker.temples) {
-                const building =
-                    BigInt(state.current.buildingTemples) -
-                    (BigInt(vmState.temples) - BigInt(state.current.cookieBaker.temples));
-                if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
-                else dispatch(updateBuildingTemples(building));
-            }
-            dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(state);
-            dispatch(saveLeaderBoard(leaderBoard));
-        }, 3000);
+        if (userAddress && state.current.dekucContract)
+            state.current.dekucContract.onNewState(async (newState: any) => {
+                console.log("New state received");
+                const playerState = getPlayerState(newState, userAddress);
+                console.log("New state received: ", newState);
+                if (playerState.cookies > state.current.cookieBaker.cookies) {
+                    const inOven =
+                        BigInt(state.current.cookiesInOven) -
+                        (BigInt(playerState.cookies) - BigInt(state.current.cookieBaker.cookies));
+                    if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
+                    else dispatch(updateOven(inOven));
+                }
+                if (playerState.cursors > state.current.cookieBaker.cursors) {
+                    const building =
+                        BigInt(state.current.cursorsInBasket) -
+                        (BigInt(playerState.cursors) - BigInt(state.current.cookieBaker.cursors));
+                    if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
+                    else dispatch(updateCursorBasket(building));
+                }
+                // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+                if (playerState.grandmas > state.current.cookieBaker.grandmas) {
+                    const building =
+                        BigInt(state.current.recruitingGrandmas) -
+                        (BigInt(playerState.grandmas) - BigInt(state.current.cookieBaker.grandmas));
+                    if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
+                    else dispatch(updateRecruitingGrandmas(building));
+                }
+                if (playerState.farms > state.current.cookieBaker.farms) {
+                    const building =
+                        BigInt(state.current.buildingFarms) -
+                        (BigInt(playerState.farms) - BigInt(state.current.cookieBaker.farms));
+                    if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
+                    else dispatch(updateBuildingFarms(building));
+                }
+                if (playerState.mines > state.current.cookieBaker.mines) {
+                    const building =
+                        BigInt(state.current.drillingMines) -
+                        (BigInt(playerState.mines) - BigInt(state.current.cookieBaker.mines));
+                    if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
+                    else dispatch(updateDrillingMines(building));
+                }
+                if (playerState.factories > state.current.cookieBaker.factories) {
+                    const building =
+                        BigInt(state.current.buildingFactories) -
+                        (BigInt(playerState.factories) - BigInt(state.current.cookieBaker.factories));
+                    if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
+                    else dispatch(updateBuildingFactories(building));
+                }
+                if (playerState.banks > state.current.cookieBaker.banks) {
+                    const building =
+                        BigInt(state.current.buildingBanks) -
+                        (BigInt(playerState.banks) - BigInt(state.current.cookieBaker.banks));
+                    if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
+                    else dispatch(updateBuildingBanks(building));
+                }
+                if (playerState.temples > state.current.cookieBaker.temples) {
+                    const building =
+                        BigInt(state.current.buildingTemples) -
+                        (BigInt(playerState.temples) - BigInt(state.current.cookieBaker.temples));
+                    if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
+                    else dispatch(updateBuildingTemples(building));
+                }
+                dispatch(fullUpdateCB(playerState));
+                const leaderBoard = await getLeaderBoard(state);
+                dispatch(saveLeaderBoard(leaderBoard));
+            })
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
@@ -274,17 +277,19 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         const vmAction = type;
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
+        const userAddress = state.current.publicAddress;
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, state));
-        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
-        setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, state);
-            dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(state);
-            dispatch(saveLeaderBoard(leaderBoard));
-        }, 2000);
+        if (userAddress && state.current.dekucContract)
+            state.current.dekucContract.onNewState(async (newState: any) => {
+                const playerState = getPlayerState(newState, userAddress);
+                dispatch(fullUpdateCB(playerState));
+                const leaderBoard = await getLeaderBoard(state);
+                dispatch(saveLeaderBoard(leaderBoard));
+            })
+
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
