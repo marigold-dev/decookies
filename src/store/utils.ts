@@ -108,7 +108,6 @@ export type leaderBoard = {address: string, cookieBaker: cookieBaker}
 export const getSomethingState = (state: { [x: string]: any }, userAddress: string) => {
     const rawCookieBaker = state[userAddress];
     if (rawCookieBaker) {
-        console.log("rawCookieBaker ", rawCookieBaker)
         const flattenRawCookieBaker = rawCookieBaker.flat(4);
         const cookieBaker = {
             passiveCPS: flattenRawCookieBaker[14],

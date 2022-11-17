@@ -295,73 +295,71 @@ export const Game = () => {
           );
         const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
         dispatch(saveContract(contract));
-        const address = latestState.current.publicAddress;
-        if (latestState.current.dekucContract && address) {
-          latestState.current.dekucContract.onNewState((newState: any) => {
-            console.log("new state received");
-            const playerState = getPlayerState(newState, address);
-            if (playerState.cookies > latestState.current.cookieBaker.cookies) {
-              const inOven =
-                BigInt(latestState.current.cookiesInOven) -
-                (BigInt(playerState.cookies) - BigInt(latestState.current.cookieBaker.cookies));
-              if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
-              else dispatch(updateOven(inOven));
-            }
-            if (playerState.cursors > latestState.current.cookieBaker.cursors) {
-              const building =
-                BigInt(latestState.current.cursorsInBasket) -
-                (BigInt(playerState.cursors) - BigInt(latestState.current.cookieBaker.cursors));
-              if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
-              else dispatch(updateCursorBasket(building));
-            }
-            // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
-            if (playerState.grandmas > latestState.current.cookieBaker.grandmas) {
-              const building =
-                BigInt(latestState.current.recruitingGrandmas) -
-                (BigInt(playerState.grandmas) - BigInt(latestState.current.cookieBaker.grandmas));
-              if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
-              else dispatch(updateRecruitingGrandmas(building));
-            }
-            if (playerState.farms > latestState.current.cookieBaker.farms) {
-              const building =
-                BigInt(latestState.current.buildingFarms) -
-                (BigInt(playerState.farms) - BigInt(latestState.current.cookieBaker.farms));
-              if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
-              else dispatch(updateBuildingFarms(building));
-            }
-            if (playerState.mines > latestState.current.cookieBaker.mines) {
-              const building =
-                BigInt(latestState.current.drillingMines) -
-                (BigInt(playerState.mines) - BigInt(latestState.current.cookieBaker.mines));
-              if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
-              else dispatch(updateDrillingMines(building));
-            }
-            if (playerState.factories > latestState.current.cookieBaker.factories) {
-              const building =
-                BigInt(latestState.current.buildingFactories) -
-                (BigInt(playerState.factories) - BigInt(latestState.current.cookieBaker.factories));
-              if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
-              else dispatch(updateBuildingFactories(building));
-            }
-            if (playerState.banks > latestState.current.cookieBaker.banks) {
-              const building =
-                BigInt(latestState.current.buildingBanks) -
-                (BigInt(playerState.banks) - BigInt(latestState.current.cookieBaker.banks));
-              if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
-              else dispatch(updateBuildingBanks(building));
-            }
-            if (playerState.temples > latestState.current.cookieBaker.temples) {
-              const building =
-                BigInt(latestState.current.buildingTemples) -
-                (BigInt(playerState.temples) - BigInt(latestState.current.cookieBaker.temples));
-              if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
-              else dispatch(updateBuildingTemples(building));
-            }
-            dispatch(fullUpdateCB(playerState));
-            const leaderBoard = getLeaderBoard(newState);
-            dispatch(saveLeaderBoard(leaderBoard));
-          })
-        }
+        const address = await inMemorySigner.publicKeyHash();
+        contract.onNewState((newState: any) => {
+          console.log("new state received");
+          const playerState = getPlayerState(newState, address);
+          if (playerState.cookies > latestState.current.cookieBaker.cookies) {
+            const inOven =
+              BigInt(latestState.current.cookiesInOven) -
+              (BigInt(playerState.cookies) - BigInt(latestState.current.cookieBaker.cookies));
+            if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
+            else dispatch(updateOven(inOven));
+          }
+          if (playerState.cursors > latestState.current.cookieBaker.cursors) {
+            const building =
+              BigInt(latestState.current.cursorsInBasket) -
+              (BigInt(playerState.cursors) - BigInt(latestState.current.cookieBaker.cursors));
+            if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
+            else dispatch(updateCursorBasket(building));
+          }
+          // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+          if (playerState.grandmas > latestState.current.cookieBaker.grandmas) {
+            const building =
+              BigInt(latestState.current.recruitingGrandmas) -
+              (BigInt(playerState.grandmas) - BigInt(latestState.current.cookieBaker.grandmas));
+            if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
+            else dispatch(updateRecruitingGrandmas(building));
+          }
+          if (playerState.farms > latestState.current.cookieBaker.farms) {
+            const building =
+              BigInt(latestState.current.buildingFarms) -
+              (BigInt(playerState.farms) - BigInt(latestState.current.cookieBaker.farms));
+            if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
+            else dispatch(updateBuildingFarms(building));
+          }
+          if (playerState.mines > latestState.current.cookieBaker.mines) {
+            const building =
+              BigInt(latestState.current.drillingMines) -
+              (BigInt(playerState.mines) - BigInt(latestState.current.cookieBaker.mines));
+            if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
+            else dispatch(updateDrillingMines(building));
+          }
+          if (playerState.factories > latestState.current.cookieBaker.factories) {
+            const building =
+              BigInt(latestState.current.buildingFactories) -
+              (BigInt(playerState.factories) - BigInt(latestState.current.cookieBaker.factories));
+            if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
+            else dispatch(updateBuildingFactories(building));
+          }
+          if (playerState.banks > latestState.current.cookieBaker.banks) {
+            const building =
+              BigInt(latestState.current.buildingBanks) -
+              (BigInt(playerState.banks) - BigInt(latestState.current.cookieBaker.banks));
+            if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
+            else dispatch(updateBuildingBanks(building));
+          }
+          if (playerState.temples > latestState.current.cookieBaker.temples) {
+            const building =
+              BigInt(latestState.current.buildingTemples) -
+              (BigInt(playerState.temples) - BigInt(latestState.current.cookieBaker.temples));
+            if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
+            else dispatch(updateBuildingTemples(building));
+          }
+          dispatch(fullUpdateCB(playerState));
+          const leaderBoard = getLeaderBoard(newState);
+          dispatch(saveLeaderBoard(leaderBoard));
+        })
       } catch (err) {
         const error_msg =
           typeof err === "string" ? err : (err as Error).message;
