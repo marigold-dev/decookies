@@ -449,8 +449,8 @@ export const Game = () => {
             onClick={handleCursorClick}
           >
             <div className="gameButtonContainer">
-              <img src={cursor} />
-              <div className="column title">
+              <img src={cursor}/>
+              <div className="column title" title="Each Cursor bakes 1 cookie per second">
                 <h3>Cursor</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -473,7 +473,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={grandma} />
-              <div className="column title">
+              <div className="column title" title="Each Grandma bakes 3 cookies per second">
                 <h3>Grandma</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -496,7 +496,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={farm} />
-              <div className="column title">
+              <div className="column title" title="Each Farm bakes 8 cookies per second">
                 <h3>Farm</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -519,7 +519,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={mine} />
-              <div className="column title">
+              <div className="column title" title="Each Mine bakes 47 cookies per second">
                 <h3>Mine</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -542,7 +542,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={factory} />
-              <div className="column title">
+              <div className="column title" title="Each Factory bakes 260 cookies per second">
                 <h3>Factory</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -565,7 +565,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={bank} />
-              <div className="column title">
+              <div className="column title" title="Each Bank bakes 1400 cookies per second">
                 <h3>Bank</h3>
                 <div>
                   <img className="price" src={cookie} />
@@ -588,7 +588,7 @@ export const Game = () => {
           >
             <div className="gameButtonContainer">
               <img src={temple} />
-              <div className="column title">
+              <div className="column title" title="Each Temple bakes 7800 cookies per second">
                 <h3>Temple</h3>
                 <div>
                   <img className="price" src={cookie} />
