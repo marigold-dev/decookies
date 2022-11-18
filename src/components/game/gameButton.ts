@@ -15,7 +15,6 @@ const GameButton = styled.button`
     align-items: center;
     padding: 0 0.5em 0.2em 0.5em;
     height: auto;
-    overflow-y: scroll;
     font-size: 6px;
     color: ${props =>props.theme.palette.primary.contrastText};
     width: 195px;
@@ -56,7 +55,7 @@ const GameButton = styled.button`
       flex-direction: row;
     }
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     div {
       &.gameButtonContainer {
         padding: 0 1em 0.5em 1em;

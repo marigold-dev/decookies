@@ -4,9 +4,6 @@ const GameContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   font-family: "Roboto Mono", monospace;
-  .right {
-    display: none;
-  }
   .left {
     display: block;
     width: 207px;
@@ -45,7 +42,7 @@ const GameContainer = styled.div`
       background: transparent;
     }
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     &.container {
       grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 10px;
@@ -53,7 +50,8 @@ const GameContainer = styled.div`
     section {
       &.middle {
         .cookieBtn {
-          height: 37vmin;
+          height: 20vw;
+          width:20vw;
         }
         p {
           font-size: 18px;
@@ -65,16 +63,21 @@ const GameContainer = styled.div`
       &.right {
         display: flex;
         flex-direction: column;
+        position: fixed;
+        top: 39vh;
+        right: -5vh;
       }
       &.left {
         display: block;
         width: 350px;
-        margin: -1.3em 0px -3em 4em;
+        margin: -1.3em 0px -3em 0;
         border-right: 3px solid #7b7b7e;
         border-left: 3px solid #7b7b7e;
-        overflow: scroll;
-        height: 544px;
-        scrollbar-width: 10px;
+        height: 100vh;
+        .scroll {
+          height: 80vh;
+          overflow: scroll;
+        }
         .container {
           display: block;
           padding: 1em 1em;
@@ -82,15 +85,16 @@ const GameContainer = styled.div`
       }
     }
   }
-  @media (min-width: 1700px) {
-    &.container {
-      section {
-        &.left {
-          height: fit-content;
-        }
-      }
+  @media (min-width: 992px) {
+    section {
+      &.right {
+        top: 12vh;
+        right:16vh;
+        width:25vw;
+    }
     }
   }
+
   @keyframes animate {
     0% {
       transform: rotate(0deg);

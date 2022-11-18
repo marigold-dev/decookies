@@ -1,6 +1,11 @@
 import styled from "styled-components";
 
 const Modal = styled.div`
+
+.content {
+  height:100vh;
+  overflow:scroll
+}
   p {
     margin-bottom: 20px;
   }

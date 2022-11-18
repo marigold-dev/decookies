@@ -8,7 +8,7 @@ const RulesContainer = styled.div`
     align-items:center;
     font-family: 'Roboto Mono', monospace;
 
-    @media (min-width: 900px) {
+    @media (min-width: 768px) {
         display:grid;
         grid-template-columns: 1fr 1fr;
 
@@ -61,7 +61,7 @@ const RulesContainer = styled.div`
     }
     
   }
-  @media (min-width: 1320px) {
+  @media (min-width: 768px) {
     section {
         &.right {
             a {

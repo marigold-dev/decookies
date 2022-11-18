@@ -43,7 +43,7 @@ const Item = styled.div`
     text-align:left;
     margin: 1.5em 0;
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     &.player-info {
       display: none;
     }

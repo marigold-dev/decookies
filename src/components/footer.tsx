@@ -25,7 +25,7 @@ a {
 
 img {
     padding: 1vh 0 1vh 2vh;
-    height:3.2vh;
+    height:2.9vh;
        &.marigold {
         height:2.3vh;
         padding-left:5vh;
