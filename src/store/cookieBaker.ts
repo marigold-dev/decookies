@@ -212,3 +212,45 @@ export const isButtonEnabled = (state: state, button: string): boolean => {
     }
     return true;
 }
+
+export const displayInfo = (state: state, div: string): string => {
+    switch (div) {
+        case "buy_cursor": {
+            if (state.cursorsInBasket > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_grandma": {
+            if (state.recruitingGrandmas > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_farm": {
+            if (state.buildingFarms > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_mine": {
+            if (state.drillingMines > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_factory": {
+            if (state.buildingFactories > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_bank": {
+            if (state.buildingBanks > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+        case "buy_temple": {
+            if (state.buildingTemples > 0)
+                return "Block waiting to be included";
+            else break;
+        }
+
+    }
+    return ""
+}
