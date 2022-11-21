@@ -4,6 +4,10 @@ import * as bs58check from 'bs58check';
 import { cookieBaker, initialState } from './cookieBaker';
 import { keyPair } from './reducer';
 
+export const sleep = (ms: number) => new Promise(
+    resolve => setTimeout(resolve, ms)
+);
+
 /**
  * Create a random nonce, like in Deku
  * @returns random integer

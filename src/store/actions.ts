@@ -88,6 +88,9 @@ type saveConfig = {
     nodeUri: string,
     nickName: string
 }
+type eraseConfig = {
+    type: "ERASE_CONFIG"
+}
 type saveGeneratedKeyPair = {
     type: "SAVE_GENERATED_KEY_PAIR",
     payload: keyPair
@@ -98,7 +101,7 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | updateBuildingBanks | updateBuildingTemples | saveContract
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | updateBuildingBanks | updateBuildingTemples | saveContract | eraseConfig
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -164,6 +167,10 @@ export const saveConfig = (nodeUri: string, nickName: string): action => ({
     type: "SAVE_CONFIG",
     nodeUri,
     nickName
+});
+
+export const eraseConfig = (): action => ({
+    type: "ERASE_CONFIG"
 });
 
 export const addError = (payload: string): action => ({

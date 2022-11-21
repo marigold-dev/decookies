@@ -42,6 +42,7 @@ import {
   addTemple,
   fullUpdateCB,
   saveLeaderBoard,
+  eraseConfig,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -66,7 +67,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, getPlayerState, stringToHex } from "../store/utils";
+import { getKeyPair, getPlayerState, sleep, stringToHex } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -97,6 +98,7 @@ export const Game = () => {
   const amountToTransferRef = useRef<HTMLInputElement | null>(null);
   const transferRecipientRef = useRef<HTMLInputElement | null>(null);
   const amountToEatRef = useRef<HTMLInputElement | null>(null);
+  const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
@@ -225,6 +227,25 @@ export const Game = () => {
       }
     }
   };
+
+  const handleBeaconDisconnection = async () => {
+    const wallet = latestState.current.wallet;
+    const contract = latestState.current.dekucContract;
+    if (wallet && contract) {
+      contract.onNewState(() => {});
+      dispatch(eraseConfig());
+      await wallet.disconnect();
+      dispatch(updateOven(0n));
+      dispatch(updateCursorBasket(0n));
+      dispatch(updateRecruitingGrandmas(0n));
+      dispatch(updateBuildingFarms(0n));
+      dispatch(updateDrillingMines(0n));
+      dispatch(updateBuildingFactories(0n));
+      dispatch(updateBuildingBanks(0n));
+      dispatch(updateBuildingTemples(0n));
+      dispatch(eraseConfig());
+    }
+  }
   const handleBeaconConnection = async () => {
     if (latestState.current.intervalId)
       clearInterval(latestState.current.intervalId);
@@ -687,7 +708,7 @@ export const Game = () => {
                 </p>
               </label>
               <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} />
+              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
               <label>Deku node URI:</label>
               <input
                 type="text"
@@ -695,7 +716,7 @@ export const Game = () => {
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
               />
-              <Button onClick={handleBeaconConnection}>Connect wallet </Button>
+              {isConnected ? <button>Disconnect</button> : <Button onClick={handleBeaconConnection}>Connect wallet </Button>}
             </div>
           </Item>
         </section>
@@ -728,15 +749,16 @@ export const Game = () => {
                 </p>
               </label>
               <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} />
+              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
               <label>Deku node URI:</label>
               <input
                 type="text"
                 name="nodeUri"
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
+                disabled={isConnected}
               />
-              <Button onClick={handleBeaconConnection}>Connect wallet</Button>
+              {isConnected ? <Button dark onClick={handleBeaconDisconnection}>Disconnect</Button> : <Button onClick={handleBeaconConnection}>Connect wallet </Button>}
             </div>
           </Item>
           <Item className="eatCookies">
