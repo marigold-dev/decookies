@@ -1,6 +1,3 @@
-import { cookieBaker } from "./cookieBaker"
-import { parseReviver } from "./utils"
-
 export enum building {
     cookie = "cookie",
     cursor = "cursor",
