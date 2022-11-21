@@ -16,7 +16,7 @@ import { bank } from './vmActions/bank';
 import { temple } from './vmActions/temple';
 import { eat } from './vmActions/eat';
 import { transfer } from './vmActions/transfer';
-import { leaderBoard } from './utils';
+import { getPlayerState, leaderBoard } from './utils';
 
 /**
  * All the actions available
@@ -88,6 +88,9 @@ type saveConfig = {
     nodeUri: string,
     nickName: string
 }
+type eraseConfig = {
+    type: "ERASE_CONFIG"
+}
 type saveGeneratedKeyPair = {
     type: "SAVE_GENERATED_KEY_PAIR",
     payload: keyPair
@@ -98,7 +101,7 @@ type saveUserAddress = {
 }
 
 // ACTIONS
-export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | updateBuildingBanks | updateBuildingTemples | saveContract
+export type action = fullUpdateCB | saveWallet | saveConfig | addError | clearError | addMessage | clearMessage | saveGeneratedKeyPair | saveLeaderBoard | saveUserAddress | updateOven | updateCursorBasket | updateRecruitingGrandmas | updateBuildingFarms | updateDrillingMines | updateBuildingFactories | updateBuildingBanks | updateBuildingTemples | saveContract | eraseConfig
 
 // ACTION CREATORS
 export const fullUpdateCB = (payload: cookieBaker): action => ({
@@ -166,6 +169,10 @@ export const saveConfig = (nodeUri: string, nickName: string): action => ({
     nickName
 });
 
+export const eraseConfig = (): action => ({
+    type: "ERASE_CONFIG"
+});
+
 export const addError = (payload: string): action => ({
     type: "ADD_ERROR",
     payload
@@ -198,70 +205,6 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
             throw new Error("Wallet must be saved before minting");
         }
         mint(vmAction, state);
-        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
-        setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, state);
-            if (vmState.cookies > state.current.cookieBaker.cookies) {
-                const inOven =
-                    BigInt(state.current.cookiesInOven) -
-                    (BigInt(vmState.cookies) - BigInt(state.current.cookieBaker.cookies));
-                if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
-                else dispatch(updateOven(inOven));
-            }
-            if (vmState.cursors > state.current.cookieBaker.cursors) {
-                const building =
-                    BigInt(state.current.cursorsInBasket) -
-                    (BigInt(vmState.cursors) - BigInt(state.current.cookieBaker.cursors));
-                if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
-                else dispatch(updateCursorBasket(building));
-            }
-            // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
-            if (vmState.grandmas > state.current.cookieBaker.grandmas) {
-                const building =
-                    BigInt(state.current.recruitingGrandmas) -
-                    (BigInt(vmState.grandmas) - BigInt(state.current.cookieBaker.grandmas));
-                if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
-                else dispatch(updateRecruitingGrandmas(building));
-            }
-            if (vmState.farms > state.current.cookieBaker.farms) {
-                const building =
-                    BigInt(state.current.buildingFarms) -
-                    (BigInt(vmState.farms) - BigInt(state.current.cookieBaker.farms));
-                if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
-                else dispatch(updateBuildingFarms(building));
-            }
-            if (vmState.mines > state.current.cookieBaker.mines) {
-                const building =
-                    BigInt(state.current.drillingMines) -
-                    (BigInt(vmState.mines) - BigInt(state.current.cookieBaker.mines));
-                if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
-                else dispatch(updateDrillingMines(building));
-            }
-            if (vmState.factories > state.current.cookieBaker.factories) {
-                const building =
-                    BigInt(state.current.buildingFactories) -
-                    (BigInt(vmState.factories) - BigInt(state.current.cookieBaker.factories));
-                if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
-                else dispatch(updateBuildingFactories(building));
-            }
-            if (vmState.banks > state.current.cookieBaker.banks) {
-                const building =
-                    BigInt(state.current.buildingBanks) -
-                    (BigInt(vmState.banks) - BigInt(state.current.cookieBaker.banks));
-                if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
-                else dispatch(updateBuildingBanks(building));
-            }
-            if (vmState.temples > state.current.cookieBaker.temples) {
-                const building =
-                    BigInt(state.current.buildingTemples) -
-                    (BigInt(vmState.temples) - BigInt(state.current.cookieBaker.temples));
-                if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
-                else dispatch(updateBuildingTemples(building));
-            }
-            dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(state);
-            dispatch(saveLeaderBoard(leaderBoard));
-        }, 3000);
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
@@ -274,17 +217,19 @@ export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Di
         const vmAction = type;
         const wallet = state.current.wallet;
         const nodeUri = state.current.nodeUri;
+        const userAddress = state.current.publicAddress;
         if (!wallet || !nodeUri) {
             throw new Error("Wallet must be saved before minting");
         }
         Array(payload).fill(1).map(() => mint(vmAction, state));
-        //TODO: replace timeout by checking that ophash is included and then waiting for 2 blocks
-        setTimeout(async (): Promise<void> => {
-            const vmState = await getActualPlayerState(dispatch, state);
-            dispatch(fullUpdateCB(vmState));
-            const leaderBoard = await getLeaderBoard(state);
-            dispatch(saveLeaderBoard(leaderBoard));
-        }, 2000);
+        if (userAddress && state.current.dekucContract)
+            state.current.dekucContract.onNewState((newState: any) => {
+                const playerState = getPlayerState(newState, userAddress);
+                dispatch(fullUpdateCB(playerState));
+                const leaderBoard = getLeaderBoard(newState);
+                dispatch(saveLeaderBoard(leaderBoard));
+            })
+
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));
@@ -317,8 +262,6 @@ export const transferCookie = (to: string,
     dispatch: React.Dispatch<action>,
     state: React.MutableRefObject<state>,
     payload: number = 1) => {
-    console.log("amount: ", amount)
-    console.log("recipient: ", to)
     add(transfer(amount, to))
         (dispatch, state);
 }
@@ -331,14 +274,18 @@ export const eatCookie = (amount: string,
         (dispatch, state);
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
-    try {
-        const vmState = await getActualPlayerState(dispatch, state);
-        dispatch(fullUpdateCB(vmState));
-        const leaderBoard = await getLeaderBoard(state);
-        dispatch(saveLeaderBoard(leaderBoard));
-    } catch (err) {
-        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
+    const contract = state.current.dekucContract;
+    if (contract) {
+        try {
+            const playerState = await getActualPlayerState(dispatch, state);
+            dispatch(fullUpdateCB(playerState));
+            const vmState = await contract.getState();
+            const leaderBoard = getLeaderBoard(vmState);
+            dispatch(saveLeaderBoard(leaderBoard));
+        } catch (err) {
+            const error_msg = (typeof err === 'string') ? err : (err as Error).message;
+            dispatch(addError(error_msg));
+            throw new Error(error_msg);
+        }
     }
 }

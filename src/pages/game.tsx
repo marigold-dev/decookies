@@ -40,6 +40,9 @@ import {
   updateBuildingTemples,
   addBank,
   addTemple,
+  fullUpdateCB,
+  saveLeaderBoard,
+  eraseConfig,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -52,6 +55,7 @@ import {
   buyFactory,
   buyBank,
   buyTemple,
+  displayInfo,
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
@@ -63,7 +67,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, leaderBoard, stringToHex } from "../store/utils";
+import { getKeyPair, getPlayerState, sleep, stringToHex } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -75,6 +79,7 @@ import { InMemorySigner } from '@taquito/signer';
 import * as deku from '@marigold-dev/deku-toolkit'
 import * as dekuc from '@marigold-dev/deku-c-toolkit'
 import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
+import { getLeaderBoard } from "../store/vmApi";
 
 export let nodeUri: string;
 export let nickName: string;
@@ -93,6 +98,7 @@ export const Game = () => {
   const amountToTransferRef = useRef<HTMLInputElement | null>(null);
   const transferRecipientRef = useRef<HTMLInputElement | null>(null);
   const amountToEatRef = useRef<HTMLInputElement | null>(null);
+  const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
     if (latestState.current.wallet && latestState.current.nodeUri) {
@@ -221,6 +227,25 @@ export const Game = () => {
       }
     }
   };
+
+  const handleBeaconDisconnection = async () => {
+    const wallet = latestState.current.wallet;
+    const contract = latestState.current.dekucContract;
+    if (wallet && contract) {
+      contract.onNewState(() => {});
+      dispatch(eraseConfig());
+      await wallet.disconnect();
+      dispatch(updateOven(0n));
+      dispatch(updateCursorBasket(0n));
+      dispatch(updateRecruitingGrandmas(0n));
+      dispatch(updateBuildingFarms(0n));
+      dispatch(updateDrillingMines(0n));
+      dispatch(updateBuildingFactories(0n));
+      dispatch(updateBuildingBanks(0n));
+      dispatch(updateBuildingTemples(0n));
+      dispatch(eraseConfig());
+    }
+  }
   const handleBeaconConnection = async () => {
     if (latestState.current.intervalId)
       clearInterval(latestState.current.intervalId);
@@ -291,6 +316,71 @@ export const Game = () => {
           );
         const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
         dispatch(saveContract(contract));
+        const address = await inMemorySigner.publicKeyHash();
+        contract.onNewState((newState: any) => {
+          console.log("new state received");
+          const playerState = getPlayerState(newState, address);
+          if (playerState.cookies > latestState.current.cookieBaker.cookies) {
+            const inOven =
+              BigInt(latestState.current.cookiesInOven) -
+              (BigInt(playerState.cookies) - BigInt(latestState.current.cookieBaker.cookies));
+            if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
+            else dispatch(updateOven(inOven));
+          }
+          if (playerState.cursors > latestState.current.cookieBaker.cursors) {
+            const building =
+              BigInt(latestState.current.cursorsInBasket) -
+              (BigInt(playerState.cursors) - BigInt(latestState.current.cookieBaker.cursors));
+            if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
+            else dispatch(updateCursorBasket(building));
+          }
+          // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+          if (playerState.grandmas > latestState.current.cookieBaker.grandmas) {
+            const building =
+              BigInt(latestState.current.recruitingGrandmas) -
+              (BigInt(playerState.grandmas) - BigInt(latestState.current.cookieBaker.grandmas));
+            if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
+            else dispatch(updateRecruitingGrandmas(building));
+          }
+          if (playerState.farms > latestState.current.cookieBaker.farms) {
+            const building =
+              BigInt(latestState.current.buildingFarms) -
+              (BigInt(playerState.farms) - BigInt(latestState.current.cookieBaker.farms));
+            if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
+            else dispatch(updateBuildingFarms(building));
+          }
+          if (playerState.mines > latestState.current.cookieBaker.mines) {
+            const building =
+              BigInt(latestState.current.drillingMines) -
+              (BigInt(playerState.mines) - BigInt(latestState.current.cookieBaker.mines));
+            if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
+            else dispatch(updateDrillingMines(building));
+          }
+          if (playerState.factories > latestState.current.cookieBaker.factories) {
+            const building =
+              BigInt(latestState.current.buildingFactories) -
+              (BigInt(playerState.factories) - BigInt(latestState.current.cookieBaker.factories));
+            if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
+            else dispatch(updateBuildingFactories(building));
+          }
+          if (playerState.banks > latestState.current.cookieBaker.banks) {
+            const building =
+              BigInt(latestState.current.buildingBanks) -
+              (BigInt(playerState.banks) - BigInt(latestState.current.cookieBaker.banks));
+            if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
+            else dispatch(updateBuildingBanks(building));
+          }
+          if (playerState.temples > latestState.current.cookieBaker.temples) {
+            const building =
+              BigInt(latestState.current.buildingTemples) -
+              (BigInt(playerState.temples) - BigInt(latestState.current.cookieBaker.temples));
+            if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
+            else dispatch(updateBuildingTemples(building));
+          }
+          dispatch(fullUpdateCB(playerState));
+          const leaderBoard = getLeaderBoard(newState);
+          dispatch(saveLeaderBoard(leaderBoard));
+        })
       } catch (err) {
         const error_msg =
           typeof err === "string" ? err : (err as Error).message;
@@ -449,7 +539,7 @@ export const Game = () => {
             onClick={handleCursorClick}
           >
             <div className="gameButtonContainer">
-              <img src={cursor}/>
+              <img src={cursor} />
               <div className="column title" title="Each Cursor bakes 1 cookie per second">
                 <h3>Cursor</h3>
                 <div>
@@ -457,7 +547,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.cursorCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyCursor)}>
                 <p>In delivery</p>
                 <ToolCounter value={gameState.cursorsInBasket} />
               </div>
@@ -480,7 +570,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.grandmaCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyGrandma)}>
                 <p>In job interview</p>
                 <ToolCounter value={gameState.recruitingGrandmas} />
               </div>
@@ -503,7 +593,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.farmCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyFarm)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingFarms} />
               </div>
@@ -526,7 +616,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.mineCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyMine)}>
                 <p>Drilling in progress</p>
                 <ToolCounter value={gameState.drillingMines} />
               </div>
@@ -549,7 +639,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.factoryCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyFactory)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingFactories} />
               </div>
@@ -572,7 +662,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.bankCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyBank)}>
                 <p>Under construction</p>
                 <ToolCounter value={gameState.buildingBanks} />
               </div>
@@ -595,7 +685,7 @@ export const Game = () => {
                   <ToolCounter value={gameState.cookieBaker.templeCost} />
                 </div>
               </div>
-              <div className="column background">
+              <div className="column background" title={displayInfo(gameState, buyTemple)}>
                 <p>Creating new divinity</p>
                 <ToolCounter value={gameState.buildingTemples} />
               </div>
@@ -605,6 +695,30 @@ export const Game = () => {
             </div>
           </GameButton>
           <Line />
+          <Item className="player-info">
+            <div>
+              <h2>Player info</h2>
+              <label
+                hidden={!latestState.current.publicAddress}
+                className="address"
+              >
+                <p>Address:</p>
+                <p className="description">
+                  {latestState.current.publicAddress}
+                </p>
+              </label>
+              <label>Nickname:</label>
+              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
+              <label>Deku node URI:</label>
+              <input
+                type="text"
+                name="nodeUri"
+                ref={nodeUriRef}
+                defaultValue={getRandomBetaNode()}
+              />
+              {isConnected ? <button>Disconnect</button> : <Button onClick={handleBeaconConnection}>Connect wallet </Button>}
+            </div>
+          </Item>
         </section>
         <section className="middle">
           <p>Cookies</p>
@@ -635,15 +749,16 @@ export const Game = () => {
                 </p>
               </label>
               <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} />
+              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
               <label>Deku node URI:</label>
               <input
                 type="text"
                 name="nodeUri"
                 ref={nodeUriRef}
                 defaultValue={getRandomBetaNode()}
+                disabled={isConnected}
               />
-              <Button onClick={handleBeaconConnection}>Connect wallet</Button>
+              {isConnected ? <Button dark onClick={handleBeaconDisconnection}>Disconnect</Button> : <Button onClick={handleBeaconConnection}>Connect wallet </Button>}
             </div>
           </Item>
           <Item className="eatCookies">

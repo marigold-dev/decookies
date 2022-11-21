@@ -122,5 +122,8 @@ export const reducer = (state: state, action: action): state => {
         case "SAVE_CONTRACT": {
             return { ...state, dekucContract: action.payload }
         }
+        case "ERASE_CONFIG": {
+            return { ...state, dekucContract: null, nodeUri: null, nickName: null, wallet: null, generatedKeyPair: null, leaderBoard: [], cookieBaker: backeryInitialState }
+        }
     }
 }

@@ -15,6 +15,7 @@ const Rules = () =>
                 <li>You can give cookies to a friend (because it is always great to get cookies from friends).</li>
                 <li>"Eat cookies" allow you to “burn” cookies and appear in the leaderboard. Who will the best cookie eater?</li>
             </ul>
+            <p> ⚠️ Not yet mobile compatible! </p>
         </section>
         <section className="right">
             <a href="/"><img className="cookie" src={cookie} alt="cookie" /></a>
