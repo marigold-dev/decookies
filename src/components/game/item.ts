@@ -2,40 +2,24 @@ import styled from "styled-components";
 import item from "../../../resources/images/info-bg.png";
 
 const Item = styled.div`
-  width: 450px;
-  background-image: url(${item});
-  background-size: 79% 112%;
-  background-position: 3em -0.5cm;
-  margin: 0.5em 0;
-  background-repeat: no-repeat;
+    background: ${props =>props.theme.palette.common.darkGray};
   &.playerInfo {
-    background-size: 79% 110%;
-    height: 206px;
-    button {
-      margin-top:6px;
-      max-width: 40%;
+    max-width: 13.3em;
+    div {
+      margin:0;
+      padding:2em;
+      .address {
+        font-size:7px ;
+      }
     }
-  }
+  };
   &.eatCookies {
-    height: 147px;
+    display:none;
   }
   &.transferCookies {
-    background-size: 79% 110%;
-    height: 200px;
+    display:none;
   }
 
-  &.player-info {
-    position: absolute;
-    background: ${props =>props.theme.palette.common.darkGray};
-    width: inherit;
-    height: inherit;
-    div {
-      margin: 0.5em 2em 0.5em 2em;
-    }
-    button {
-      margin: 10px 0;
-    }
-  }
   &.modal-item {
     background: ${props =>props.theme.palette.common.darkGray};
     width: inherit;
@@ -44,9 +28,39 @@ const Item = styled.div`
     margin: 1.5em 0;
   }
   @media (min-width: 1209px) {
-    &.player-info {
-      display: none;
+    margin-left: 0;
+    padding: 0;
+    background:none;
+    width: 450px;
+    background-image: url(${item});
+    background-size: 79% 112%;
+    background-position: 3em -0.5cm;
+    margin: 0.5em 0;
+    background-repeat: no-repeat;
+  &.playerInfo {
+    max-width: none;
+    div {
+      margin: 0.5em 7em 0.5em 8em;
+      padding:0;
     }
+    background-size: 79% 110%;
+    height: 206px;
+    button {
+      margin-top:6px;
+      max-width: 40%;
+    }
+  }
+  &.eatCookies {
+    display:block;
+    height: 147px;
+  }
+  &.transferCookies {
+    display:block;
+    background-size: 79% 110%;
+    height: 200px;
+  }
+  
+  
   }
 
   div {

@@ -4,13 +4,11 @@ const GameContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   font-family: "Roboto Mono", monospace;
-  .right {
-    display: none;
-  }
+  
   .left {
     display: block;
     width: 207px;
-    margin: 0em 1px 25em 0em;
+    margin-right: 1px;
     border-right: 3px solid #7b7b7e;
     border-left: 3px solid #7b7b7e;
     .container {

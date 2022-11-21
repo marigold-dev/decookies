@@ -331,7 +331,7 @@ export const Game = () => {
                 <div>
                   <a href="#eat-modal">Eat cookies</a>
                   <a href="#transfer-modal">Transfer cookies</a>
-                  <a href="/rules">Rules</a>
+                  <a target="_blank" href="/rules">Rules</a>
                 </div>
               </div>
             </div>
@@ -345,7 +345,7 @@ export const Game = () => {
                   ×
                 </a>
               </div>
-              <div className="modal-body">
+              <div className="modal-body table mobile">
                 <div>
                   <Item className="modal-item">
                     <div>
@@ -371,7 +371,7 @@ export const Game = () => {
                   </Item>
                   <h3>Eat cookies Ranking</h3>
                   <div>
-                    <table className="table">
+                    <table>
                       <tbody>
                         <tr>
                           <th>Rank</th>
@@ -439,7 +439,7 @@ export const Game = () => {
       <GameContainer className="container">
         <section className="left">
           <div className="container">
-            <a href="/rules">
+            <a target="_blank" href="/rules">
               <Button dark> Game rules</Button>
             </a>
           </div>
@@ -605,30 +605,6 @@ export const Game = () => {
             </div>
           </GameButton>
           <Line />
-          <Item className="player-info">
-            <div>
-              <h2>Player info</h2>
-              <label
-                hidden={!latestState.current.publicAddress}
-                className="address"
-              >
-                <p>Address:</p>
-                <p className="description">
-                  {latestState.current.publicAddress}
-                </p>
-              </label>
-              <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} />
-              <label>Deku node URI:</label>
-              <input
-                type="text"
-                name="nodeUri"
-                ref={nodeUriRef}
-                defaultValue={getRandomBetaNode()}
-              />
-              <Button onClick={handleBeaconConnection}>Connect wallet </Button>
-            </div>
-          </Item>
         </section>
         <section className="middle">
           <p>Cookies</p>
@@ -690,7 +666,7 @@ export const Game = () => {
                           ×
                         </a>
                       </div>
-                      <div className="modal-body">
+                      <div className="modal-body table">
                         <h3>Eat cookies Ranking</h3>
                         <div>
                           <table>
