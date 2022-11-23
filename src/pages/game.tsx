@@ -43,6 +43,7 @@ import {
   fullUpdateCB,
   saveLeaderBoard,
   eraseConfig,
+  addMessage,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -202,6 +203,11 @@ export const Game = () => {
             dispatch,
             latestState
           );
+          dispatch(addMessage("Successfully transfer " + amountToTransfer + " cookies to " + transferRecipient));
+          if (amountToTransferRef.current != null && transferRecipientRef.current != null) {
+            amountToTransferRef.current.value = "";
+            transferRecipientRef.current.value = "";
+          }
         } catch (err) {
           const error_msg =
             typeof err === "string" ? err : (err as Error).message;
@@ -219,6 +225,9 @@ export const Game = () => {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
           eatCookie(amountToEat, dispatch, latestState);
+          dispatch(addMessage("Successfully eat " + amountToEat + " cookies"));
+          if (amountToEatRef.current != null)
+            amountToEatRef.current.value = "";
         } catch (err) {
           const error_msg =
             typeof err === "string" ? err : (err as Error).message;
@@ -235,7 +244,7 @@ export const Game = () => {
     const wallet = latestState.current.wallet;
     const contract = latestState.current.dekucContract;
     if (wallet && contract) {
-      contract.onNewState(() => {});
+      contract.onNewState(() => { });
       dispatch(eraseConfig());
       await wallet.disconnect();
       dispatch(updateOven(0n));
