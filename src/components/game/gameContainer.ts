@@ -25,7 +25,7 @@ const GameContainer = styled.div`
     }
     p {
       text-align: left;
-      font-size: 12px;
+      font-size: 15px;
       padding-left: 2.8em;
     }
     .cookieText {
@@ -33,7 +33,7 @@ const GameContainer = styled.div`
       text-align: left;
       margin-top: -10px;
       padding: 0 0 3em 0;
-      font-size: 9px;
+      font-size: 12px;
       padding-left: 3.4em;
     }
     .cookieBtn {
@@ -43,7 +43,7 @@ const GameContainer = styled.div`
       background: transparent;
     }
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     &.container {
       grid-template-columns: 1fr 1fr 1fr;
       grid-gap: 10px;
@@ -51,7 +51,7 @@ const GameContainer = styled.div`
     section {
       &.middle {
         .cookieBtn {
-          height: 37vmin;
+          height: 30vmin;
         }
         p {
           font-size: 18px;
@@ -71,7 +71,7 @@ const GameContainer = styled.div`
         border-right: 3px solid #7b7b7e;
         border-left: 3px solid #7b7b7e;
         overflow: scroll;
-        height: 544px;
+        height: 637px;
         scrollbar-width: 10px;
         .container {
           display: block;

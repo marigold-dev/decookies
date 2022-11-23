@@ -27,7 +27,7 @@ const Item = styled.div`
     text-align:left;
     margin: 1.5em 0;
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     margin-left: 0;
     padding: 0;
     background:none;

@@ -6,7 +6,7 @@ const Line = styled.div`
     height: 3px;
     background: #7b7b7e;
 
-@media (min-width: 1209px) {
+@media (min-width: 768px) {
     width: 350px;
     height:3px;
 }
