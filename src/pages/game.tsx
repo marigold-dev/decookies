@@ -97,7 +97,10 @@ export const Game = () => {
   const nicknameRef = useRef<HTMLInputElement | null>(null);
   const amountToTransferRef = useRef<HTMLInputElement | null>(null);
   const transferRecipientRef = useRef<HTMLInputElement | null>(null);
+  const amountToTransferRef2 = useRef<HTMLInputElement | null>(null);
+  const transferRecipientRef2 = useRef<HTMLInputElement | null>(null);
   const amountToEatRef = useRef<HTMLInputElement | null>(null);
+  const amountToEatRef2 = useRef<HTMLInputElement | null>(null);
   const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
@@ -188,8 +191,8 @@ export const Game = () => {
     addTemple(dispatch, latestState);
   };
   const handleTransferClick = () => {
-    amountToTransfer = amountToTransferRef.current?.value || "";
-    transferRecipient = transferRecipientRef.current?.value || "";
+    amountToTransfer = amountToTransferRef.current?.value || amountToTransferRef2.current?.value || "";
+    transferRecipient = transferRecipientRef.current?.value || transferRecipientRef2.current?.value || "";
     if (amountToTransfer && transferRecipient) {
       if (!amountToTransfer.startsWith("-") && !isNaN(Number(amountToTransfer))) {
         try {
@@ -211,7 +214,7 @@ export const Game = () => {
     }
   };
   const handleEatClick = () => {
-    amountToEat = amountToEatRef.current?.value || "";
+    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value  || "";
     if (amountToEat) {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
@@ -421,7 +424,7 @@ export const Game = () => {
                 <div>
                   <a href="#eat-modal">Eat cookies</a>
                   <a href="#transfer-modal">Transfer cookies</a>
-                  <a href="/rules">Rules</a>
+                  <a target="_blank" href="/rules">Rules</a>
                 </div>
               </div>
             </div>
@@ -435,7 +438,7 @@ export const Game = () => {
                   ×
                 </a>
               </div>
-              <div className="modal-body">
+              <div className="modal-body table mobile">
                 <div>
                   <Item className="modal-item">
                     <div>
@@ -446,7 +449,7 @@ export const Game = () => {
                       <input
                         type="text"
                         name="amountToEat"
-                        ref={amountToEatRef}
+                        ref={amountToEatRef2}
                       />
                       <div className="buttonContainer">
                         <Button
@@ -461,7 +464,7 @@ export const Game = () => {
                   </Item>
                   <h3>Eat cookies Ranking</h3>
                   <div>
-                    <table className="table">
+                    <table>
                       <tbody>
                         <tr>
                           <th>Rank</th>
@@ -505,13 +508,13 @@ export const Game = () => {
                       <input
                         type="text"
                         name="recipient"
-                        ref={transferRecipientRef}
+                        ref={transferRecipientRef2}
                       />
                       <label>Cookies</label>
                       <input
                         type="text"
                         name="amount"
-                        ref={amountToTransferRef}
+                        ref={amountToTransferRef2}
                       />
                       <div className="buttonContainer">
                         <Button disabled={false} onClick={handleTransferClick}>
@@ -529,7 +532,7 @@ export const Game = () => {
       <GameContainer className="container">
         <section className="left">
           <div className="container">
-            <a href="/rules">
+            <a target="_blank" href="/rules">
               <Button dark> Game rules</Button>
             </a>
           </div>
@@ -695,30 +698,6 @@ export const Game = () => {
             </div>
           </GameButton>
           <Line />
-          <Item className="player-info">
-            <div>
-              <h2>Player info</h2>
-              <label
-                hidden={!latestState.current.publicAddress}
-                className="address"
-              >
-                <p>Address:</p>
-                <p className="description">
-                  {latestState.current.publicAddress}
-                </p>
-              </label>
-              <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
-              <label>Deku node URI:</label>
-              <input
-                type="text"
-                name="nodeUri"
-                ref={nodeUriRef}
-                defaultValue={getRandomBetaNode()}
-              />
-              {isConnected ? <button>Disconnect</button> : <Button onClick={handleBeaconConnection}>Connect wallet </Button>}
-            </div>
-          </Item>
         </section>
         <section className="middle">
           <p>Cookies</p>
@@ -781,7 +760,7 @@ export const Game = () => {
                           ×
                         </a>
                       </div>
-                      <div className="modal-body">
+                      <div className="modal-body table">
                         <h3>Eat cookies Ranking</h3>
                         <div>
                           <table>

@@ -14,11 +14,10 @@ const GameButton = styled.button`
     justify-content: center;
     align-items: center;
     padding: 0 0.5em 0.2em 0.5em;
-    height: auto;
-    overflow-y: scroll;
-    font-size: 6px;
+    height:auto;
+    font-size: 8px;
     color: ${props =>props.theme.palette.primary.contrastText};
-    width: 195px;
+    width: 196px;
     h3 {
       color: ${props =>props.theme.palette.common.white};
     }
@@ -29,7 +28,10 @@ const GameButton = styled.button`
       align-items: center;
       background: ${props =>props.theme.palette.common.darkGray};
       margin: 0.3em;
-      height: 40px;
+      margin: 0.3em;
+      height: 53px;
+      width: 58px;
+
     }
     .title {
       margin: 0.5em 0 0.7em 0;
@@ -56,7 +58,7 @@ const GameButton = styled.button`
       flex-direction: row;
     }
   }
-  @media (min-width: 1209px) {
+  @media (min-width: 768px) {
     div {
       &.gameButtonContainer {
         padding: 0 1em 0.5em 1em;
@@ -68,7 +70,12 @@ const GameButton = styled.button`
         }
         .background {
           margin: 0.3em;
-          height: 74px;
+          height: 77px;
+          width:95px;
+
+          &.value {
+            width:70px;
+          }
         }
         img {
           width: 30px;

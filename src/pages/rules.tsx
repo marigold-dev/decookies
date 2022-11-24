@@ -6,7 +6,6 @@ import RulesContainer from '../components/rules';
 const Rules = () =>
     <RulesContainer>
         <section className="left">
-            <a href="/"><img src={back}></img>Back</a>
             <h2>Enjoy making cookies!</h2>
             <p>Rules are easy</p>
             <ul>

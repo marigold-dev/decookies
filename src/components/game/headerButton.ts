@@ -3,7 +3,7 @@ const HeaderButton = styled.div`
     position: absolute;
     top: 18px;
     right: 35px;
-    @media (min-width: 1209px) {
+    @media (min-width: 768px) {
         top: 18px;
         right: 40px;
         button {

@@ -78,6 +78,14 @@ const Modal = styled.div`
   .modal-body {
     text-align: center;
     padding: 20px;
+      &.table {
+        overflow: scroll;
+        height: 50vh;
+        width: 80%;
+      &.mobile {
+        width: 80%;
+      }
+      }
     div {
       display: flex;
       flex-direction: column;
