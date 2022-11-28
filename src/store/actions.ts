@@ -4,7 +4,6 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualPlayerState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { vmOperation } from './vmTypes';
 import { Contract } from '@marigold-dev/deku-c-toolkit';
 import { cursor } from './vmActions/cursor';
 import { cookie } from './vmActions/cookie';
@@ -16,7 +15,7 @@ import { bank } from './vmActions/bank';
 import { temple } from './vmActions/temple';
 import { eat } from './vmActions/eat';
 import { transfer } from './vmActions/transfer';
-import { getPlayerState, leaderBoard } from './utils';
+import { leaderBoard } from './utils';
 
 /**
  * All the actions available
@@ -205,31 +204,6 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
             throw new Error("Wallet must be saved before minting");
         }
         mint(vmAction, state);
-    } catch (err) {
-        const error_msg = (typeof err === 'string') ? err : (err as Error).message;
-        dispatch(addError(error_msg));
-        throw new Error(error_msg);
-    }
-}
-
-export const transferOrEatCookies = async (type: vmOperation, dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>, payload: number = 1): Promise<void> => {
-    try {
-        const vmAction = type;
-        const wallet = state.current.wallet;
-        const nodeUri = state.current.nodeUri;
-        const userAddress = state.current.publicAddress;
-        if (!wallet || !nodeUri) {
-            throw new Error("Wallet must be saved before minting");
-        }
-        Array(payload).fill(1).map(() => mint(vmAction, state));
-        if (userAddress && state.current.dekucContract)
-            state.current.dekucContract.onNewState((newState: any) => {
-                const playerState = getPlayerState(newState, userAddress);
-                dispatch(fullUpdateCB(playerState));
-                const leaderBoard = getLeaderBoard(newState);
-                dispatch(saveLeaderBoard(leaderBoard));
-            })
-
     } catch (err) {
         const error_msg = (typeof err === 'string') ? err : (err as Error).message;
         dispatch(addError(error_msg));

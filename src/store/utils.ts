@@ -1,9 +1,11 @@
 import { buf2hex } from '@taquito/utils';
 import * as blake from 'blakejs';
-import * as bs58check from 'bs58check';
+import bs58check from 'bs58check';
 import { action, updateBuildingBanks, updateBuildingFactories, updateBuildingFarms, updateBuildingTemples, updateCursorBasket, updateDrillingMines, updateOven, updateRecruitingGrandmas } from './actions';
 import { cookieBaker, initialState } from './cookieBaker';
 import { keyPair, state } from './reducer';
+
+export type leaderBoard = { address: string, cookieBaker: cookieBaker }
 
 export const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);
@@ -67,8 +69,6 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
         return initialState;
     }
 }
-
-export type leaderBoard = { address: string, cookieBaker: cookieBaker }
 
 export const getLeaderBoardFromState = (state: { [x: string]: any }, userAddress: string) => {
     const cookieBaker = getPlayerState(state, userAddress);
@@ -136,4 +136,15 @@ export const updatePendings = (playerState: cookieBaker, appState: React.Mutable
         if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
         else dispatch(updateBuildingTemples(building));
     }
+}
+
+export const resetPendings = (dispatch: React.Dispatch<action>) => {
+    dispatch(updateOven(0n));
+    dispatch(updateCursorBasket(0n));
+    dispatch(updateRecruitingGrandmas(0n));
+    dispatch(updateBuildingFarms(0n));
+    dispatch(updateDrillingMines(0n));
+    dispatch(updateBuildingFactories(0n));
+    dispatch(updateBuildingBanks(0n));
+    dispatch(updateBuildingTemples(0n));
 }

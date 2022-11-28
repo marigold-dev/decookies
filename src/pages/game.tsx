@@ -68,7 +68,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, getPlayerState, stringToHex, updatePendings } from "../store/utils";
+import { getKeyPair, getPlayerState, resetPendings, stringToHex, updatePendings } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -244,18 +244,10 @@ export const Game = () => {
     const wallet = latestState.current.wallet;
     const contract = latestState.current.dekucContract;
     if (wallet && contract) {
+      dispatch(eraseConfig());
       contract.onNewState(() => { });
-      dispatch(eraseConfig());
       await wallet.disconnect();
-      dispatch(updateOven(0n));
-      dispatch(updateCursorBasket(0n));
-      dispatch(updateRecruitingGrandmas(0n));
-      dispatch(updateBuildingFarms(0n));
-      dispatch(updateDrillingMines(0n));
-      dispatch(updateBuildingFactories(0n));
-      dispatch(updateBuildingBanks(0n));
-      dispatch(updateBuildingTemples(0n));
-      dispatch(eraseConfig());
+      resetPendings(dispatch);
     }
   }
   const handleBeaconConnection = async () => {
@@ -263,14 +255,7 @@ export const Game = () => {
       clearInterval(latestState.current.intervalId);
     nodeUri = nodeUriRef.current?.value || "";
     nickName = nicknameRef.current?.value || "";
-    dispatch(updateOven(0n));
-    dispatch(updateCursorBasket(0n));
-    dispatch(updateRecruitingGrandmas(0n));
-    dispatch(updateBuildingFarms(0n));
-    dispatch(updateDrillingMines(0n));
-    dispatch(updateBuildingFactories(0n));
-    dispatch(updateBuildingBanks(0n));
-    dispatch(updateBuildingTemples(0n));
+    resetPendings(dispatch);
 
     if (nodeUri && nickName) {
       dispatch(saveConfig(nodeUri, nickName));

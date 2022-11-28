@@ -1,7 +1,6 @@
 import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
-// import { createNonce, stringToHex } from './utils';
 import { getLeaderBoardFromState, getPlayerState, leaderBoard } from './utils';
 
 import { state } from './reducer'
