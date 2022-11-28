@@ -1,51 +1,15 @@
-import { encodeExpr, buf2hex, b58decode } from '@taquito/utils';
+import { buf2hex } from '@taquito/utils';
 import * as blake from 'blakejs';
-import * as bs58check from 'bs58check';
+import bs58check from 'bs58check';
+import { action, updateBuildingBanks, updateBuildingFactories, updateBuildingFarms, updateBuildingTemples, updateCursorBasket, updateDrillingMines, updateOven, updateRecruitingGrandmas } from './actions';
 import { cookieBaker, initialState } from './cookieBaker';
-import { keyPair } from './reducer';
+import { keyPair, state } from './reducer';
 
-export const sleep = (ms: number) => new Promise(
-    resolve => setTimeout(resolve, ms)
-);
-
-/**
- * Create a random nonce, like in Deku
- * @returns random integer
- */
-export const createNonce = (): number => {
-    const maxInt32 = 2147483647;
-    const nonce = Math.floor(Math.random() * maxInt32);
-    return nonce;
-}
+export type leaderBoard = { address: string, cookieBaker: cookieBaker }
 
 export const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);
     return buf2hex(input);
-}
-
-export const createHash = (jsonToHash: string): string => {
-    return b58decode(encodeExpr(stringToHex(jsonToHash))).slice(4, -2);
-}
-
-/**
- * Helper to correctly parse BigInt
- * @param _key unused
- * @param value can be e BigInt
- * @returns 
- */
-export const parseReviver = (_key: any, value: any) => {
-    if (typeof value === 'string' && /^\d+n$/.test(value)) {
-        return BigInt(value.slice(0, -1));
-    }
-    return value;
-}
-
-export const stringifyReplacer = (_key: any, value: any) => {
-    if (typeof value === 'bigint') {
-        return value.toString() + 'n';
-    } else {
-        return value;
-    }
 }
 
 export const PREFIX = {
@@ -66,7 +30,6 @@ export const toB58Hash = (prefix: Uint8Array, payload: string) => {
     const b58 = bs58check.encode(Buffer.from(tmp));
     return b58;
 }
-
 
 export const getKeyPair = (rawKeyPair: any): keyPair => {
     const rawPrivateKey = rawKeyPair.privateKey.split("-----")[2].trim();
@@ -107,36 +70,81 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
     }
 }
 
-export type leaderBoard = {address: string, cookieBaker: cookieBaker}
+export const getLeaderBoardFromState = (state: { [x: string]: any }, userAddress: string) => {
+    const cookieBaker = getPlayerState(state, userAddress);
+    const element: leaderBoard = {
+        address: userAddress, cookieBaker: cookieBaker
+    };
+    return element;
+}
 
-export const getSomethingState = (state: { [x: string]: any }, userAddress: string) => {
-    const rawCookieBaker = state[userAddress];
-    if (rawCookieBaker) {
-        const flattenRawCookieBaker = rawCookieBaker.flat(4);
-        const cookieBaker = {
-            passiveCPS: flattenRawCookieBaker[14],
-            cookies: flattenRawCookieBaker[2],
-            cursors: flattenRawCookieBaker[4],
-            grandmas: flattenRawCookieBaker[11],
-            farms: flattenRawCookieBaker[9],
-            mines: flattenRawCookieBaker[13],
-            factories: flattenRawCookieBaker[6],
-            cursorCost: flattenRawCookieBaker[3],
-            grandmaCost: flattenRawCookieBaker[10],
-            farmCost: flattenRawCookieBaker[8],
-            mineCost: flattenRawCookieBaker[12],
-            factoryCost: flattenRawCookieBaker[7],
-            eatenCookies: flattenRawCookieBaker[5],
-            templeCost: flattenRawCookieBaker[15],
-            temples: flattenRawCookieBaker[16],
-            banks: flattenRawCookieBaker[1],
-            bankCost: flattenRawCookieBaker[0]
-        }
-        const element: leaderBoard = {
-            address: userAddress, cookieBaker: cookieBaker
-        };
-        return element;
-    } else {
-        throw new Error("Impossible");
+export const updatePendings = (playerState: cookieBaker, appState: React.MutableRefObject<state>, dispatch: React.Dispatch<action>) => {
+    if (playerState.cookies > appState.current.cookieBaker.cookies) {
+        const inOven =
+            BigInt(appState.current.cookiesInOven) -
+            (BigInt(playerState.cookies) - BigInt(appState.current.cookieBaker.cookies));
+        if (BigInt(inOven) < 0n) dispatch(updateOven(0n));
+        else dispatch(updateOven(inOven));
     }
+    if (playerState.cursors > appState.current.cookieBaker.cursors) {
+        const building =
+            BigInt(appState.current.cursorsInBasket) -
+            (BigInt(playerState.cursors) - BigInt(appState.current.cookieBaker.cursors));
+        if (BigInt(building) < 0n) dispatch(updateCursorBasket(0n));
+        else dispatch(updateCursorBasket(building));
+    }
+    // TODO: this is duplicated logic from cursor in basket etc. Abstract into a function
+    if (playerState.grandmas > appState.current.cookieBaker.grandmas) {
+        const building =
+            BigInt(appState.current.recruitingGrandmas) -
+            (BigInt(playerState.grandmas) - BigInt(appState.current.cookieBaker.grandmas));
+        if (BigInt(building) < 0n) dispatch(updateRecruitingGrandmas(0n));
+        else dispatch(updateRecruitingGrandmas(building));
+    }
+    if (playerState.farms > appState.current.cookieBaker.farms) {
+        const building =
+            BigInt(appState.current.buildingFarms) -
+            (BigInt(playerState.farms) - BigInt(appState.current.cookieBaker.farms));
+        if (BigInt(building) < 0n) dispatch(updateBuildingFarms(0n));
+        else dispatch(updateBuildingFarms(building));
+    }
+    if (playerState.mines > appState.current.cookieBaker.mines) {
+        const building =
+            BigInt(appState.current.drillingMines) -
+            (BigInt(playerState.mines) - BigInt(appState.current.cookieBaker.mines));
+        if (BigInt(building) < 0n) dispatch(updateDrillingMines(0n));
+        else dispatch(updateDrillingMines(building));
+    }
+    if (playerState.factories > appState.current.cookieBaker.factories) {
+        const building =
+            BigInt(appState.current.buildingFactories) -
+            (BigInt(playerState.factories) - BigInt(appState.current.cookieBaker.factories));
+        if (BigInt(building) < 0n) dispatch(updateBuildingFactories(0n));
+        else dispatch(updateBuildingFactories(building));
+    }
+    if (playerState.banks > appState.current.cookieBaker.banks) {
+        const building =
+            BigInt(appState.current.buildingBanks) -
+            (BigInt(playerState.banks) - BigInt(appState.current.cookieBaker.banks));
+        if (BigInt(building) < 0n) dispatch(updateBuildingBanks(0n));
+        else dispatch(updateBuildingBanks(building));
+    }
+    if (playerState.temples > appState.current.cookieBaker.temples) {
+        const building =
+            BigInt(appState.current.buildingTemples) -
+            (BigInt(playerState.temples) - BigInt(appState.current.cookieBaker.temples));
+        if (BigInt(building) < 0n) dispatch(updateBuildingTemples(0n));
+        else dispatch(updateBuildingTemples(building));
+    }
+}
+
+export const resetPendings = (dispatch: React.Dispatch<action>) => {
+    dispatch(updateOven(0n));
+    dispatch(updateCursorBasket(0n));
+    dispatch(updateRecruitingGrandmas(0n));
+    dispatch(updateBuildingFarms(0n));
+    dispatch(updateDrillingMines(0n));
+    dispatch(updateBuildingFactories(0n));
+    dispatch(updateBuildingBanks(0n));
+    dispatch(updateBuildingTemples(0n));
 }

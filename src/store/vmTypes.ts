@@ -1,6 +1,3 @@
-import { cookieBaker } from "./cookieBaker"
-import { parseReviver } from "./utils"
-
 export enum building {
     cookie = "cookie",
     cursor = "cursor",
@@ -22,21 +19,4 @@ export enum building {
     javaScript = "javaScript",
     idleverse = "idleverse",
     cordex = "cordex",
-}
-
-export enum operationType {
-    mint = "mint",
-    transfer = "transfer",
-    eat = "eat"
-}
-
-export type vmOperation = {
-    type: operationType,
-    operation: building | null
-    amount: string
-}
-
-export type transfer = {
-    to: string
-    amount: string
 }

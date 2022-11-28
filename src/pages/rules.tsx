@@ -1,6 +1,5 @@
 import cookie from '../../resources/images/cookie.png';
 import desktop from '../../resources/images/desktop-bg.png';
-import back from '../../resources/images/back.png';
 import RulesContainer from '../components/rules';
 
 const Rules = () =>

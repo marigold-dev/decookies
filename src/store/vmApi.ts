@@ -1,8 +1,7 @@
 import { InMemorySigner } from '@taquito/signer';
 
 import { initialState, cookieBaker } from './cookieBaker';
-// import { createNonce, stringToHex } from './utils';
-import { getSomethingState, getPlayerState, leaderBoard } from './utils';
+import { getLeaderBoardFromState, getPlayerState, leaderBoard } from './utils';
 
 import { state } from './reducer'
 import { action, saveUserAddress } from './actions';
@@ -35,7 +34,7 @@ export const getActualPlayerState = async (dispatch: React.Dispatch<action>, sta
  */
 const getRawLeaderBoard = (vmState: any): any => {
     // const contract = state.current.dekucContract
-    const allCookieBakers: leaderBoard[] = Object.keys(vmState).map(key => getSomethingState(vmState, key));
+    const allCookieBakers: leaderBoard[] = Object.keys(vmState).map(key => getLeaderBoardFromState(vmState, key));
     const sorted =
         Object.entries(allCookieBakers).sort((a, b) => {
             const eatenA = a[1].cookieBaker.eatenCookies;
@@ -61,63 +60,6 @@ export const mint = async (vmAction: any, latestState: React.MutableRefObject<st
     if (keyPair && latestState.current.nodeUri && contract) {
         try {
             const hash = await contract.invoke(vmAction);
-            // const hash = await contract.invoke([
-            //     "Pair",
-            //     [
-            //         "Pair",
-            //         ["Int", "1"],
-            //         [
-            //             "Union",
-            //             [
-            //                 "Left",
-            //                 ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]]
-            //             ]
-            //         ]
-            //     ],
-            //     [
-            //         "Pair",
-            //         ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]],
-            //         ["Option", null]
-            //     ]
-            // ]);
-
-
-            // await dekuToolkit.submitVmOperation(JSON.stringify(action, stringifyReplacer));
-
-
-            // const address = await signer.publicKeyHash();
-            // const key = await signer.publicKey();
-
-            // const level = await requestBlockLevel(nodeUri);
-            // const payload = action;
-            // const content = ["Vm_transaction", {
-            //     operation: JSON.stringify(payload, stringifyReplacer),
-            //     tickets: []
-            // }];
-            // const source = address;
-            // let nonce = createNonce().toString();
-            // const operation = {
-            //     level,
-            //     nonce,
-            //     source,
-            //     content
-            // };
-            // const signature = await signer.sign(stringToHex(JSON.stringify(operation))).then((val) => val.prefixSig);
-            // const fullPayload = JSON.stringify({
-            //     key,
-            //     signature,
-            //     operation
-            // }, stringifyReplacer);
-
-            // const hash = await fetch(nodeUri + "/api/v1/operations",
-            //     {
-            //         method: "POST",
-            //         body: fullPayload
-            //     });
-            //TODO: here?
-            // const inOven = latestState.current.cookiesInOven + 1n;
-            // console.log("inOven: ", inOven);
-            // dispatch(updateOven(inOven));
             return hash;
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;
