@@ -1,23 +1,3 @@
-export const transfer = (amount: string, to: string) => {
-    return ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option", ["None", {}]]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Right", ["Unit"]]
-                    ],
-                    ["Option",
-                        ["Some",
-                            ["String", to]]
-                    ]
-                ]
-            ]
-        ]
-    ]
+export const transfer = (amount: string, to: string, layerOneAddress: string) => {
+    return ["Pair", [["Pair", [["Pair", [["Int", amount], ["String", layerOneAddress]]], ["Pair", [["Option", ["None", {}]], ["Union", ["Right", ["Unit"]]]]]]], ["Option", ["Some", ["String", to]]]]]
 }

@@ -1,25 +1,3 @@
-export const eat = (amount: string) => {
-    return ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option",
-                        ["None", {}]]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Left",
-                            ["Union",
-                                ["Left", ["Unit"]]
-                            ]
-                        ]
-                    ],
-                    ["Option", ["None", {}]]
-                ]
-            ]
-        ]
-    ]
+export const eat = (amount: string, layerOneAddress: string) => {
+    return ["Pair", [["Pair", [["Pair", [["Int", amount], ["String", layerOneAddress]]], ["Pair", [["Option", ["None", {}]], ["Union", ["Left", ["Union", ["Left", ["Unit"]]]]]]]]], ["Option", ["None", {}]]]]
 }

@@ -311,7 +311,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK1EGDvU2jUq3Bzhg5vZoxxWKUeoaYevwbyB");
+        const contract = dekuToolkit.contract("DK15wrQAZntHTn76tCXcdNfHbGrLbqAsZkVK");
         dispatch(saveContract(contract));
         const address = await inMemorySigner.publicKeyHash();
         contract.onNewState((newState: any) => {
@@ -407,7 +407,7 @@ export const Game = () => {
                         <tr>
                           <th>Rank</th>
                           <th>Game Address</th>
-                          <th>Layer One Address</th>
+                          {/* <th>Layer One Address</th> */}
                           <th>Eaten cookies</th>
                         </tr>
                         {gameState.leaderBoard.map(
@@ -415,7 +415,7 @@ export const Game = () => {
                             <tr key={i}>
                               <td>{i + 1}</td>
                               <td>{item[1].gameAddress}</td>
-                              <td>{item[1].cookieBaker.layerOneAddress}</td>
+                              {/* <td>{item[1].cookieBaker.layerOneAddress}</td> */}
                               <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                             </tr>
                           )
@@ -708,7 +708,7 @@ export const Game = () => {
                               <tr>
                                 <th>Rank</th>
                                 <th>Game Address</th>
-                                <th>Layer One Address</th>
+                                {/* <th>Layer One Address</th> */}
                                 <th>Eaten cookies</th>
                               </tr>
                               {gameState.leaderBoard.map(
@@ -716,7 +716,7 @@ export const Game = () => {
                                   <tr key={i}>
                                     <td>{i + 1}</td>
                                     <td>{item[1].gameAddress}</td>
-                                    <td>{item[1].cookieBaker.layerOneAddress}</td>
+                                    {/* <td>{item[1].cookieBaker.layerOneAddress}</td> */}
                                     <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                                   </tr>
                                 )

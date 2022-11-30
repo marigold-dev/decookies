@@ -291,21 +291,30 @@ export const addTemple = async (dispatch: React.Dispatch<action>,
     }
 }
 
-export const transferCookie = (to: string,
+export const transferCookie = async (to: string,
     amount: string,
     dispatch: React.Dispatch<action>,
     state: React.MutableRefObject<state>,
     payload: number = 1) => {
-    add(transfer(amount, to))
-        (dispatch, state);
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(transfer(amount, to, layerOneAddress))
+            (dispatch, state);
+    }
 }
 
-export const eatCookie = (amount: string,
+export const eatCookie = async (amount: string,
     dispatch: React.Dispatch<action>,
     state: React.MutableRefObject<state>,
-    payload: number = 1) =>
-    add(eat(amount))
-        (dispatch, state);
+    payload: number = 1) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(eat(amount, layerOneAddress))
+            (dispatch, state);
+    }
+}
 
 export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
     const contract = state.current.dekucContract;
