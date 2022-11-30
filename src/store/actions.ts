@@ -211,25 +211,85 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
     }
 }
 
-export const addCookie = (amount: string,
+export const addCookie = async (amount: string,
     dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>) =>
-    add(cookie(amount))
-        (dispatch, state);
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(cookie(amount, layerOneAddress))
+            (dispatch, state);
+    }
+}
+export const addCursor = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(cursor(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addCursor = add(cursor);
+export const addGrandma = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(grandma(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addGrandma = add(grandma);
+export const addFarm = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(farm(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addFarm = add(farm);
+export const addMine = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(mine(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addMine = add(mine);
+export const addFactory = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(factory(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addFactory = add(factory);
+export const addBank = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(bank(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
-export const addBank = add(bank);
-
-export const addTemple = add(temple);
+export const addTemple = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        const layerOneAddress = await state.current.wallet.getPKH();
+        console.log("LAYER ONE ADDRESS: ", layerOneAddress);
+        add(temple(layerOneAddress))
+            (dispatch, state);
+    }
+}
 
 export const transferCookie = (to: string,
     amount: string,

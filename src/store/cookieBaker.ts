@@ -21,8 +21,9 @@ export type cookieBaker = {
     factoryCost: bigint,
     bankCost: bigint,
     templeCost: bigint,
-    passiveCPS: bigint
-    eatenCookies: bigint
+    passiveCPS: bigint,
+    eatenCookies: bigint,
+    layerOneAddress: string
 };
 
 export const initialState: cookieBaker = {
@@ -42,7 +43,8 @@ export const initialState: cookieBaker = {
     bankCost: 0n,
     templeCost: 0n,
     passiveCPS: 0n,
-    eatenCookies: 0n
+    eatenCookies: 0n,
+    layerOneAddress: ""
 }
 
 // useful to determine if button is disabled or not

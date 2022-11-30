@@ -215,7 +215,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot transfer a non numeric amount of cookies"));
+        dispatch(addError("Cannot transfer negative or non numeric amount of cookies"));
       }
     }
   };
@@ -235,7 +235,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot eat a non numeric amount of cookies"));
+        dispatch(addError("Cannot eat negative or non numeric amount of cookies"));
       }
     }
   };
@@ -311,7 +311,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+        const contract = dekuToolkit.contract("DK1EGDvU2jUq3Bzhg5vZoxxWKUeoaYevwbyB");
         dispatch(saveContract(contract));
         const address = await inMemorySigner.publicKeyHash();
         contract.onNewState((newState: any) => {
@@ -406,14 +406,16 @@ export const Game = () => {
                       <tbody>
                         <tr>
                           <th>Rank</th>
-                          <th>Address</th>
+                          <th>Game Address</th>
+                          <th>Layer One Address</th>
                           <th>Eaten cookies</th>
                         </tr>
                         {gameState.leaderBoard.map(
                           (item: any, i: any) => (
                             <tr key={i}>
                               <td>{i + 1}</td>
-                              <td>{item[1].address}</td>
+                              <td>{item[1].gameAddress}</td>
+                              <td>{item[1].cookieBaker.layerOneAddress}</td>
                               <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                             </tr>
                           )
@@ -705,14 +707,16 @@ export const Game = () => {
                             <tbody>
                               <tr>
                                 <th>Rank</th>
-                                <th>Address</th>
+                                <th>Game Address</th>
+                                <th>Layer One Address</th>
                                 <th>Eaten cookies</th>
                               </tr>
                               {gameState.leaderBoard.map(
                                 (item: any, i: any) => (
                                   <tr key={i}>
                                     <td>{i + 1}</td>
-                                    <td>{item[1].address}</td>
+                                    <td>{item[1].gameAddress}</td>
+                                    <td>{item[1].cookieBaker.layerOneAddress}</td>
                                     <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                                   </tr>
                                 )

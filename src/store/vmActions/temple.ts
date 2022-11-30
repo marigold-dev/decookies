@@ -1,1 +1,3 @@
-export const temple = ["Pair", [["Pair", [["Int", "1"], ["Option", ["Some", ["Union", ["Right", ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]]]]]]], ["Pair", [["Union", ["Left", ["Union", ["Right", ["Unit"]]]]], ["Option", ["None", {}]]]]]]
+export const temple = (layerOneAddress: string) => {
+    return ["Pair", [["Pair", [["Pair", [["Int", "1"], ["String", layerOneAddress]]], ["Pair", [["Option", ["Some", ["Union", ["Right", ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]]]]], ["Union", ["Left", ["Union", ["Right", ["Unit"]]]]]]]]], ["Option", ["None", {}]]]]
+}

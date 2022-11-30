@@ -5,7 +5,7 @@ import { action, updateBuildingBanks, updateBuildingFactories, updateBuildingFar
 import { cookieBaker, initialState } from './cookieBaker';
 import { keyPair, state } from './reducer';
 
-export type leaderBoard = { address: string, cookieBaker: cookieBaker }
+export type leaderBoard = { gameAddress: string, cookieBaker: cookieBaker }
 
 export const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);
@@ -46,23 +46,24 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
     if (rawCookieBaker) {
         const flattenRawCookieBaker = rawCookieBaker.flat(4);
         const cookieBaker = {
-            passiveCPS: flattenRawCookieBaker[14],
+            passiveCPS: flattenRawCookieBaker[15],
             cookies: flattenRawCookieBaker[2],
             cursors: flattenRawCookieBaker[4],
             grandmas: flattenRawCookieBaker[11],
             farms: flattenRawCookieBaker[9],
-            mines: flattenRawCookieBaker[13],
+            mines: flattenRawCookieBaker[14],
             factories: flattenRawCookieBaker[6],
             cursorCost: flattenRawCookieBaker[3],
             grandmaCost: flattenRawCookieBaker[10],
             farmCost: flattenRawCookieBaker[8],
-            mineCost: flattenRawCookieBaker[12],
+            mineCost: flattenRawCookieBaker[13],
             factoryCost: flattenRawCookieBaker[7],
             eatenCookies: flattenRawCookieBaker[5],
-            templeCost: flattenRawCookieBaker[15],
-            temples: flattenRawCookieBaker[16],
+            templeCost: flattenRawCookieBaker[16],
+            temples: flattenRawCookieBaker[17],
             banks: flattenRawCookieBaker[1],
-            bankCost: flattenRawCookieBaker[0]
+            bankCost: flattenRawCookieBaker[0],
+            layerOneAddress: flattenRawCookieBaker[12]
         }
         return cookieBaker;
     } else {
@@ -72,8 +73,9 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
 
 export const getLeaderBoardFromState = (state: { [x: string]: any }, userAddress: string) => {
     const cookieBaker = getPlayerState(state, userAddress);
+    console.log("TEZOS ADDRESS: ", cookieBaker.layerOneAddress);
     const element: leaderBoard = {
-        address: userAddress, cookieBaker: cookieBaker
+        gameAddress: userAddress, cookieBaker: cookieBaker
     };
     return element;
 }
