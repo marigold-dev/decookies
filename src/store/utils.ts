@@ -5,7 +5,7 @@ import { action, updateBuildingBanks, updateBuildingFactories, updateBuildingFar
 import { cookieBaker, initialState } from './cookieBaker';
 import { keyPair, state } from './reducer';
 
-export type leaderBoard = { gameAddress: string, cookieBaker: cookieBaker }
+export type leaderBoard = { gameAddress: string, cookieBaker: cookieBaker, layerOneAddress: string }
 
 export const stringToHex = (payload: string): string => {
     const input = Buffer.from(payload);
@@ -71,11 +71,13 @@ export const getPlayerState = (state: { [x: string]: any }, userAddress: string)
     }
 }
 
+export type layerOneAddress = { none: boolean, some: string };
+
 export const getLeaderBoardFromState = (state: { [x: string]: any }, userAddress: string) => {
     const cookieBaker = getPlayerState(state, userAddress);
-    console.log("TEZOS ADDRESS: ", cookieBaker.layerOneAddress);
+    const address: layerOneAddress = cookieBaker.layerOneAddress;
     const element: leaderBoard = {
-        gameAddress: userAddress, cookieBaker: cookieBaker
+        gameAddress: userAddress, cookieBaker: cookieBaker, layerOneAddress: address.some
     };
     return element;
 }

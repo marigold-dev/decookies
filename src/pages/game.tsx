@@ -153,7 +153,7 @@ export const Game = () => {
     //TODO: here?
     const pending = latestState.current.cookiesInOven + 1n;
     dispatch(updateOven(pending));
-    addCookie("1", dispatch, latestState);
+    addCookie("1000000000", dispatch, latestState);
   };
   const handleCursorClick = () => {
     //TODO: here?
@@ -220,7 +220,7 @@ export const Game = () => {
     }
   };
   const handleEatClick = () => {
-    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value  || "";
+    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value || "";
     if (amountToEat) {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
@@ -311,7 +311,7 @@ export const Game = () => {
               signer
             }
           );
-        const contract = dekuToolkit.contract("DK15wrQAZntHTn76tCXcdNfHbGrLbqAsZkVK");
+        const contract = dekuToolkit.contract("DK1DurepwG3eCNmcToAvV54399Mad74ZiZYF");
         dispatch(saveContract(contract));
         const address = await inMemorySigner.publicKeyHash();
         contract.onNewState((newState: any) => {
@@ -407,15 +407,15 @@ export const Game = () => {
                         <tr>
                           <th>Rank</th>
                           <th>Game Address</th>
-                          {/* <th>Layer One Address</th> */}
+                          <th>Layer One Address</th>
                           <th>Eaten cookies</th>
                         </tr>
                         {gameState.leaderBoard.map(
-                          (item: any, i: any) => (
+                          (item: any, i: number) => (
                             <tr key={i}>
                               <td>{i + 1}</td>
                               <td>{item[1].gameAddress}</td>
-                              {/* <td>{item[1].cookieBaker.layerOneAddress}</td> */}
+                              <td>{item[1].layerOneAddress}</td>
                               <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                             </tr>
                           )
@@ -708,15 +708,15 @@ export const Game = () => {
                               <tr>
                                 <th>Rank</th>
                                 <th>Game Address</th>
-                                {/* <th>Layer One Address</th> */}
+                                <th>Layer One Address</th>
                                 <th>Eaten cookies</th>
                               </tr>
                               {gameState.leaderBoard.map(
-                                (item: any, i: any) => (
+                                (item: any, i: number) => (
                                   <tr key={i}>
                                     <td>{i + 1}</td>
                                     <td>{item[1].gameAddress}</td>
-                                    {/* <td>{item[1].cookieBaker.layerOneAddress}</td> */}
+                                    <td>{item[1].layerOneAddress}</td>
                                     <td>{item[1].cookieBaker.eatenCookies.toString()}</td>
                                   </tr>
                                 )
