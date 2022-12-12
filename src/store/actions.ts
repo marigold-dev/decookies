@@ -4,7 +4,7 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualPlayerState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { Contract } from '@marigold-dev/deku-c-toolkit';
+import { Contract } from '@marigold-dev/deku';
 import { cursor } from './vmActions/cursor';
 import { cookie } from './vmActions/cookie';
 import { grandma } from './vmActions/grandma';

@@ -1,7 +1,7 @@
 import { action } from './actions';
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { cookieBaker, initialState as backeryInitialState } from './cookieBaker';
-import { Contract } from '@marigold-dev/deku-c-toolkit';
+import { Contract } from '@marigold-dev/deku';
 import { leaderBoard } from './utils';
 
 export type state = {

@@ -77,10 +77,11 @@ import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";
 import Modal from "../components/modal";
 import { InMemorySigner } from '@taquito/signer';
-import * as deku from '@marigold-dev/deku-toolkit'
-import * as dekuc from '@marigold-dev/deku-c-toolkit'
-import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
+import * as deku from '@marigold-dev/deku'
+// import { DekuSigner } from '@marigold-dev/deku/lib/utils/signers';
 import { getLeaderBoard } from "../store/vmApi";
+import { Settings } from "@marigold-dev/deku/dist/deku-c";
+import { DekuSigner } from "@marigold-dev/deku/dist/deku-p/utils/signers";
 
 export let nodeUri: string;
 export let nickName: string;
@@ -220,7 +221,7 @@ export const Game = () => {
     }
   };
   const handleEatClick = () => {
-    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value  || "";
+    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value || "";
     if (amountToEat) {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
@@ -303,15 +304,13 @@ export const Game = () => {
         dispatch(saveWallet(wallet));
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
         const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+        const settings = {
+          dekuSigner: signer,
+          dekuRpc: nodeUri
+        };
         const dekuToolkit =
-          new dekuc.DekuCClient(
-            {
-              dekuRpc: nodeUri,
-              ligoRpc: "", //TODO: fixme?
-              signer
-            }
-          );
-        const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+          new deku.DekuCClient(settings);
+        const contract = dekuToolkit.contract("DK146sxRDssN9rb9dzuxn1yGyeRWkdHbn4Zn");
         dispatch(saveContract(contract));
         const address = await inMemorySigner.publicKeyHash();
         contract.onNewState((newState: any) => {

@@ -44,6 +44,7 @@ export const getKeyPair = (rawKeyPair: any): keyPair => {
 export const getPlayerState = (state: { [x: string]: any }, userAddress: string) => {
     const rawCookieBaker = state[userAddress];
     if (rawCookieBaker) {
+        console.log("cookierBaker: ", rawCookieBaker)
         const flattenRawCookieBaker = rawCookieBaker.flat(4);
         const cookieBaker = {
             passiveCPS: flattenRawCookieBaker[14],
