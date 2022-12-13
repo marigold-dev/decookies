@@ -105,6 +105,52 @@ export const Game = () => {
   const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
+    const maybeGeneratedKeyPair = localStorage.getItem("generatedKeyPair")
+    const maybeWallet = localStorage.getItem("wallet")
+    const maybeNickname = localStorage.getItem("nickname")
+    const maybeContract = localStorage.getItem("contract")
+    const maybeAddress = localStorage.getItem("address")
+    const maybeToolkit = localStorage.getItem("dekuToolkit")
+    const maybeNodeUri = localStorage.getItem("nodeUri")
+    if (maybeGeneratedKeyPair && maybeWallet && maybeNickname && maybeContract && maybeAddress && maybeToolkit && maybeNodeUri) {
+      if (nodeUriRef.current != null && nicknameRef.current != null) {
+        nodeUriRef.current.value = maybeNodeUri;
+        nicknameRef.current.value = maybeNickname;
+      }
+      nodeUri = maybeNodeUri;
+      nickName = maybeNickname;
+      const wallet = JSON.parse(maybeWallet);
+      const keyPair = JSON.parse(maybeGeneratedKeyPair);
+      const inMemorySigner = new InMemorySigner(keyPair.privateKey)
+      const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+      const dekuToolkit =
+        new dekuc.DekuCClient(
+          {
+            dekuRpc: nodeUri,
+            ligoRpc: "", //TODO: fixme?
+            signer
+          }
+        );
+      const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+      dispatch(saveWallet(wallet));
+      dispatch(saveGeneratedKeyPair(keyPair));
+      dispatch(saveContract(contract));
+      dispatch(saveConfig(nodeUri, nickName));
+      const address = maybeAddress;
+      contract.onNewState((newState: any) => {
+        console.log("new state received");
+        const playerState = getPlayerState(newState, address);
+        updatePendings(playerState, latestState, dispatch);
+        dispatch(fullUpdateCB(playerState));
+        const leaderBoard = getLeaderBoard(newState);
+        dispatch(saveLeaderBoard(leaderBoard));
+      })
+    }
+
+  }, [dispatch]);
+
+  useEffect(() => {
+
     if (latestState.current.wallet && latestState.current.nodeUri) {
       initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
       latestState.current.intervalId = setInterval(() => {
@@ -220,7 +266,7 @@ export const Game = () => {
     }
   };
   const handleEatClick = () => {
-    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value  || "";
+    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value || "";
     if (amountToEat) {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
@@ -301,6 +347,7 @@ export const Game = () => {
         // save them in state to use them at each needed action
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
+
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
         const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
         const dekuToolkit =
@@ -314,6 +361,13 @@ export const Game = () => {
         const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
         dispatch(saveContract(contract));
         const address = await inMemorySigner.publicKeyHash();
+        localStorage.setItem("generatedKeyPair", JSON.stringify(keyPair));
+        localStorage.setItem("wallet", JSON.stringify(wallet));
+        localStorage.setItem("dekuToolkit", JSON.stringify(dekuToolkit));
+        localStorage.setItem("nickname", nickName);
+        localStorage.setItem("contract", JSON.stringify(contract));
+        localStorage.setItem("address", address);
+        localStorage.setItem("nodeUri", nodeUri);
         contract.onNewState((newState: any) => {
           console.log("new state received");
           const playerState = getPlayerState(newState, address);
