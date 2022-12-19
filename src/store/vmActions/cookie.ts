@@ -1,38 +1,14 @@
-export const cookie = (amount: string) => {
-    return ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option",
-                        ["Some",
-                            ["Union",
-                                ["Left",
-                                    ["Union",
-                                        ["Left",
-                                            ["Union",
-                                                ["Right", ["Unit"]]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Left",
-                            ["Union",
-                                ["Right", ["Unit"]]
-                            ]
-                        ]
-                    ],
-                    ["Option", ["None", {}]]
-                ]
-            ]
-        ]
-    ]
+export const cookie = (amount: string, layerOneAddress: string) => {
+    return ["Union",
+        ["Right",
+            ["Union",
+                ["Left",
+                    ["Pair",
+                        [["Pair",
+                            [["Int", amount],
+                                ["String", layerOneAddress]]],
+                        ["Union",
+                            ["Left",
+                                ["Union",
+                                    ["Left", ["Union", ["Right", ["Unit"]]]]]]]]]]]]]
 }

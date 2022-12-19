@@ -1,1 +1,14 @@
-export const temple = ["Pair", [["Pair", [["Int", "1"], ["Option", ["Some", ["Union", ["Right", ["Union", ["Right", ["Union", ["Right", ["Unit"]]]]]]]]]]], ["Pair", [["Union", ["Left", ["Union", ["Right", ["Unit"]]]]], ["Option", ["None", {}]]]]]]
+export const temple = (onBehalfOf: string) => {
+    return ["Union",
+        ["Right",
+            ["Union",
+                ["Left",
+                    ["Pair",
+                        [["Pair",
+                            [["Int", "1"],
+                                ["String", onBehalfOf]]],
+                        ["Union",
+                            ["Right",
+                                ["Union",
+                                    ["Right", ["Union", ["Right", ["Unit"]]]]]]]]]]]]]
+}

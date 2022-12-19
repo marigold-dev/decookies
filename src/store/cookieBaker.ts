@@ -6,6 +6,7 @@ import { state } from './reducer';
  */
 //TODO: use the deku cookieBaker?
 export type cookieBaker = {
+    authorizedKeys: Set<string>,
     cookies: bigint,
     cursors: bigint,
     grandmas: bigint,
@@ -26,6 +27,7 @@ export type cookieBaker = {
 };
 
 export const initialState: cookieBaker = {
+    authorizedKeys: new Set<string>(),
     cookies: 0n,
     cursors: 0n,
     grandmas: 0n,

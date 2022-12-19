@@ -44,6 +44,7 @@ import {
   saveLeaderBoard,
   eraseConfig,
   addMessage,
+  addDelegation,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -77,10 +78,10 @@ import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";
 import Modal from "../components/modal";
 import { InMemorySigner } from '@taquito/signer';
-import * as deku from '@marigold-dev/deku-toolkit'
-import * as dekuc from '@marigold-dev/deku-c-toolkit'
-import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
+import * as deku from '@marigold-dev/deku'
+import { DekuSigner } from '@marigold-dev/deku/dist/deku-p/utils/signers';
 import { getLeaderBoard } from "../store/vmApi";
+import { delegate } from "../store/vmActions/delegate";
 
 export let nodeUri: string;
 export let nickName: string;
@@ -122,13 +123,13 @@ export const Game = () => {
       const wallet = JSON.parse(maybeWallet);
       const keyPair = JSON.parse(maybeGeneratedKeyPair);
       const inMemorySigner = new InMemorySigner(keyPair.privateKey)
-      const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+      const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
       const dekuToolkit =
-        new dekuc.DekuCClient(
+        new deku.DekuCClient(
           {
             dekuRpc: nodeUri,
             ligoRpc: "", //TODO: fixme?
-            signer
+            dekuSigner
           }
         );
       const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
@@ -290,6 +291,13 @@ export const Game = () => {
     const wallet = latestState.current.wallet;
     const contract = latestState.current.dekucContract;
     if (wallet && contract) {
+      localStorage.removeItem("generatedKeyPair");
+      localStorage.removeItem("wallet");
+      localStorage.removeItem("nickname");
+      localStorage.removeItem("contract");
+      localStorage.removeItem("address");
+      localStorage.removeItem("dekuToolkit");
+      localStorage.removeItem("nodeUri");
       dispatch(eraseConfig());
       contract.onNewState(() => { });
       await wallet.disconnect();
@@ -330,37 +338,41 @@ export const Game = () => {
           scopes: [PermissionScope.SIGN],
         });
 
-        // sign the chosen nickname
-        const seed = await wallet.client
-          .requestSignPayload({
-            signingType: SigningType.RAW,
-            payload: stringToHex(nickName),
-          })
-          .then((val) => val.signature);
-
         // get keyPair
-        const rawKeyPair = await human.getKeyPairFromSeed(
-          seed.toString(),
-          "ed25519"
-        );
+        const rawKeyPair = await human.generateKeyPair("ed25519");
         const keyPair = getKeyPair(rawKeyPair);
+
         // save them in state to use them at each needed action
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
-
+        const address = await wallet.getPKH();
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
-        const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
-        const dekuToolkit =
-          new dekuc.DekuCClient(
+        const dekuSignerDelegation: DekuSigner = deku.fromBeaconSigner(wallet.client);
+        const dekuToolkitDelegation =
+          new deku.DekuCClient(
             {
               dekuRpc: nodeUri,
               ligoRpc: "", //TODO: fixme?
-              signer
+              dekuSigner: dekuSignerDelegation
             }
           );
-        const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+
+        const contractDelegation = dekuToolkitDelegation.contract("DK1JUtDeLGVyXsDGUveWypiKxFuxA6xfv2wz");
+        const delegationAddress = await inMemorySigner.publicKeyHash();
+        const hash = await contractDelegation.invokeRaw(delegate(delegationAddress));
+
+        const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+        const dekuToolkit =
+          new deku.DekuCClient(
+            {
+              dekuRpc: nodeUri,
+              ligoRpc: "", //TODO: fixme?
+              dekuSigner
+            }
+          );
+        const contract = dekuToolkit.contract("DK1JUtDeLGVyXsDGUveWypiKxFuxA6xfv2wz");
+
         dispatch(saveContract(contract));
-        const address = await inMemorySigner.publicKeyHash();
         localStorage.setItem("generatedKeyPair", JSON.stringify(keyPair));
         localStorage.setItem("wallet", JSON.stringify(wallet));
         localStorage.setItem("dekuToolkit", JSON.stringify(dekuToolkit));
@@ -369,8 +381,9 @@ export const Game = () => {
         localStorage.setItem("address", address);
         localStorage.setItem("nodeUri", nodeUri);
         contract.onNewState((newState: any) => {
-          console.log("new state received");
+          console.log("new state received: ", newState);
           const playerState = getPlayerState(newState, address);
+          console.log("playerState: ", playerState);
           updatePendings(playerState, latestState, dispatch);
           dispatch(fullUpdateCB(playerState));
           const leaderBoard = getLeaderBoard(newState);

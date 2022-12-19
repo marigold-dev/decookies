@@ -43,26 +43,29 @@ export const getKeyPair = (rawKeyPair: any): keyPair => {
 
 export const getPlayerState = (state: { [x: string]: any }, userAddress: string) => {
     const rawCookieBaker = state[userAddress];
+    console.log("rawCookieBaker: ", rawCookieBaker);
     if (rawCookieBaker) {
         const flattenRawCookieBaker = rawCookieBaker.flat(4);
+        console.log("flattenRawCookieBaker: ", flattenRawCookieBaker);
         const cookieBaker = {
-            passiveCPS: flattenRawCookieBaker[14],
-            cookies: flattenRawCookieBaker[2],
-            cursors: flattenRawCookieBaker[4],
-            grandmas: flattenRawCookieBaker[11],
-            farms: flattenRawCookieBaker[9],
-            mines: flattenRawCookieBaker[13],
-            factories: flattenRawCookieBaker[6],
-            cursorCost: flattenRawCookieBaker[3],
-            grandmaCost: flattenRawCookieBaker[10],
-            farmCost: flattenRawCookieBaker[8],
-            mineCost: flattenRawCookieBaker[12],
-            factoryCost: flattenRawCookieBaker[7],
-            eatenCookies: flattenRawCookieBaker[5],
-            templeCost: flattenRawCookieBaker[15],
-            temples: flattenRawCookieBaker[16],
-            banks: flattenRawCookieBaker[1],
-            bankCost: flattenRawCookieBaker[0]
+            authorizedKeys: flattenRawCookieBaker[0],
+            passiveCPS: flattenRawCookieBaker[15],
+            cookies: flattenRawCookieBaker[3],
+            cursors: flattenRawCookieBaker[5],
+            grandmas: flattenRawCookieBaker[12],
+            farms: flattenRawCookieBaker[10],
+            mines: flattenRawCookieBaker[14],
+            factories: flattenRawCookieBaker[7],
+            cursorCost: flattenRawCookieBaker[4],
+            grandmaCost: flattenRawCookieBaker[11],
+            farmCost: flattenRawCookieBaker[9],
+            mineCost: flattenRawCookieBaker[13],
+            factoryCost: flattenRawCookieBaker[8],
+            eatenCookies: flattenRawCookieBaker[6],
+            templeCost: flattenRawCookieBaker[16],
+            temples: flattenRawCookieBaker[17],
+            banks: flattenRawCookieBaker[2],
+            bankCost: flattenRawCookieBaker[1]
         }
         return cookieBaker;
     } else {

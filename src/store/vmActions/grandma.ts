@@ -1,36 +1,14 @@
-export const grandma = ["Pair",
-    [
-        ["Pair",
-            [
-                ["Int", "1"],
-                ["Option",
-                    ["Some",
+export const grandma = (onBehalfOf: string) => {
+    return ["Union",
+        ["Right",
+            ["Union",
+                ["Left",
+                    ["Pair",
+                        [["Pair",
+                            [["Int", "1"],
+                            ["String", onBehalfOf]]],
                         ["Union",
                             ["Right",
                                 ["Union",
-                                    ["Left",
-                                        ["Union",
-                                            ["Right", ["Unit"]]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ],
-        ["Pair",
-            [
-                ["Union",
-                    ["Left",
-                        ["Union",
-                            ["Right", ["Unit"]]
-                        ]
-                    ]
-                ],
-                ["Option", ["None", {}]]
-            ]
-        ]
-    ]
-]
+                                    ["Left", ["Union", ["Right", ["Unit"]]]]]]]]]]]]]
+}
