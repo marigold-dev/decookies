@@ -45,6 +45,7 @@ import {
   eraseConfig,
   addMessage,
   addDelegation,
+  saveUserAddress,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -340,6 +341,7 @@ export const Game = () => {
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
         const address = await wallet.getPKH();
+        dispatch(saveUserAddress(address));
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
         const dekuSignerDelegation: DekuSigner = deku.fromBeaconSigner(wallet.client);
         let dekuToolkit =
