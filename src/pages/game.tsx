@@ -61,7 +61,7 @@ import {
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
-import { NetworkType, PermissionScope, SigningType } from "@airgap/beacon-sdk";
+import { NetworkType, PermissionScope } from "@airgap/beacon-sdk";
 
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
@@ -69,7 +69,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, getPlayerState, resetPendings, stringToHex, updatePendings } from "../store/utils";
+import { getKeyPair, getPlayerState, resetPendings, updatePendings } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -84,7 +84,6 @@ import { getLeaderBoard } from "../store/vmApi";
 import { delegate } from "../store/vmActions/delegate";
 
 export let nodeUri: string;
-export let nickName: string;
 export let amountToTransfer: string;
 export let transferRecipient: string;
 export let amountToEat: string;
@@ -96,7 +95,6 @@ export const Game = () => {
   latestState.current = gameState;
   // Refs
   const nodeUriRef = useRef<HTMLInputElement | null>(null);
-  const nicknameRef = useRef<HTMLInputElement | null>(null);
   const amountToTransferRef = useRef<HTMLInputElement | null>(null);
   const transferRecipientRef = useRef<HTMLInputElement | null>(null);
   const amountToTransferRef2 = useRef<HTMLInputElement | null>(null);
@@ -108,18 +106,15 @@ export const Game = () => {
   useEffect(() => {
     const maybeGeneratedKeyPair = localStorage.getItem("generatedKeyPair")
     const maybeWallet = localStorage.getItem("wallet")
-    const maybeNickname = localStorage.getItem("nickname")
     const maybeContract = localStorage.getItem("contract")
     const maybeAddress = localStorage.getItem("address")
     const maybeToolkit = localStorage.getItem("dekuToolkit")
     const maybeNodeUri = localStorage.getItem("nodeUri")
-    if (maybeGeneratedKeyPair && maybeWallet && maybeNickname && maybeContract && maybeAddress && maybeToolkit && maybeNodeUri) {
-      if (nodeUriRef.current != null && nicknameRef.current != null) {
+    if (maybeGeneratedKeyPair && maybeWallet && maybeContract && maybeAddress && maybeToolkit && maybeNodeUri) {
+      if (nodeUriRef.current != null) {
         nodeUriRef.current.value = maybeNodeUri;
-        nicknameRef.current.value = maybeNickname;
       }
       nodeUri = maybeNodeUri;
-      nickName = maybeNickname;
       const wallet = JSON.parse(maybeWallet);
       const keyPair = JSON.parse(maybeGeneratedKeyPair);
       const inMemorySigner = new InMemorySigner(keyPair.privateKey)
@@ -136,7 +131,7 @@ export const Game = () => {
       dispatch(saveWallet(wallet));
       dispatch(saveGeneratedKeyPair(keyPair));
       dispatch(saveContract(contract));
-      dispatch(saveConfig(nodeUri, nickName));
+      dispatch(saveConfig(nodeUri));
       const address = maybeAddress;
       contract.onNewState((newState: any) => {
         console.log("new state received");
@@ -308,11 +303,10 @@ export const Game = () => {
     if (latestState.current.intervalId)
       clearInterval(latestState.current.intervalId);
     nodeUri = nodeUriRef.current?.value || "";
-    nickName = nicknameRef.current?.value || "";
     resetPendings(dispatch);
 
-    if (nodeUri && nickName) {
-      dispatch(saveConfig(nodeUri, nickName));
+    if (nodeUri) {
+      dispatch(saveConfig(nodeUri));
       const createWallet = (): BeaconWallet => {
         const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
         // creates a wallet instance if not exists
@@ -348,7 +342,7 @@ export const Game = () => {
         const address = await wallet.getPKH();
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
         const dekuSignerDelegation: DekuSigner = deku.fromBeaconSigner(wallet.client);
-        const dekuToolkitDelegation =
+        let dekuToolkit =
           new deku.DekuCClient(
             {
               dekuRpc: nodeUri,
@@ -357,12 +351,12 @@ export const Game = () => {
             }
           );
 
-        const contractDelegation = dekuToolkitDelegation.contract("DK1JUtDeLGVyXsDGUveWypiKxFuxA6xfv2wz");
+        let contract = dekuToolkit.contract("DK1RAQUwf89DhePNAAnPqPaE4Ta1x6ivse17");
         const delegationAddress = await inMemorySigner.publicKeyHash();
-        const hash = await contractDelegation.invokeRaw(delegate(delegationAddress));
+        await contract.invokeRaw(delegate(delegationAddress));
 
         const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
-        const dekuToolkit =
+        dekuToolkit =
           new deku.DekuCClient(
             {
               dekuRpc: nodeUri,
@@ -370,13 +364,12 @@ export const Game = () => {
               dekuSigner
             }
           );
-        const contract = dekuToolkit.contract("DK1JUtDeLGVyXsDGUveWypiKxFuxA6xfv2wz");
+        contract = dekuToolkit.contract("DK1RAQUwf89DhePNAAnPqPaE4Ta1x6ivse17");
 
         dispatch(saveContract(contract));
         localStorage.setItem("generatedKeyPair", JSON.stringify(keyPair));
         localStorage.setItem("wallet", JSON.stringify(wallet));
         localStorage.setItem("dekuToolkit", JSON.stringify(dekuToolkit));
-        localStorage.setItem("nickname", nickName);
         localStorage.setItem("contract", JSON.stringify(contract));
         localStorage.setItem("address", address);
         localStorage.setItem("nodeUri", nodeUri);
@@ -732,8 +725,6 @@ export const Game = () => {
                   {latestState.current.publicAddress}
                 </p>
               </label>
-              <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
               <label>Deku node URI:</label>
               <input
                 type="text"

@@ -85,8 +85,7 @@ type saveContract = {
 }
 type saveConfig = {
     type: "SAVE_CONFIG",
-    nodeUri: string,
-    nickName: string
+    nodeUri: string
 }
 type eraseConfig = {
     type: "ERASE_CONFIG"
@@ -163,10 +162,9 @@ export const saveGeneratedKeyPair = (payload: keyPair): action => ({
     payload
 });
 
-export const saveConfig = (nodeUri: string, nickName: string): action => ({
+export const saveConfig = (nodeUri: string): action => ({
     type: "SAVE_CONFIG",
-    nodeUri,
-    nickName
+    nodeUri
 });
 
 export const eraseConfig = (): action => ({
