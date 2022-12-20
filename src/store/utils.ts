@@ -1,3 +1,5 @@
+import { Contract, DekuCClient } from '@marigold-dev/deku';
+import { BeaconWallet } from '@taquito/beacon-wallet';
 import { buf2hex } from '@taquito/utils';
 import * as blake from 'blakejs';
 import bs58check from 'bs58check';
@@ -150,4 +152,28 @@ export const resetPendings = (dispatch: React.Dispatch<action>) => {
     dispatch(updateBuildingFactories(0n));
     dispatch(updateBuildingBanks(0n));
     dispatch(updateBuildingTemples(0n));
+}
+
+export const GENERATED_KEY_PAIR = "generatedKeyPair";
+export const WALLET = "wallet";
+export const CONTRACT = "contract";
+export const ADDRESS = "address";
+export const DEKU_TOOLKIT = "dekuToolkit";
+export const NODE_URI = "nodeUri";
+
+export const resetLocalStorage = () => {
+    localStorage.removeItem(GENERATED_KEY_PAIR);
+    localStorage.removeItem(WALLET);
+    localStorage.removeItem(CONTRACT);
+    localStorage.removeItem(ADDRESS);
+    localStorage.removeItem(DEKU_TOOLKIT);
+    localStorage.removeItem(NODE_URI);
+}
+export const saveLocalStorage = (keyPair: keyPair, wallet: BeaconWallet, contract: Contract, address: string, dekuToolkit: DekuCClient, nodeUri: string) => {
+    localStorage.setItem(GENERATED_KEY_PAIR, JSON.stringify(keyPair));
+    localStorage.setItem(WALLET, JSON.stringify(wallet));
+    localStorage.setItem(CONTRACT, JSON.stringify(contract));
+    localStorage.setItem(ADDRESS, address);
+    localStorage.setItem(DEKU_TOOLKIT, JSON.stringify(dekuToolkit));
+    localStorage.setItem(NODE_URI, nodeUri);
 }

@@ -44,7 +44,6 @@ import {
   saveLeaderBoard,
   eraseConfig,
   addMessage,
-  addDelegation,
   saveUserAddress,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
@@ -70,7 +69,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, getPlayerState, resetPendings, updatePendings } from "../store/utils";
+import { ADDRESS, CONTRACT, DEKU_TOOLKIT, GENERATED_KEY_PAIR, getKeyPair, getPlayerState, NODE_URI, resetLocalStorage, resetPendings, saveLocalStorage, updatePendings, WALLET } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -105,12 +104,12 @@ export const Game = () => {
   const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
-    const maybeGeneratedKeyPair = localStorage.getItem("generatedKeyPair")
-    const maybeWallet = localStorage.getItem("wallet")
-    const maybeContract = localStorage.getItem("contract")
-    const maybeAddress = localStorage.getItem("address")
-    const maybeToolkit = localStorage.getItem("dekuToolkit")
-    const maybeNodeUri = localStorage.getItem("nodeUri")
+    const maybeGeneratedKeyPair = localStorage.getItem(GENERATED_KEY_PAIR)
+    const maybeWallet = localStorage.getItem(WALLET)
+    const maybeContract = localStorage.getItem(CONTRACT)
+    const maybeAddress = localStorage.getItem(ADDRESS)
+    const maybeToolkit = localStorage.getItem(DEKU_TOOLKIT)
+    const maybeNodeUri = localStorage.getItem(NODE_URI)
     if (maybeGeneratedKeyPair && maybeWallet && maybeContract && maybeAddress && maybeToolkit && maybeNodeUri) {
       if (nodeUriRef.current != null) {
         nodeUriRef.current.value = maybeNodeUri;
@@ -149,7 +148,7 @@ export const Game = () => {
   useEffect(() => {
 
     if (latestState.current.wallet && latestState.current.nodeUri) {
-      initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
+      initState(dispatch, latestState);
       latestState.current.intervalId = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
@@ -258,7 +257,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot transfer a non numeric amount of cookies"));
+        dispatch(addError("Cannot transfer negative or non numeric amount of cookies"));
       }
     }
   };
@@ -268,7 +267,7 @@ export const Game = () => {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
           eatCookie(amountToEat, dispatch, latestState);
-          dispatch(addMessage("Successfully eat " + amountToEat + " cookies"));
+          dispatch(addMessage("Successfully ate " + amountToEat + " cookies"));
           if (amountToEatRef.current != null)
             amountToEatRef.current.value = "";
         } catch (err) {
@@ -278,7 +277,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot eat a non numeric amount of cookies"));
+        dispatch(addError("Cannot eat negative or non numeric amount of cookies"));
       }
     }
   };
@@ -287,12 +286,7 @@ export const Game = () => {
     const wallet = latestState.current.wallet;
     const contract = latestState.current.dekucContract;
     if (wallet && contract) {
-      localStorage.removeItem("generatedKeyPair");
-      localStorage.removeItem("wallet");
-      localStorage.removeItem("contract");
-      localStorage.removeItem("address");
-      localStorage.removeItem("dekuToolkit");
-      localStorage.removeItem("nodeUri");
+      resetLocalStorage();
       dispatch(eraseConfig());
       contract.onNewState(() => { });
       await wallet.disconnect();
@@ -368,12 +362,7 @@ export const Game = () => {
         contract = dekuToolkit.contract("DK1RAQUwf89DhePNAAnPqPaE4Ta1x6ivse17");
 
         dispatch(saveContract(contract));
-        localStorage.setItem("generatedKeyPair", JSON.stringify(keyPair));
-        localStorage.setItem("wallet", JSON.stringify(wallet));
-        localStorage.setItem("dekuToolkit", JSON.stringify(dekuToolkit));
-        localStorage.setItem("contract", JSON.stringify(contract));
-        localStorage.setItem("address", address);
-        localStorage.setItem("nodeUri", nodeUri);
+        saveLocalStorage(keyPair, wallet, contract, address, dekuToolkit, nodeUri)
         contract.onNewState((newState: any) => {
           console.log("new state received: ", newState);
           const playerState = getPlayerState(newState, address);
@@ -389,7 +378,7 @@ export const Game = () => {
         dispatch(addError(error_msg));
         throw new Error(error_msg);
       }
-    } else dispatch(addError("Need to fulfil Nickname and Node URI"));
+    } else dispatch(addError("Need to fulfil Node URI"));
   };
 
   const getRandomBetaNode = () => {

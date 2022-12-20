@@ -294,8 +294,7 @@ export const addTemple = async (dispatch: React.Dispatch<action>,
 export const transferCookie = async (to: string,
     amount: string,
     dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>,
-    payload: number = 1) => {
+    state: React.MutableRefObject<state>) => {
     if (state.current.publicAddress) {
         const walletAddress = state.current.publicAddress;
         add(transfer(amount, walletAddress, to))
@@ -306,8 +305,7 @@ export const transferCookie = async (to: string,
 
 export const eatCookie = async (amount: string,
     dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>,
-    payload: number = 1) => {
+    state: React.MutableRefObject<state>) => {
     if (state.current.publicAddress) {
         const walletAddress = state.current.publicAddress;
         add(eat(amount, walletAddress))
@@ -315,7 +313,7 @@ export const eatCookie = async (amount: string,
     }
 }
 
-export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
+export const initState = async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => {
     const contract = state.current.dekucContract;
     if (contract) {
         try {
