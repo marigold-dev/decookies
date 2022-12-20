@@ -289,7 +289,6 @@ export const Game = () => {
     if (wallet && contract) {
       localStorage.removeItem("generatedKeyPair");
       localStorage.removeItem("wallet");
-      localStorage.removeItem("nickname");
       localStorage.removeItem("contract");
       localStorage.removeItem("address");
       localStorage.removeItem("dekuToolkit");
