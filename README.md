@@ -10,15 +10,64 @@ Decookies is a front-end application, allowing players to bakes cookies on [Mari
 
 ![](resources/doc/homepage.png)
 
-3. Fulfill the `Nickname` with your favorite in-game pseudo.
+3. Filfill the `Deku node URI` with the URI of your running Deku node
 
-4. Filfill the `Deku node URI` with the URI of your running Deku node
+4. Login using [`Beacon wallet`](https://docs.walletbeacon.io/supported-wallets/).
 
-5. Login using [`Beacon wallet`](https://docs.walletbeacon.io/supported-wallets/).
+> ** ⚠️ The only thing Decookies will ask you to sign, is the "delegation". Under the hood, we generate a random private key to sign all the operations submitted to Deku. ⚠️**
 
-> ** ⚠️ The only thing Decookies will ask you to sign, is the hexadecimal representation of your Nickname! All the other operations are signed using a generated secret (see FAQ), based on your signed-login from Beacon Wallet. Hence, you are the only one able to generate it. ⚠️**
+The delegation operation submitted to Deku is:
+```ligo
+Delegate({onBehalfOf: \"tz1xxx\" as address})
+```
 
-6. Bake cookies!
+Where `tz1xxx` is your Beacon public address. This operation will be submitted to Deku via the randomly generated key, and will allow decookies to bake cookies from the generated address, and link them to your real Beacon address.
+
+Here is an example of the state on Deku side:
+
+```JSON
+"state":
+    [ "Map",
+        [ [ [ "String", "tz1xxxxx" ],
+            [ "Pair",
+            [ [ "Pair",
+                [ [ "Pair",
+                    [ [ "Pair",
+                        [ [ "Pair",
+                            [ [ "Set",
+                                [ [ "String",
+                                    "tz1Generated1" ],
+                                    [ "String",
+                                    "tz1Generated2" ],
+                                    [ "String",
+                                    "tz1Generated3" ],
+                                    [ "String",
+                                    "tz1Generated4" ],
+                                    [ "String",
+                                    "tz1Generated5" ] ] ],
+                                [ "Int", "60" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "0" ], [ "Int", "2232516" ] ] ] ] ],
+                        [ "Pair",
+                        [ [ "Pair", [ [ "Int", "57" ], [ "Int", "1" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "1220491" ], [ "Int", "0" ] ] ] ] ] ] ],
+                    [ "Pair",
+                    [ [ "Pair",
+                        [ [ "Pair",
+                            [ [ "Int", "50" ], [ "Int", "172" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "1" ], [ "Int", "115" ] ] ] ] ],
+                        [ "Pair",
+                        [ [ "Pair", [ [ "Int", "1" ], [ "Int", "40" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "0" ], [ "Int", "15612" ] ] ] ] ] ] ] ] ],
+                [ "Pair", [ [ "Int", "2314" ], [ "Int", "2" ] ] ] ] ] ] ] ]
+```
+
+In this case, `tz1xxxxx` is my actual Beacon public address, and `tz1GeneratedX` are every generated keys allowed to bake cookies for me. A new random key is generated each time you disconnect your wallet.
+
+5. Bake cookies!
 
 ### Game principles
 
