@@ -127,7 +127,7 @@ export const Game = () => {
             dekuSigner
           }
         );
-      const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+      const contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
       dispatch(saveWallet(wallet));
       dispatch(saveGeneratedKeyPair(keyPair));
       dispatch(saveContract(contract));
@@ -346,7 +346,7 @@ export const Game = () => {
             }
           );
 
-        let contract = dekuToolkit.contract("DK1RAQUwf89DhePNAAnPqPaE4Ta1x6ivse17");
+        let contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
         const delegationAddress = await inMemorySigner.publicKeyHash();
         await contract.invokeRaw(delegate(delegationAddress));
 
@@ -359,7 +359,7 @@ export const Game = () => {
               dekuSigner
             }
           );
-        contract = dekuToolkit.contract("DK1RAQUwf89DhePNAAnPqPaE4Ta1x6ivse17");
+        contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
 
         dispatch(saveContract(contract));
         saveLocalStorage(keyPair, wallet, contract, address, dekuToolkit, nodeUri)
