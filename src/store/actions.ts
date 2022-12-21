@@ -4,7 +4,7 @@ import { cookieBaker } from './cookieBaker'
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { getActualPlayerState, getLeaderBoard, mint } from './vmApi';
 import { keyPair, state } from './reducer';
-import { Contract } from '@marigold-dev/deku-c-toolkit';
+import { Contract } from '@marigold-dev/deku';
 import { cursor } from './vmActions/cursor';
 import { cookie } from './vmActions/cookie';
 import { grandma } from './vmActions/grandma';
@@ -16,6 +16,7 @@ import { temple } from './vmActions/temple';
 import { eat } from './vmActions/eat';
 import { transfer } from './vmActions/transfer';
 import { leaderBoard } from './utils';
+import { delegate } from './vmActions/delegate';
 
 /**
  * All the actions available
@@ -84,8 +85,7 @@ type saveContract = {
 }
 type saveConfig = {
     type: "SAVE_CONFIG",
-    nodeUri: string,
-    nickName: string
+    nodeUri: string
 }
 type eraseConfig = {
     type: "ERASE_CONFIG"
@@ -162,10 +162,9 @@ export const saveGeneratedKeyPair = (payload: keyPair): action => ({
     payload
 });
 
-export const saveConfig = (nodeUri: string, nickName: string): action => ({
+export const saveConfig = (nodeUri: string): action => ({
     type: "SAVE_CONFIG",
-    nodeUri,
-    nickName
+    nodeUri
 });
 
 export const eraseConfig = (): action => ({
@@ -211,43 +210,110 @@ const add = (type: any) => async (dispatch: React.Dispatch<action>, state: React
     }
 }
 
-export const addCookie = (amount: string,
+export const addCookie = async (amount: string,
     dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>) =>
-    add(cookie(amount))
-        (dispatch, state);
-
-export const addCursor = add(cursor);
-
-export const addGrandma = add(grandma);
-
-export const addFarm = add(farm);
-
-export const addMine = add(mine);
-
-export const addFactory = add(factory);
-
-export const addBank = add(bank);
-
-export const addTemple = add(temple);
-
-export const transferCookie = (to: string,
-    amount: string,
-    dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>,
-    payload: number = 1) => {
-    add(transfer(amount, to))
-        (dispatch, state);
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(cookie(amount, walletAddress))
+            (dispatch, state);
+    }
 }
 
-export const eatCookie = (amount: string,
+export const addDelegation = async (address: string,
     dispatch: React.Dispatch<action>,
-    state: React.MutableRefObject<state>,
-    payload: number = 1) =>
-    add(eat(amount))
-        (dispatch, state);
+    state: React.MutableRefObject<state>) => {
+    if (state.current.wallet) {
+        add(delegate(address))
+            (dispatch, state);
+    }
+}
 
-export const initState = async (dispatch: React.Dispatch<action>, nodeUri: string, keyPair: keyPair | null, state: React.MutableRefObject<state>) => {
+export const addCursor = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(cursor(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const addGrandma = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(grandma(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const addFarm = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(farm(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const addMine = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(mine(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const addFactory = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(factory(walletAddress))
+            (dispatch, state);
+    }
+}
+export const addBank = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(bank(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const addTemple = async (dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(temple(walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const transferCookie = async (to: string,
+    amount: string,
+    dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(transfer(amount, walletAddress, to))
+            (dispatch, state);
+    }
+
+}
+
+export const eatCookie = async (amount: string,
+    dispatch: React.Dispatch<action>,
+    state: React.MutableRefObject<state>) => {
+    if (state.current.publicAddress) {
+        const walletAddress = state.current.publicAddress;
+        add(eat(amount, walletAddress))
+            (dispatch, state);
+    }
+}
+
+export const initState = async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>) => {
     const contract = state.current.dekucContract;
     if (contract) {
         try {

@@ -44,6 +44,7 @@ import {
   saveLeaderBoard,
   eraseConfig,
   addMessage,
+  saveUserAddress,
 } from "../store/actions";
 import { useEffect, useRef } from "react";
 import { state } from "../store/reducer";
@@ -60,7 +61,7 @@ import {
 } from "../store/cookieBaker";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { TezosToolkit } from "@taquito/taquito";
-import { NetworkType, PermissionScope, SigningType } from "@airgap/beacon-sdk";
+import { NetworkType, PermissionScope } from "@airgap/beacon-sdk";
 
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
@@ -68,7 +69,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import * as human from "human-crypto-keys";
 
-import { getKeyPair, getPlayerState, resetPendings, stringToHex, updatePendings } from "../store/utils";
+import { ADDRESS, CONTRACT, DEKU_TOOLKIT, GENERATED_KEY_PAIR, getKeyPair, getPlayerState, NODE_URI, resetLocalStorage, resetPendings, saveLocalStorage, updatePendings, WALLET } from "../store/utils";
 import Button from "../components/buttons/button";
 import HeaderButton from "../components/game/headerButton";
 import GameContainer from "../components/game/gameContainer";
@@ -77,13 +78,12 @@ import Line from "../components/game/line";
 import GameButton from "../components/game/gameButton";
 import Modal from "../components/modal";
 import { InMemorySigner } from '@taquito/signer';
-import * as deku from '@marigold-dev/deku-toolkit'
-import * as dekuc from '@marigold-dev/deku-c-toolkit'
-import { DekuSigner } from '@marigold-dev/deku-toolkit/lib/utils/signers';
+import * as deku from '@marigold-dev/deku'
+import { DekuSigner } from '@marigold-dev/deku/dist/deku-p/utils/signers';
 import { getLeaderBoard } from "../store/vmApi";
+import { delegate } from "../store/vmActions/delegate";
 
 export let nodeUri: string;
-export let nickName: string;
 export let amountToTransfer: string;
 export let transferRecipient: string;
 export let amountToEat: string;
@@ -95,7 +95,6 @@ export const Game = () => {
   latestState.current = gameState;
   // Refs
   const nodeUriRef = useRef<HTMLInputElement | null>(null);
-  const nicknameRef = useRef<HTMLInputElement | null>(null);
   const amountToTransferRef = useRef<HTMLInputElement | null>(null);
   const transferRecipientRef = useRef<HTMLInputElement | null>(null);
   const amountToTransferRef2 = useRef<HTMLInputElement | null>(null);
@@ -105,8 +104,51 @@ export const Game = () => {
   const isConnected = !!latestState.current.wallet
 
   useEffect(() => {
+    const maybeGeneratedKeyPair = localStorage.getItem(GENERATED_KEY_PAIR)
+    const maybeWallet = localStorage.getItem(WALLET)
+    const maybeContract = localStorage.getItem(CONTRACT)
+    const maybeAddress = localStorage.getItem(ADDRESS)
+    const maybeToolkit = localStorage.getItem(DEKU_TOOLKIT)
+    const maybeNodeUri = localStorage.getItem(NODE_URI)
+    if (maybeGeneratedKeyPair && maybeWallet && maybeContract && maybeAddress && maybeToolkit && maybeNodeUri) {
+      if (nodeUriRef.current != null) {
+        nodeUriRef.current.value = maybeNodeUri;
+      }
+      nodeUri = maybeNodeUri;
+      const wallet = JSON.parse(maybeWallet);
+      const keyPair = JSON.parse(maybeGeneratedKeyPair);
+      const inMemorySigner = new InMemorySigner(keyPair.privateKey)
+      const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+      const dekuToolkit =
+        new deku.DekuCClient(
+          {
+            dekuRpc: nodeUri,
+            ligoRpc: "", //TODO: fixme?
+            dekuSigner
+          }
+        );
+      const contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
+      dispatch(saveWallet(wallet));
+      dispatch(saveGeneratedKeyPair(keyPair));
+      dispatch(saveContract(contract));
+      dispatch(saveConfig(nodeUri));
+      const address = maybeAddress;
+      contract.onNewState((newState: any) => {
+        console.log("new state received");
+        const playerState = getPlayerState(newState, address);
+        updatePendings(playerState, latestState, dispatch);
+        dispatch(fullUpdateCB(playerState));
+        const leaderBoard = getLeaderBoard(newState);
+        dispatch(saveLeaderBoard(leaderBoard));
+      })
+    }
+
+  }, [dispatch]);
+
+  useEffect(() => {
+
     if (latestState.current.wallet && latestState.current.nodeUri) {
-      initState(dispatch, latestState.current.nodeUri, latestState.current.generatedKeyPair, latestState);
+      initState(dispatch, latestState);
       latestState.current.intervalId = setInterval(() => {
         if (latestState.current.wallet && latestState.current.nodeUri) {
           const cb = latestState.current.cookieBaker;
@@ -215,17 +257,17 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot transfer a non numeric amount of cookies"));
+        dispatch(addError("Cannot transfer negative or non numeric amount of cookies"));
       }
     }
   };
   const handleEatClick = () => {
-    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value  || "";
+    amountToEat = amountToEatRef.current?.value || amountToEatRef2.current?.value || "";
     if (amountToEat) {
       if (!amountToEat.startsWith("-") && !isNaN(Number(amountToEat))) {
         try {
           eatCookie(amountToEat, dispatch, latestState);
-          dispatch(addMessage("Successfully eat " + amountToEat + " cookies"));
+          dispatch(addMessage("Successfully ate " + amountToEat + " cookies"));
           if (amountToEatRef.current != null)
             amountToEatRef.current.value = "";
         } catch (err) {
@@ -235,7 +277,7 @@ export const Game = () => {
           throw new Error(error_msg);
         }
       } else {
-        dispatch(addError("Cannot eat a non numeric amount of cookies"));
+        dispatch(addError("Cannot eat negative or non numeric amount of cookies"));
       }
     }
   };
@@ -244,6 +286,7 @@ export const Game = () => {
     const wallet = latestState.current.wallet;
     const contract = latestState.current.dekucContract;
     if (wallet && contract) {
+      resetLocalStorage();
       dispatch(eraseConfig());
       contract.onNewState(() => { });
       await wallet.disconnect();
@@ -254,11 +297,10 @@ export const Game = () => {
     if (latestState.current.intervalId)
       clearInterval(latestState.current.intervalId);
     nodeUri = nodeUriRef.current?.value || "";
-    nickName = nicknameRef.current?.value || "";
     resetPendings(dispatch);
 
-    if (nodeUri && nickName) {
-      dispatch(saveConfig(nodeUri, nickName));
+    if (nodeUri) {
+      dispatch(saveConfig(nodeUri));
       const createWallet = (): BeaconWallet => {
         const Tezos = new TezosToolkit("https://mainnet.tezos.marigold.dev/");
         // creates a wallet instance if not exists
@@ -284,39 +326,47 @@ export const Game = () => {
           scopes: [PermissionScope.SIGN],
         });
 
-        // sign the chosen nickname
-        const seed = await wallet.client
-          .requestSignPayload({
-            signingType: SigningType.RAW,
-            payload: stringToHex(nickName),
-          })
-          .then((val) => val.signature);
-
         // get keyPair
-        const rawKeyPair = await human.getKeyPairFromSeed(
-          seed.toString(),
-          "ed25519"
-        );
+        const rawKeyPair = await human.generateKeyPair("ed25519");
         const keyPair = getKeyPair(rawKeyPair);
+
         // save them in state to use them at each needed action
         dispatch(saveGeneratedKeyPair(keyPair));
         dispatch(saveWallet(wallet));
+        const address = await wallet.getPKH();
+        dispatch(saveUserAddress(address));
         const inMemorySigner = new InMemorySigner(keyPair.privateKey)
-        const signer: DekuSigner = deku.fromMemorySigner(inMemorySigner);
-        const dekuToolkit =
-          new dekuc.DekuCClient(
+        const dekuSignerDelegation: DekuSigner = deku.fromBeaconSigner(wallet.client);
+        let dekuToolkit =
+          new deku.DekuCClient(
             {
               dekuRpc: nodeUri,
               ligoRpc: "", //TODO: fixme?
-              signer
+              dekuSigner: dekuSignerDelegation
             }
           );
-        const contract = dekuToolkit.contract("DK1RCPwCXaEUHZRYCCR8YDjTxRkuziZvmRrE");
+
+        let contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
+        const delegationAddress = await inMemorySigner.publicKeyHash();
+        await contract.invokeRaw(delegate(delegationAddress));
+
+        const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
+        dekuToolkit =
+          new deku.DekuCClient(
+            {
+              dekuRpc: nodeUri,
+              ligoRpc: "", //TODO: fixme?
+              dekuSigner
+            }
+          );
+        contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
+
         dispatch(saveContract(contract));
-        const address = await inMemorySigner.publicKeyHash();
+        saveLocalStorage(keyPair, wallet, contract, address, dekuToolkit, nodeUri)
         contract.onNewState((newState: any) => {
-          console.log("new state received");
+          console.log("new state received: ", newState);
           const playerState = getPlayerState(newState, address);
+          console.log("playerState: ", playerState);
           updatePendings(playerState, latestState, dispatch);
           dispatch(fullUpdateCB(playerState));
           const leaderBoard = getLeaderBoard(newState);
@@ -328,7 +378,7 @@ export const Game = () => {
         dispatch(addError(error_msg));
         throw new Error(error_msg);
       }
-    } else dispatch(addError("Need to fulfil Nickname and Node URI"));
+    } else dispatch(addError("Need to fulfil Node URI"));
   };
 
   const getRandomBetaNode = () => {
@@ -665,8 +715,6 @@ export const Game = () => {
                   {latestState.current.publicAddress}
                 </p>
               </label>
-              <label>Nickname:</label>
-              <input type="text" name="nickName" ref={nicknameRef} disabled={isConnected} />
               <label>Deku node URI:</label>
               <input
                 type="text"

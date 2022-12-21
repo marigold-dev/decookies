@@ -1,25 +1,9 @@
-export const eat = (amount: string) => {
-    return ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option",
-                        ["None", {}]]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Left",
-                            ["Union",
-                                ["Left", ["Unit"]]
-                            ]
-                        ]
-                    ],
-                    ["Option", ["None", {}]]
-                ]
-            ]
-        ]
-    ]
+export const eat = (amount: string, onBehalfOf: string) => {
+    return ["Union",
+        ["Left",
+            ["Union",
+                ["Right",
+                    ["Pair",
+                        [["Int", amount],
+                        ["String", onBehalfOf]]]]]]]
 }

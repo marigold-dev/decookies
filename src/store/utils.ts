@@ -1,3 +1,5 @@
+import { Contract, DekuCClient } from '@marigold-dev/deku';
+import { BeaconWallet } from '@taquito/beacon-wallet';
 import { buf2hex } from '@taquito/utils';
 import * as blake from 'blakejs';
 import bs58check from 'bs58check';
@@ -43,26 +45,29 @@ export const getKeyPair = (rawKeyPair: any): keyPair => {
 
 export const getPlayerState = (state: { [x: string]: any }, userAddress: string) => {
     const rawCookieBaker = state[userAddress];
+    console.log("rawCookieBaker: ", rawCookieBaker);
     if (rawCookieBaker) {
         const flattenRawCookieBaker = rawCookieBaker.flat(4);
+        console.log("flattenRawCookieBaker: ", flattenRawCookieBaker);
         const cookieBaker = {
-            passiveCPS: flattenRawCookieBaker[14],
-            cookies: flattenRawCookieBaker[2],
-            cursors: flattenRawCookieBaker[4],
-            grandmas: flattenRawCookieBaker[11],
-            farms: flattenRawCookieBaker[9],
-            mines: flattenRawCookieBaker[13],
-            factories: flattenRawCookieBaker[6],
-            cursorCost: flattenRawCookieBaker[3],
-            grandmaCost: flattenRawCookieBaker[10],
-            farmCost: flattenRawCookieBaker[8],
-            mineCost: flattenRawCookieBaker[12],
-            factoryCost: flattenRawCookieBaker[7],
-            eatenCookies: flattenRawCookieBaker[5],
-            templeCost: flattenRawCookieBaker[15],
-            temples: flattenRawCookieBaker[16],
-            banks: flattenRawCookieBaker[1],
-            bankCost: flattenRawCookieBaker[0]
+            authorizedKeys: flattenRawCookieBaker[0],
+            passiveCPS: flattenRawCookieBaker[15],
+            cookies: flattenRawCookieBaker[3],
+            cursors: flattenRawCookieBaker[5],
+            grandmas: flattenRawCookieBaker[12],
+            farms: flattenRawCookieBaker[10],
+            mines: flattenRawCookieBaker[14],
+            factories: flattenRawCookieBaker[7],
+            cursorCost: flattenRawCookieBaker[4],
+            grandmaCost: flattenRawCookieBaker[11],
+            farmCost: flattenRawCookieBaker[9],
+            mineCost: flattenRawCookieBaker[13],
+            factoryCost: flattenRawCookieBaker[8],
+            eatenCookies: flattenRawCookieBaker[6],
+            templeCost: flattenRawCookieBaker[16],
+            temples: flattenRawCookieBaker[17],
+            banks: flattenRawCookieBaker[2],
+            bankCost: flattenRawCookieBaker[1]
         }
         return cookieBaker;
     } else {
@@ -147,4 +152,28 @@ export const resetPendings = (dispatch: React.Dispatch<action>) => {
     dispatch(updateBuildingFactories(0n));
     dispatch(updateBuildingBanks(0n));
     dispatch(updateBuildingTemples(0n));
+}
+
+export const GENERATED_KEY_PAIR = "generatedKeyPair";
+export const WALLET = "wallet";
+export const CONTRACT = "contract";
+export const ADDRESS = "address";
+export const DEKU_TOOLKIT = "dekuToolkit";
+export const NODE_URI = "nodeUri";
+
+export const resetLocalStorage = () => {
+    localStorage.removeItem(GENERATED_KEY_PAIR);
+    localStorage.removeItem(WALLET);
+    localStorage.removeItem(CONTRACT);
+    localStorage.removeItem(ADDRESS);
+    localStorage.removeItem(DEKU_TOOLKIT);
+    localStorage.removeItem(NODE_URI);
+}
+export const saveLocalStorage = (keyPair: keyPair, wallet: BeaconWallet, contract: Contract, address: string, dekuToolkit: DekuCClient, nodeUri: string) => {
+    localStorage.setItem(GENERATED_KEY_PAIR, JSON.stringify(keyPair));
+    localStorage.setItem(WALLET, JSON.stringify(wallet));
+    localStorage.setItem(CONTRACT, JSON.stringify(contract));
+    localStorage.setItem(ADDRESS, address);
+    localStorage.setItem(DEKU_TOOLKIT, JSON.stringify(dekuToolkit));
+    localStorage.setItem(NODE_URI, nodeUri);
 }

@@ -59,7 +59,7 @@ export const mint = async (vmAction: any, latestState: React.MutableRefObject<st
     const contract = latestState.current.dekucContract;
     if (keyPair && latestState.current.nodeUri && contract) {
         try {
-            const hash = await contract.invoke(vmAction);
+            const hash = await contract.invokeRaw(vmAction);
             return hash;
         } catch (err) {
             const error_msg = (typeof err === 'string') ? err : (err as Error).message;

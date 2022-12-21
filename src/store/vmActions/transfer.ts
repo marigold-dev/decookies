@@ -1,23 +1,11 @@
-export const transfer = (amount: string, to: string) => {
-    return ["Pair",
-        [
-            ["Pair",
-                [
-                    ["Int", amount],
-                    ["Option", ["None", {}]]
-                ]
-            ],
-            ["Pair",
-                [
-                    ["Union",
-                        ["Right", ["Unit"]]
-                    ],
-                    ["Option",
-                        ["Some",
-                            ["String", to]]
-                    ]
-                ]
-            ]
-        ]
-    ]
+export const transfer = (amount: string, onBehalfOf: string, to: string) => {
+    return ["Union",
+        ["Right",
+            ["Union",
+                ["Right",
+                    ["Pair",
+                        [["Pair",
+                            [["Int", amount],
+                            ["String", onBehalfOf]]],
+                        ["String", to]]]]]]]
 }
