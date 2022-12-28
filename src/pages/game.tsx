@@ -133,8 +133,8 @@ export const Game = () => {
       dispatch(saveContract(contract));
       dispatch(saveConfig(nodeUri));
       const address = maybeAddress;
+      dispatch(saveUserAddress(address));
       contract.onNewState((newState: any) => {
-        console.log("new state received");
         const playerState = getPlayerState(newState, address);
         updatePendings(playerState, latestState, dispatch);
         dispatch(fullUpdateCB(playerState));
@@ -146,7 +146,6 @@ export const Game = () => {
   }, [dispatch]);
 
   useEffect(() => {
-
     if (latestState.current.wallet && latestState.current.nodeUri) {
       initState(dispatch, latestState);
       latestState.current.intervalId = setInterval(() => {
@@ -364,9 +363,7 @@ export const Game = () => {
         dispatch(saveContract(contract));
         saveLocalStorage(keyPair, wallet, contract, address, dekuToolkit, nodeUri)
         contract.onNewState((newState: any) => {
-          console.log("new state received: ", newState);
           const playerState = getPlayerState(newState, address);
-          console.log("playerState: ", playerState);
           updatePendings(playerState, latestState, dispatch);
           dispatch(fullUpdateCB(playerState));
           const leaderBoard = getLeaderBoard(newState);

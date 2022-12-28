@@ -317,7 +317,7 @@ export const initState = async (dispatch: React.Dispatch<action>, state: React.M
     const contract = state.current.dekucContract;
     if (contract) {
         try {
-            const playerState = await getActualPlayerState(dispatch, state);
+            const playerState = await getActualPlayerState(state);
             dispatch(fullUpdateCB(playerState));
             const vmState = await contract.getState();
             const leaderBoard = getLeaderBoard(vmState);
