@@ -1,22 +1,16 @@
-import { InMemorySigner } from '@taquito/signer';
-
 import { initialState, cookieBaker } from './cookieBaker';
 import { getLeaderBoardFromState, getPlayerState, leaderBoard } from './utils';
 
 import { state } from './reducer'
-import { action, saveUserAddress } from './actions';
 
 /**
  * Fetch the state from /vm-state and return the cookieBaker linked to the user address
  */
 //TODO: replace with toolkit.getState();
-export const getActualPlayerState = async (dispatch: React.Dispatch<action>, state: React.MutableRefObject<state>): Promise<cookieBaker> => {
+export const getActualPlayerState = async (state: React.MutableRefObject<state>): Promise<cookieBaker> => {
     const contract = state.current.dekucContract
-    const keyPair = state.current.generatedKeyPair;
-    if (keyPair && contract) {
-        const signer = new InMemorySigner(keyPair.privateKey)
-        const userAddress = await signer.publicKeyHash();
-        dispatch(saveUserAddress(userAddress));
+    const userAddress = state.current.publicAddress;
+    if (userAddress && contract) {
         const globalState = await contract.getState();
         const playerState = getPlayerState(globalState, userAddress);
         if (playerState) {

@@ -117,13 +117,68 @@ We decided to develop a gam to do them both! We chose to do a cookie-clicker gam
 
 [A first article had been posted on Marigold blog](https://www.marigold.dev/post/30-min-to-create-your-first-blockchain-app-with-typescript-deku) to create your first Blockchain App. Decookies, is a front allowing players to interact with the related Blockchain App, running on Deku Parametric AKA Deku-P.
 
-3. Why does Decookies ask me to chose and sign my nickname?
+3. Decookies asks me to sign an operation, what is it?
 
 To preserve the gameplay, we need to use the [`InMemorySigner` from Taquito](https://tezostaquito.io/docs/inmemory_signer/). This signer needs the Private key and Public address of the user. Of course, we are not going to ask for your private key (because you know you must never share it).
 
-Hence, we use the Beacon SDK to sign your nickname, then use this signed-nickname to generate a `KeyPair` with [human-crypto-keys](https://github.com/ipfs-shipyard/js-human-crypto-keys).
+Hence, we use the Beacon SDK to sign a payload submitted to Deku. This payload is simply:
+```
+Delegate({onBehalfOf: \"tz1xxx\" as address})
+```
 
-This means: you are the only one able to sign generate the same `KeyPair` because you are the only one able to provide the exact same seed every time.
+Which means, the randomly generated private key, will be able to bake cookies for you, on Deku side.
+
+**Please note, this is the only payload you will ever have to sign from Decookies. Of course, if you change browser or whatever, you will have to sign, again, this same payload, but for an other random private key.**
+
+On Deku side, your state will look like:
+
+```JSON
+"state":
+    [ "Map",
+        [ [ [ "String", "tz1xxxxx" ],
+            [ "Pair",
+            [ [ "Pair",
+                [ [ "Pair",
+                    [ [ "Pair",
+                        [ [ "Pair",
+                            [ [ "Set",
+                                [ [ "String",
+                                    "tz1Generated1" ],
+                                    [ "String",
+                                    "tz1Generated2" ],
+                                    [ "String",
+                                    "tz1Generated3" ],
+                                    [ "String",
+                                    "tz1Generated4" ],
+                                    [ "String",
+                                    "tz1Generated5" ] ] ],
+                                [ "Int", "60" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "0" ], [ "Int", "2232516" ] ] ] ] ],
+                        [ "Pair",
+                        [ [ "Pair", [ [ "Int", "57" ], [ "Int", "1" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "1220491" ], [ "Int", "0" ] ] ] ] ] ] ],
+                    [ "Pair",
+                    [ [ "Pair",
+                        [ [ "Pair",
+                            [ [ "Int", "50" ], [ "Int", "172" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "1" ], [ "Int", "115" ] ] ] ] ],
+                        [ "Pair",
+                        [ [ "Pair", [ [ "Int", "1" ], [ "Int", "40" ] ] ],
+                            [ "Pair",
+                            [ [ "Int", "0" ], [ "Int", "15612" ] ] ] ] ] ] ] ] ],
+                [ "Pair", [ [ "Int", "2314" ], [ "Int", "2" ] ] ] ] ] ] ] ]
+```
+
+and you can verify this by running:
+
+```bash
+$ curl https://deku-canonical-vm0.deku-v1.marigold.dev/api/v1/state/unix/DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU/
+```
+
+This will print the entire state of Decookies contract deployed on Deku.
 
 4. How can I know the public address of my game, to ask cookies from a friend?
 
