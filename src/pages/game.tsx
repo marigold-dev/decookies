@@ -347,7 +347,12 @@ export const Game = () => {
 
         let contract = dekuToolkit.contract("DK1DpUMB44Ex3WXEUXPjp9DDkjiQ5cyvVwoU");
         const delegationAddress = await inMemorySigner.publicKeyHash();
-        await contract.invokeRaw(delegate(delegationAddress));
+        try {
+          await contract.invokeRaw(delegate(delegationAddress));
+        } catch (err) {
+          await handleBeaconDisconnection();
+          throw new Error("Wallet not compatible")
+        }
 
         const dekuSigner: DekuSigner = deku.fromMemorySigner(inMemorySigner);
         dekuToolkit =
